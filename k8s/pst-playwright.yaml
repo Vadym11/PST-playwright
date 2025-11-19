@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: playwright
-          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1763567614
+          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1763567894
           imagePullPolicy: IfNotPresent
           env:
             # Point tests to the in-cluster Service for your web app
