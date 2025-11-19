@@ -15,6 +15,13 @@ spec:
       containers:
         - name: playwright
           image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1763576101
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "700m"
+              memory: "700Mi"
           imagePullPolicy: IfNotPresent
           env:
             # Point tests to the in-cluster Service for your web app
