@@ -5,7 +5,7 @@ metadata:
   namespace: toolshop
 spec:
   backoffLimit: 0              # do not retry on failure
-  ttlSecondsAfterFinished: 3600  # auto-cleanup after 1 hour (optional)
+  ttlSecondsAfterFinished: 900  # auto-cleanup after 15 mins (optional)
   template:
     metadata:
       labels:
@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: playwright
-          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1763568755
+          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1763576101
           imagePullPolicy: IfNotPresent
           env:
             # Point tests to the in-cluster Service for your web app
