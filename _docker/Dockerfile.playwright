@@ -1,0 +1,19 @@
+# Use official Playwright image with browsers preinstalled
+FROM mcr.microsoft.com/playwright:v1.53.1-jammy
+
+# Set working directory inside the container
+WORKDIR /tests
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy ONLY what Playwright needs (tests + config)
+COPY tests/ ./tests
+COPY playwright.config.* ./
+
+# Ensure browsers are installed (usually already in base) - not needed in this case
+# since the base image already includes all dependencies and browsers
+# RUN npx playwright install --with-deps
+
+CMD ["npx", "playwright", "test"]

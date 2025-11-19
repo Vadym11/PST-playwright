@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pst-playwright-tests
+  namespace: toolshop
+spec:
+  backoffLimit: 0              # do not retry on failure
+  ttlSecondsAfterFinished: 3600  # auto-cleanup after 1 hour (optional)
+  template:
+    metadata:
+      labels:
+        app: pst-playwright-tests
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: playwright
+          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:0a3704d
+          imagePullPolicy: IfNotPresent
+          env:
+            # Point tests to the in-cluster Service for your web app
+            - name: BASE_URL
+              value: "http://pst-web.toolshop.svc.cluster.local"
+            # If your tests need other env vars (user, password, etc.), add them here
+            # - name: TEST_USER_EMAIL
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: pst-test-secrets
+            #       key: TEST_USER_EMAIL
+          # If your Docker image has the test command as ENTRYPOINT/CMD,
+          # you can omit 'command'. If not, uncomment:
+          # command: ["npx", "playwright", "test"]
+          # Or, for a specific project:
+          # command: ["npx", "playwright", "test", "--project=chromium"]
+
+          # Optional: a place to store HTML reports / artifacts inside the pod.
+          # You can later 'kubectl cp' them if you want.
+          volumeMounts:
+            - name: pw-artifacts
+              mountPath: /artifacts
+      volumes:
+        - name: pw-artifacts
+          emptyDir: {}
