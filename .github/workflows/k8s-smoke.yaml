@@ -46,10 +46,12 @@ jobs:
       # 4.1. Create slack web hook secret
       - name: Create slack web hook secret
         run: |
-          echo "Creating slack web hook secret
-          kubectl create secret generic pst-slack-secret \
-            -n $K8S_NAMESPACE \
-            --from-literal=SLACK_WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}"
+          echo "Creating slack web hook secret"
+          kubectl create secret generic pst-test-secret \
+            -n "$K8S_NAMESPACE" \
+            --from-literal=SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       # 4.2. Apply DB secrets
       - name: Apply DB secrets
