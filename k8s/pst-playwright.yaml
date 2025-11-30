@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: playwright
-          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1764542615
+          image: europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop/playwright-k8s:1764545100
           resources:
             requests:
               cpu: "200m"
@@ -26,7 +26,7 @@ spec:
           env:
             # Point tests to the in-cluster Service for your web app
             - name: BASE_URL
-              value: "http://127.0.0.1:8080/"
+              value: "http://pst-web:8080"
             - name: SLACK_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
