@@ -11,9 +11,12 @@ RUN npm ci
 # Copy ONLY what Playwright needs (tests + config)
 COPY tests/ ./tests
 COPY playwright.config.* ./
+COPY entrypoint.js ./
 
 # Ensure browsers are installed (usually already in base) - not needed in 
 # this case since the base image already includes all dependencies and browsers
 # RUN npx playwright install --with-deps
 
-CMD ["npx", "playwright", "test"]
+ENTRYPOINT ["node", "entrypoint.js"]
+CMD []
+# CMD ["npx", "playwright", "test"]

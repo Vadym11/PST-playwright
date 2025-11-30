@@ -1,0 +1,7 @@
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: pst-test-secrets
+# type: Opaque
+# stringData:
+#   SLACCCK_WEBHOOKKKK: moved to repo secret (referenced in the deployment step)
