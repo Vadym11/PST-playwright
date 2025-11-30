@@ -66,7 +66,7 @@ jobs:
           set -e
           kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-db.yaml
           kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-api.yaml
-          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-webapi.yaml
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-apiweb.yaml
           kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-web.yaml
           # Optional: cron worker, if you want it in CI
           kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-cron.yaml
