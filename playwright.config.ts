@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config({debug: true});
 
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8080';
 
@@ -13,8 +16,11 @@ const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8080';
  */
 export default defineConfig({
   testDir: './tests',
+  /* This will apply Storage State globally.
+  Alternatively, it could be applied for a specific project (e.g. Chromium):  */
+  globalSetup: './global.setup.ts/',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -25,6 +31,8 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    /*This is used in case of Global State Storage (globalSetup) */
+    storageState: 'playwright/.auth/userGlobal.json',
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://pst-web.toolshop.svc.cluster.local',
     baseURL: baseURL,

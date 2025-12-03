@@ -7,3 +7,13 @@ node_modules/
 .scannerwork/
 mutation.html
 stryker.log
+
+
+# Authentication file
+# -------------------------
+playwright/.auth
+
+# -------------------------
+# Env file with sensitive data
+# -------------------------
+.env

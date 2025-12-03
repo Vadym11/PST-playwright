@@ -20,4 +20,22 @@ export class HeaderCommon {
 
         await this.signInLinkk.click();
     }
+
+    async clickUserNavMenu() {
+        await this.page.getByTestId('nav-menu').click();
+
+        return this
+    }
+
+    async clickSignOut() {
+
+        await this.page.getByTestId('nav-sign-out').click();
+    }
+
+    async signOut() {
+        await this.clickUserNavMenu();
+        await this.clickSignOut();
+
+        return this;
+    }
 }

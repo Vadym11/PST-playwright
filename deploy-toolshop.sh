@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-local namespace="$1"
+namespace="$1"
 
 if [ -z "$namespace" ]; then
     namespace="toolshop"
