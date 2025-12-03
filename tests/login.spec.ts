@@ -1,9 +1,6 @@
 import {test, expect} from '@playwright/test';
 import { HomePage } from '../pages/homePage';
-import { log } from 'console';
-import { MyAccountPage } from '../pages/myAccountPage';
 import { LoginPage } from '../pages/loginPage';
-import { Header } from '../pages/headerCommon';
 
 test.describe('Login Feature ', () => {
 

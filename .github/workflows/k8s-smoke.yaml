@@ -112,7 +112,7 @@ jobs:
 
           # First wait for completion
           if kubectl wait --for=condition=complete job/pst-playwright-tests \
-              -n "$K8S_NAMESPACE" --timeout=600s; then
+              -n "$K8S_NAMESPACE" --timeout=120s; then
             echo "Playwright job completed successfully."
           else
             echo "Job did not reach 'Complete'. Checking if it failed..."
