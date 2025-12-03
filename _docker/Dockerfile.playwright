@@ -8,6 +8,9 @@ WORKDIR /tests
 COPY package*.json ./
 RUN npm ci
 
+# Copy typescript config file
+COPY tsconfig.json ./
+
 # Copy ONLY what Playwright needs (tests + config)
 COPY tests/ ./tests
 COPY playwright.config.* ./
