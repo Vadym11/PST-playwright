@@ -1,4 +1,4 @@
-import { BasePage } from "./BasePage.ts";
+import { BasePage } from "./BasePage";
 
 export class RegisterPage extends BasePage {
 

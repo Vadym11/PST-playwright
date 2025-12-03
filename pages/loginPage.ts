@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
-import { BasePage } from "./BasePage.ts";
-import { MyAccountPage } from "./MyAccountPage.ts";
-import { HeaderCommon } from "./HeaderCommon.ts";
+import { BasePage } from "./BasePage";
+import { MyAccountPage } from "./MyAccountPage";
+import { HeaderCommon } from "./HeaderCommon";
 
 export class LoginPage extends BasePage{
 
