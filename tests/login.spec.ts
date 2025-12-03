@@ -39,7 +39,7 @@ test.describe('Login Feature ', () => {
         await homePage.header.clickSignInLink();
 
         const loginPage = await new LoginPage(page)
-            .loginFail('customer.practicesoftwaretesting.com', 'welcome01');
+            .loginFail('customer..practicesoftwaretesting.com', 'welcome01');
 
         await expect(loginPage.invalidEmailFormatMsg).toHaveText('Email format is invalid');
     });
