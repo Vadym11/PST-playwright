@@ -1,8 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { HomePage } from "./homePage";
-import { LoginPage } from "./loginPage";
-
-export class Header {
+export class HeaderCommon {
 
     private readonly page: Page;
     private readonly mainBanner: Locator;

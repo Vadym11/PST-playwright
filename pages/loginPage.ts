@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
-import { BasePage } from "./basePage";
-import { MyAccountPage } from "./myAccountPage";
-import { Header } from "./headerCommon";
+import { BasePage } from "./BasePage";
+import { MyAccountPage } from "./MyAccountPage";
+import { HeaderCommon } from "./HeaderCommon";
 
 export class LoginPage extends BasePage{
 
@@ -13,7 +13,7 @@ export class LoginPage extends BasePage{
     private readonly registerLink: Locator;
     private readonly forgotPasswordLink: Locator;
     public readonly invalidEmailFormatMsg: Locator;
-    public readonly header: Header;
+    public readonly header: HeaderCommon;
 
     constructor(page: Page) {
         super(page);
@@ -25,7 +25,7 @@ export class LoginPage extends BasePage{
         this.registerLink = page.getByRole('link', {name: 'Register your account'});
         this.forgotPasswordLink = page.getByRole('link', {name: 'Forgot your Password?'});
         this.invalidEmailFormatMsg = page.getByTestId('email-error');
-        this.header = new Header(page);
+        this.header = new HeaderCommon(page);
     }
 
     async clickSignInWithGoogle(): Promise<void> {

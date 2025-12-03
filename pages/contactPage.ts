@@ -1,4 +1,4 @@
-import { BasePage } from "./basePage";
+import { BasePage } from "./BasePage";
 
 export class ContactPage extends BasePage {
 

@@ -1,14 +1,14 @@
 import { Page } from "@playwright/test";
-import { BasePage } from "./basePage";
-import { Header } from "./headerCommon";
+import { BasePage } from "./BasePage";
+import { HeaderCommon } from "./HeaderCommon";
 
 export class HomePage extends BasePage{
 
-    public readonly header: Header;
+    public readonly header: HeaderCommon;
 
     constructor(page: Page) {
         super(page);
-        this.header = new Header(page);
+        this.header = new HeaderCommon(page);
     }
 
     async goTo(): Promise<HomePage> {
