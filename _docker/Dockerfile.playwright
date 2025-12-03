@@ -11,7 +11,8 @@ RUN npm ci
 # Copy typescript config file
 COPY tsconfig.json ./
 
-# Copy ONLY what Playwright needs (tests + config)
+# Copy ONLY what Playwright needs (pages, tests + config)
+COPY pages/ ./pages
 COPY tests/ ./tests
 COPY playwright.config.* ./
 COPY entrypoint.js ./

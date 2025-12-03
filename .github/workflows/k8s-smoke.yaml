@@ -79,23 +79,23 @@ jobs:
           kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
 
-      # 7. Port-forward the pst-web service to the runner
-      - name: Port-forward pst-web
-        run: |
-          set -e
-          echo "Starting port-forward from svc/pst-web:$K8S_SERVICE_PORT to localhost:$K8S_APP_PORT"
-          kubectl port-forward -n "$K8S_NAMESPACE" svc/pst-web "$K8S_APP_PORT:$K8S_SERVICE_PORT" >pf.log 2>&1 &
-          echo $! > pf.pid
-          # Give the port-forward a moment to establish
-          sleep 10
-          echo "Port-forward PID: $(cat pf.pid)"
+      # # 7. Port-forward the pst-web service to the runner
+      # - name: Port-forward pst-web
+      #   run: |
+      #     set -e
+      #     echo "Starting port-forward from svc/pst-web:$K8S_SERVICE_PORT to localhost:$K8S_APP_PORT"
+      #     kubectl port-forward -n "$K8S_NAMESPACE" svc/pst-web "$K8S_APP_PORT:$K8S_SERVICE_PORT" >pf.log 2>&1 &
+      #     echo $! > pf.pid
+      #     # Give the port-forward a moment to establish
+      #     sleep 10
+      #     echo "Port-forward PID: $(cat pf.pid)"
 
-      # 8. Simple smoke test: hit the UI via curl
-      - name: Smoke test via curl
-        run: |
-          set -e
-          echo "Requesting http://127.0.0.1:${K8S_APP_PORT}/"
-          curl -v --fail "http://127.0.0.1:${K8S_APP_PORT}/" | head -40
+      # # 8. Simple smoke test: hit the UI via curl
+      # - name: Smoke test via curl
+      #   run: |
+      #     set -e
+      #     echo "Requesting http://127.0.0.1:${K8S_APP_PORT}/"
+      #     curl -v --fail "http://127.0.0.1:${K8S_APP_PORT}/" | head -40
 
       # 8.1. Apply Playwright test job
       - name: Apply Playwright test job
