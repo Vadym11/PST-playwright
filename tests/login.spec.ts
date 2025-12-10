@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { LoginPage } from '../pages/LoginPage';
 
-test.describe('Login Feature', () => {
+test.describe('Login Feature ', () => {
 
     const authFile = path.join(__dirname, '../playwright/.auth/userGlobal.json');
 
