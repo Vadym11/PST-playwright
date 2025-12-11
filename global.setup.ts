@@ -12,7 +12,7 @@ const email = process.env.EMAIL!;
 const password = process.env.PASSWORD_!;
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8080/';
 
-/*config: FullConfig is optinal argument that allows to access the full structure of the configuration*/
+/*config: FullConfig is optinal argument that allows to access the full structure of the configuration.*/
 async function globalSetup(config: FullConfig) {
 
     const { testIdAttribute } = config.projects[0].use; 
