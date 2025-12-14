@@ -1,4 +1,4 @@
-name: K8s Smoke Test (Toolshop)
+name: PlayWright Tests
 
 on:
   push:
@@ -83,7 +83,7 @@ jobs:
           kubectl rollout status deployment/pst-db  -n "$K8S_NAMESPACE" --timeout=120s || true
           kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
-          kubectl rollout status deployment/pst-webapi -n "$K8S_NAMESPACE" --timeout=180s
+          kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
 
       # # 7. Port-forward the pst-web service to the runner
       # - name: Port-forward pst-web
