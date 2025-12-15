@@ -1,8 +1,8 @@
 import {test, expect} from '@playwright/test';
-import { HomePage } from '../pages/HomePage';
 import fs from 'fs';
 import path from 'path';
-import { LoginPage } from '../pages/LoginPage';
+import { HomePage } from '../../pages/homePage';
+import { LoginPage } from '../../pages/loginPage';
 
 test.describe('Login Feature ', () => {
 

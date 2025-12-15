@@ -1,7 +1,8 @@
 import { Locator, Page } from "@playwright/test";
-import { BasePage } from "./BasePage";
-import { HeaderCommon } from "./HeaderCommon";
-import { MyAccountPage } from "./MyAccountPage";
+import { BasePage } from "./basePage";
+import { HeaderCommon } from "./headerCommon";
+import { MyAccountPage } from "./myAccountPage";
+import { RegisterPage } from "./registerPage";
 
 export class LoginPage extends BasePage{
 
@@ -66,8 +67,10 @@ export class LoginPage extends BasePage{
         return this;    
     }
 
-    async clickRegisterLink(): Promise<void> {
+    async clickRegisterLink(): Promise<RegisterPage> {
         await this.registerLink.click();
+
+        return new RegisterPage(this.page);
     }
 
     async clickForgotPassLink(): Promise<void> {
