@@ -84,6 +84,14 @@ jobs:
           kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
+      
+      - name: Wait for DB to be reachable
+        run: |
+          set -e
+          # Wait until MySQL on pst-db:3306 accepts TCP connections
+          kubectl run db-waiter --rm -i -n "$K8S_NAMESPACE" --image=busybox --restart=Never -- \
+            sh -c 'until nc -z -w3 pst-db 3306; do echo "Waiting for DB..."; sleep 3; done'
+      
       - name: Prepare DB (permissions + migrate + seed)
         run: |
           set -e
