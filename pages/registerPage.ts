@@ -1,6 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { BasePage } from "./basePage";
-
+import { BasePage } from "./BasePage";
 export class RegisterPage extends BasePage {
 
     private readonly firstNameField: Locator;

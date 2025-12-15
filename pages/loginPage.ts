@@ -1,8 +1,9 @@
 import { Locator, Page } from "@playwright/test";
-import { BasePage } from "./basePage";
-import { HeaderCommon } from "./headerCommon";
-import { MyAccountPage } from "./myAccountPage";
-import { RegisterPage } from "./registerPage";
+import { BasePage } from "./BasePage";
+import { HeaderCommon } from "./HeaderCommon";
+import { MyAccountPage } from "./MyAccountPage";
+import { RegisterPage } from "./RegisterPage";
+
 
 export class LoginPage extends BasePage{
 
