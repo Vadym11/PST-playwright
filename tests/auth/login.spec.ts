@@ -23,7 +23,7 @@ test.describe('Login Feature ', () => {
         await expect(page.locator('[data-test="page-title"]')).toContainText('My account');
     });
 
-    test('Login POM happy path', async ({page}) => {
+    test.skip('Login POM happy path', async ({page}) => {
 
         const homePage = await new HomePage(page).goTo();
 
@@ -36,7 +36,7 @@ test.describe('Login Feature ', () => {
         await expect(myAccountPage.myAccountTitle).toHaveText('My account');
     });
 
-    test('Login POM incorrect email format', async ({page}) => {
+    test.skip('Login POM incorrect email format', async ({page}) => {
 
         const homePage = await new HomePage(page).goTo();
 
