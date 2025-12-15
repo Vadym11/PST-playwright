@@ -87,8 +87,8 @@ jobs:
       - name: Prepare DB (permissions + migrate + seed)
         run: |
           set -e
-          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
-            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed'
+          kubectl exec -it -n toolshop deploy/pst-api -- sh -c 'ls -ld storage bootstrap/cache && chmod -R 777 storage bootstrap/cache && ls -ld storage bootstrap/cache'
+          kubectl exec -it -n toolshop-1 deploy/pst-api -- php artisan migrate:fresh --seed
 
       # # 7. Port-forward the pst-web service to the runner
       # - name: Port-forward pst-web
