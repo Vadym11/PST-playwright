@@ -42,6 +42,12 @@ jobs:
         run: |
           echo "Creating namespace: $K8S_NAMESPACE"
           kubectl create namespace "$K8S_NAMESPACE"
+      
+      - name: Prepare DB (permissions + migrate + seed)
+        run: |
+          set -e
+          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
+            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed'
 
       # 4.1. Create slack web hook secret
       - name: Create slack web hook secret
