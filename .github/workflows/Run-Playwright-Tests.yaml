@@ -42,12 +42,6 @@ jobs:
         run: |
           echo "Creating namespace: $K8S_NAMESPACE"
           kubectl create namespace "$K8S_NAMESPACE"
-      
-      - name: Prepare DB (permissions + migrate + seed)
-        run: |
-          set -e
-          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
-            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed'
 
       # 4.1. Create slack web hook secret
       - name: Create slack web hook secret
@@ -90,6 +84,11 @@ jobs:
           kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
+      - name: Prepare DB (permissions + migrate + seed)
+        run: |
+          set -e
+          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
+            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed'
 
       # # 7. Port-forward the pst-web service to the runner
       # - name: Port-forward pst-web
