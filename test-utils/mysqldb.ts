@@ -17,10 +17,4 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-console.log(MYSQL_HOST);
-console.log(MYSQL_PORT);
-console.log(MYSQL_USER);
-console.log(MYSQL_PASSWORD);
-console.log(MYSQL_DATABASE);
-
 module.exports = pool.promise(); // Use promise-based API for async/await support

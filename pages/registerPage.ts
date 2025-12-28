@@ -1,6 +1,8 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { LoginPage } from "./LoginPage";
+import { User } from "../types/user";
+
 export class RegisterPage extends BasePage {
 
     private readonly firstNameField: Locator;
@@ -98,6 +100,25 @@ export class RegisterPage extends BasePage {
         await this.page.keyboard.press('Enter');
 
         return this;
+    }
+
+    async registerNewUser(user: User): Promise<LoginPage> {
+
+        await this.enterFirstName(user.firstName);
+        await this.enterLastName(user.lastName);
+        await this.enterDob(user.dob);
+        await this.enterStreet(user.street);
+        await this.enterPostCode(user.postCode);
+        await this.enterCity(user.city);
+        await this.enterState(user.state);
+        await this.selectCountry(user.country);
+        await this.enterPhone(user.phone);
+        await this.enterEmailAddress(user.email);
+        await this.enterPassword(user.password);
+
+        await this.clickRegisterButton();
+
+        return new LoginPage(this.page);
     }
     
     async clickRegisterButton(): Promise<LoginPage> {
