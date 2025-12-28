@@ -124,5 +124,4 @@ test.describe.serial('Registration feature', () => {
         expect(result.affectedRows).toBe(1);
         expect(result.warningStatus).toBe(0)
     })
-    
 })
