@@ -1,7 +1,7 @@
 import test, { expect } from "@playwright/test";
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
-import { generateRandomuserData } from "../../test-utils/test-utils";
+import { deleteUserById, generateRandomuserData, getUserIdByEmail } from "../../test-utils/test-utils";
 import { User } from "../../types/user";
 const connection = require('../../test-utils/mysqldb');
 
@@ -15,9 +15,9 @@ test.describe.serial('Registration feature', () => {
     });
 
     test.afterAll('Cleanup: delete new user', async () => {
-        const [result] = await connection.execute('DELETE FROM users WHERE email = ?;', [newUserData.email]);
-
-        console.log(`Cleanup: deleted ${result.affectedRows} users`);
+        const userId = await getUserIdByEmail(newUserData.email);
+        console.log(`Deleting user with ID: ${userId}`);
+        await deleteUserById(userId);
     });
 
     test('Register new user: happy path', async ({page}) => {
