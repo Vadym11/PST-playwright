@@ -1,3 +1,5 @@
+import { User } from "../types/user";
+
 const userData = require("../test-data/registerUserData.json");
 
 /**
@@ -20,7 +22,7 @@ export function getRandomArrayElement(array: any[]) {
     return array[getRandomIntInclusive(0, array.length - 1)]
 }
 
-export function generateRandomuserData() {
+export function generateRandomuserData(): User {
 
     const FIRST_NAME = getRandomArrayElement(userData.firstNames);
     const LAST_NAME = getRandomArrayElement(userData.lastNames);

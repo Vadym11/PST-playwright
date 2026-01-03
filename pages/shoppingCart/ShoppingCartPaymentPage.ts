@@ -1,5 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "../BasePage";
+import { HeaderCommon } from "../HeaderCommon";
 
 export class ShoppingCartPaymentPage extends BasePage {
 
@@ -10,6 +11,7 @@ export class ShoppingCartPaymentPage extends BasePage {
     private readonly confirmButon: Locator;
     private readonly paymentSuccessMessage: Locator;
     private readonly invoiceMessage: Locator;
+    readonly header: HeaderCommon;
 
     constructor(page: Page) {
         super(page);
@@ -20,6 +22,7 @@ export class ShoppingCartPaymentPage extends BasePage {
         this.confirmButon = page.getByRole('button', {name: 'Confirm'});
         this.paymentSuccessMessage = page.getByTestId('payment-success-message');
         this.invoiceMessage = page.locator("[id='order-confirmation']");
+        this.header = new HeaderCommon(page);
     }
 
     async openPaymentMethodsDropdownMenu(): Promise<this> {

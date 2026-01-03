@@ -1,4 +1,5 @@
-import test, { expect } from "@playwright/test";
+import { test } from "../../fixtures/createNewUserAndLogin";
+import { expect } from "@playwright/test";
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
 import { User } from "../../types/user";
@@ -9,58 +10,25 @@ test.describe('Add to cart flow', () => {
     let newUser: User;
     const currentYear = new Date().getFullYear();
     
-    test.beforeAll('Generate and register new user', async ({request, baseURL}) => {
-        newUser = generateRandomuserData();
+    test('Add to cart (signed in user)', async({page, newUserLoggedIn}) => {
+        newUser = newUserLoggedIn;
+        // newUser = generateRandomuserData();
 
         console.log(newUser.email);
         console.log(newUser.password);
-        
-        const response_ = await request.post(`${baseURL}/api/users/login`, {
-            data: {
-                "email": "admin@practicesoftwaretesting.com",
-                "password": "welcome01"
-            }
-        })
-
-        const responseObject_ = await response_.json();
-
-        console.log(response_.status());
-
-        expect(response_.status()).toBe(200);
-
-        const token = responseObject_.access_token;
-
-        const response = await request.post(`${baseURL}/api/users/register`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            data: newUser
-        })
-
-        const responseObject = await response.json();
-
-        console.log(response.status());
-
-        expect(response.status()).toBe(201);
-
-        const [rows] = await connection.execute('SELECT * FROM users ORDER BY updated_at DESC LIMIT 1;');
-        const newUser_ = rows[0];
-
-        expect(newUser_.first_name).toBe(newUser.first_name);
-        expect(newUser_.last_name).toBe(newUser.last_name);
-        expect(newUser_.email).toBe(newUser.email);
-    })
-    
-    test('Add to cart (signed in user)', async({page}) => {
 
         const homePage = await new HomePage(page).goTo();
         
         await homePage.header.clickSignInLink();
 
-        await new LoginPage(page)
+        const myAccountPage = await new LoginPage(page)
             .loginSuccess(newUser.email, newUser.password);
 
-        await homePage.header.clickMainBanner();
+        console.log(`User with email ${newUser.email} has logged in.`)
+
+        await myAccountPage.header.clickHomePageLink();
+        // await page.goto('/');
+        console.log('Navigated to home page');
         
         const productPage = await homePage.clickFirstProduct();
 
