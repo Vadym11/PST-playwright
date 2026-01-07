@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# "europe-west1-docker.pkg.dev/earnest-acre-474618-n9/toolshop"
+# "europe-west1-docker.pkg.dev/project-2e1e6c1d-528d-4a3a-803/toolshop"
 GCP_REGION=europe-west1
-REG="${GCP_REGION}-docker.pkg.dev/earnest-acre-474618-n9"
+REG="${GCP_REGION}-docker.pkg.dev/project-2e1e6c1d-528d-4a3a-803"
 REPO="toolshop"
 TAG="$(git rev-parse --short HEAD)"
 

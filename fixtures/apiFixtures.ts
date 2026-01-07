@@ -1,5 +1,4 @@
 import { APIResponse, test as base } from '@playwright/test';
-// import { test as base } from './dbFixtures';
 import { User } from "../types/user";
 import { generateRandomuserData, getUserIdByEmail } from '../test-utils/test-utils';
 
@@ -8,11 +7,9 @@ const password = process.env.PASSWORD_!;
 
 type ApiFixtures = {
     adminToken: string;
-    getAllUsers: APIResponse;
+    getAllUsers: Promise<any>;
     registerNewUser: User;
-    deleteUser: APIResponse;
-    user: User;
-    userId: string;
+    // deleteUser: APIResponse;
 }
 
 const test = base.extend<ApiFixtures>({
@@ -37,7 +34,7 @@ const test = base.extend<ApiFixtures>({
             }
         });
 
-        await use(response);
+        await use(await response.json());
     },
 
     registerNewUser: async ({request, baseURL, adminToken}, use) => {

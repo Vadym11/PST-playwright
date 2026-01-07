@@ -27,7 +27,7 @@ test.describe('Add to cart flow', () => {
         console.log(`User with email ${newUser.email} has logged in.`)
 
         await myAccountPage.header.clickHomePageLink();
-        // await page.goto('/');
+        
         console.log('Navigated to home page');
         
         const productPage = await homePage.clickFirstProduct();

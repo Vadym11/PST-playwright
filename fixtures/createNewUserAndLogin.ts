@@ -1,5 +1,4 @@
-import { APIResponse, expect } from '@playwright/test';
-import { deleteUserById, generateRandomuserData, getUserIdByEmail } from "../test-utils/test-utils";
+import { deleteUserById, getUserIdByEmail } from "../test-utils/test-utils";
 import { User } from "../types/user";
 import { test as baseTest} from './apiFixtures';
 
