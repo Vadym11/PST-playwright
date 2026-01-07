@@ -12,7 +12,6 @@ test.describe('Add to cart flow', () => {
     
     test('Add to cart (signed in user)', async({page, newUserLoggedIn}) => {
         newUser = newUserLoggedIn;
-        // newUser = generateRandomuserData();
 
         console.log(newUser.email);
         console.log(newUser.password);
