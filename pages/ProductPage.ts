@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { HeaderCommon } from "./../pages/HeaderCommon";
+import { HeaderCommon } from "./HeaderCommon";
 
 
 export class ProductPage extends BasePage {
