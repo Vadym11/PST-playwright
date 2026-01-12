@@ -3,8 +3,6 @@ import { expect } from "@playwright/test";
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
 import { User } from "../../types/user";
-import { generateRandomuserData } from "../../test-utils/test-utils";
-const connection = require('../../test-utils/mysqldb');
 
 test.describe('Add to cart flow', () => {
     let newUser: User;
