@@ -1,4 +1,5 @@
-import test, { expect } from "@playwright/test";
+import {test } from "../../fixtures/apiFixtures";
+import { expect } from '@playwright/test';
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
 import { deleteUserById, generateRandomuserData, getUserIdByEmail } from "../../test-utils/test-utils";
@@ -9,8 +10,10 @@ const connection = require('../../test-utils/mysqldb');
 test.describe.serial('Registration feature', () => {
 
     let newUserData: User;
+    let token: string;
 
-    test.beforeAll('Generate new user data', async () => {
+    test.beforeAll('Generate new user data', async ({adminToken}) => {
+        token = adminToken;
         newUserData = generateRandomuserData();
     });
 

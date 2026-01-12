@@ -1,6 +1,6 @@
-import { APIResponse, test as base } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { User } from "../types/user";
-import { generateRandomuserData, getUserIdByEmail } from '../test-utils/test-utils';
+import { generateRandomuserData } from '../test-utils/test-utils';
 
 const email = process.env.EMAIL!;
 const password = process.env.PASSWORD_!;

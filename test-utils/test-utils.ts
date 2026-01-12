@@ -1,6 +1,13 @@
 import { User } from "../types/user";
+import axios, { AxiosResponse } from 'axios';
 const userData = require("../test-data/registerUserData.json");
 const connection = require('../test-utils/mysqldb');
+import config from '../playwright.config';
+
+export const getBaseUrl = () => {
+
+    return config.use?.baseURL;
+}
 
 /**
  * Generates a random integer between min (inclusive) and max (inclusive).
@@ -61,6 +68,42 @@ export async function  getUserIdByEmail(email: string): Promise<string> {
     }
     
     throw new Error(`User with email ${email} was not found in DB after registration.`);
+}
+
+export async function getUserIdByEmailAPI(token: string, email: string): Promise<string> {
+    const baseURL = getBaseUrl();
+
+    const payload = {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    }
+
+    const users = await axios.get(`${baseURL}/api/users/`, payload);
+
+    const user = users.data.data.find((user: any) => user.email === email);
+    
+    if (user) {
+        return user.id;
+    } else {
+        throw new Error(`User with email ${email} was not found in API response.`);
+    }
+}
+
+export async function deleteUserByIdAPI(userID: string, token: string): Promise<AxiosResponse> {
+    const baseURL = getBaseUrl();
+
+    const payload = {
+        headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+        }
+    }
+    
+    const response = await axios.delete(`${baseURL}/api/users/${userID}`, payload);
+
+    return response;
 }
 
 export async function deleteUserById(userId: string): Promise<void> {
