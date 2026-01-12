@@ -2,19 +2,21 @@ import test, { expect } from "@playwright/test";
 
 let token: string;
 let newUserId: string;
+const email = process.env.EMAIL!;
+const password = process.env.PASSWORD_!;
 
 test('API user login', async ({request, baseURL}) => {
         
         const response = await request.post(`${baseURL}/api/users/login`, {
             data: {
-                "email": "admin@practicesoftwaretesting.com",
-                "password": "welcome01"
+                "email": email,
+                "password": password
             }
         })
 
-        const responseObject = await response.json();
-
         console.log(response.status());
+
+        const responseObject = await response.json();
 
         expect(response.status()).toBe(200);
 
