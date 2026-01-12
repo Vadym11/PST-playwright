@@ -14,11 +14,11 @@ test.describe.serial('Registration feature', () => {
         newUserData = generateRandomuserData();
     });
 
-    test.afterAll('Cleanup: delete new user', async () => {
-        const userId = await getUserIdByEmail(newUserData.email);
-        console.log(`Deleting user with ID: ${userId}`);
-        await deleteUserById(userId);
-    });
+    // test.afterAll('Cleanup: delete new user', async () => {
+    //     const userId = await getUserIdByEmail(newUserData.email);
+    //     console.log(`Deleting user with ID: ${userId}`);
+    //     await deleteUserById(userId);
+    // });
 
     test('Register new user: happy path', async ({page}) => {
 
@@ -33,10 +33,10 @@ test.describe.serial('Registration feature', () => {
             
             await expect(loginPage.getLoginHeader()).toContainText('Login');
 
-            console.log(`User with email ${newUserData.email} has registered.`)
+            console.log(`User with email ${newUserData.email} and password ${newUserData.password} has registered.`)
         })
 
-        await test.step('Verify created user in DB', async () => {
+        await test.step.skip('Verify created user in DB', async () => {
            
             const [rows] = await connection.execute('SELECT * FROM users ORDER BY updated_at DESC LIMIT 1;');
             const newUser = rows[0];

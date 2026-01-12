@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config({debug: true});
 
-const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8080';
+const baseURL = 'https://practicesoftwaretesting.com/';
 
 /**
  * Read environment variables from file.

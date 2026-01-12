@@ -1,1 +1,0 @@
-docker-compose exec laravel-api php artisan migrate:fresh --seed --force
