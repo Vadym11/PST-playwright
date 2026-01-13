@@ -19,10 +19,10 @@ test.describe.serial('User deletion feature', () => {
         token = adminToken;
     });
 
-    test('Register new user', async ({ registerNewUser }) => {
+    test('Register new user', async ({ registerNewUser, request }) => {
         newUserData = registerNewUser;
 
-        newUserID = await getUserIdByEmailAPI(token, newUserData.email);
+        newUserID = await getUserIdByEmailAPI(request, token, newUserData.email);
         console.log(`New user ID is: ${newUserID}`);
     })
 

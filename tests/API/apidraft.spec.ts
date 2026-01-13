@@ -26,33 +26,33 @@ test('API user login', async ({request, baseURL}) => {
         
     })
 
-    test.skip('Get user from DB', async ({request, baseURL}) => {
-        
-       const response = await request.get(`${baseURL}/api/users/`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-       })
+test.skip('Get user from DB', async ({request, baseURL}) => {
+    
+    const response = await request.get(`${baseURL}/api/users/`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
 
-       const responseObject = await response.json();
+    const responseObject = await response.json();
 
-    //    console.log(responseObject);
-       const usersTotal = responseObject.data.length - 1;
-       newUserId = responseObject.data[usersTotal].id;
-       console.log(responseObject.data[usersTotal].id);
+//    console.log(responseObject);
+    const usersTotal = responseObject.data.length - 1;
+    newUserId = responseObject.data[usersTotal].id;
+    console.log(responseObject.data[usersTotal].id);
 
     expect(JSON.stringify(responseObject.data)).toContain("EMAIL");
-        
+    
+})
+
+test.skip('Delete user from DB', async ({request, baseURL}) => {
+    
+    const response = await request.delete(`${baseURL}/api/users/${newUserId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     })
 
-    test.skip('Delete user from DB', async ({request, baseURL}) => {
-        
-        const response = await request.delete(`${baseURL}/api/users/${newUserId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        console.log(response.status());
-        expect(response.status()).toBe(204);
-    })
+    console.log(response.status());
+    expect(response.status()).toBe(204);
+})
