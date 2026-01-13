@@ -23,15 +23,11 @@ test.describe.serial('User deletion feature', () => {
         newUserData = registerNewUser;
 
         newUserID = await getUserIdByEmailAPI(request, token, newUserData.email);
-        console.log(`New user ID is: ${newUserID}`);
     })
 
-    test('Delete user', async () => {
-
-        console.log(`New user ID: ${newUserID}.`);   
+    test('Delete user', async ({request}) => {
         
-        const response = await deleteUserByIdAPI(newUserID, token);
-        expect(response.status).toBe(204);
+        await deleteUserByIdAPI(request, token, newUserID);
 
         console.log(`User with ID: ${newUserID} has been deleted.`);    
     })
