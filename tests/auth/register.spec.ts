@@ -43,7 +43,7 @@ test.describe.serial('Registration feature', () => {
             console.log(`User with email ${newUserData.email} and password ${newUserData.password} has registered.`)
         })
 
-        await test.step('Verify user has been registered', async () => {
+        await test.step('Verify user has been registered ', async () => {
             const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
 
             expect(newUser.first_name).toBe(newUserData.first_name);

@@ -8,7 +8,7 @@ import { APIRequestContext, APIResponse, expect } from "@playwright/test";
 export const getAPIBaseUrl = () => {
 
     const baseURL = config.use?.baseURL;
-    if (baseURL?.includes('127.0.0.1')) {
+    if (!baseURL?.includes('practicesoftwaretesting.com')) {
         return baseURL + '/api';
     } else {
         return baseURL?.split('//')[0] + '//' + 'api.' + baseURL?.split('//')[1];
