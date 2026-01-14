@@ -1,9 +1,9 @@
 import { User } from "../types/user";
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 const userData = require("../test-data/registerUserData.json");
-const connection = require('../test-utils/mysqldb');
+const connection = require("./mysqldb");
 import config from '../playwright.config';
-import { APIRequestContext, APIResponse, expect } from "@playwright/test";
+import { APIRequestContext, expect } from "@playwright/test";
 
 export const getAPIBaseUrl = () => {
 

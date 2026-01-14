@@ -5,7 +5,6 @@ dotenv.config({debug: true});
 
 const baseURL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${baseURL}`);
-// const baseURL = 'https://practicesoftwaretesting.com';
 
 /**
  * Read environment variables from file.

@@ -2,9 +2,8 @@ import { expect } from "@playwright/test";
 import { test } from "../../fixtures/apiFixtures";
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
-import { deleteUserById, deleteUserByIdAPI, generateRandomuserData, getUserIdByEmail, getUserIdByEmailAPI } from "../../test-utils/test-utils";
+import { deleteUserById, deleteUserByIdAPI, generateRandomuserData, getUserIdByEmail, getUserIdByEmailAPI } from "../../utils/test-utils";
 import { User } from "../../types/user";
-const connection = require('../../test-utils/mysqldb');
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 
@@ -19,16 +18,18 @@ test.describe.serial('User deletion feature', () => {
         token = adminToken;
     });
 
-    test('Register new user', async ({ registerNewUser, request }) => {
-        newUserData = registerNewUser;
+    test('Register new user', async ({ newUserRegistered, request }) => {
+        newUserData = newUserRegistered;
 
         newUserID = await getUserIdByEmailAPI(request, token, newUserData.email);
+
+        console.log(`User with ID: ${newUserID} and email ${newUserData.email} has been registered.`);
     })
 
     test('Delete user', async ({request}) => {
         
         await deleteUserByIdAPI(request, token, newUserID);
 
-        console.log(`User with ID: ${newUserID} has been deleted.`);    
+        console.log(`User with ID: ${newUserID} and email ${newUserData.email} has been deleted.`);    
     })
 })

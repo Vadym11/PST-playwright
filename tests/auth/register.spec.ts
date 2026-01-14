@@ -5,7 +5,7 @@ import { LoginPage } from "../../pages/LoginPage";
 import { generateRandomuserData,
         getUserIdByEmailAPI,
         getUserDataByEmailAPI,
-        deleteUserByIdAPI as deleteUser} from "../../test-utils/test-utils";
+        deleteUserByIdAPI as deleteUser} from "../../utils/test-utils";
 import { User } from "../../types/user";
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
@@ -17,14 +17,14 @@ test.describe.serial('Registration feature', () => {
     test.beforeAll('Generate new user data', async ({adminToken}) => {
         token = adminToken;
         newUserData = generateRandomuserData();
+        console.log(`User with email ${newUserData.email} has been generated.`);
     });
 
     test.afterAll('Delete registered user', async ({request}) => {
         const newUserId = await getUserIdByEmailAPI(request, token, newUserData.email);
 
-        await deleteUser(request, token, newUserId).then(() => {
-            console.log(`User with email ${newUserData.email} has been deleted.`);
-        });
+        await deleteUser(request, token, newUserId);
+        console.log(`User with email ${newUserData.email} has been deleted.`);
     });
 
     test('Register new user: happy path', async ({page, request}) => {

@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
 import { User } from "../types/user";
-import { generateRandomuserData, getAPIBaseUrl } from '../test-utils/test-utils';
+import { generateRandomuserData, getAPIBaseUrl } from '../utils/test-utils';
 
 const email = process.env.EMAIL!;
 const password = process.env.PASSWORD_!;
@@ -9,7 +9,7 @@ const apiBaseURL = getAPIBaseUrl();
 type ApiFixtures = {
     adminToken: string;
     getAllUsers: Promise<any>;
-    registerNewUser: User;
+    newUserRegistered: User;
     // deleteUser: APIResponse;
 }
 
@@ -42,7 +42,7 @@ const test = base.extend<ApiFixtures>({
         await use(await response.json());
     },
 
-    registerNewUser: async ({request, adminToken}, use) => {
+    newUserRegistered: async ({request, adminToken}, use) => {
         const apiURL = `${apiBaseURL}/users/register`;
         const user = generateRandomuserData();
         const payload = {
@@ -53,6 +53,8 @@ const test = base.extend<ApiFixtures>({
         }
     
         await request.post(apiURL, payload);
+
+        console.log(`User with email ${user.email} has been registered via API.`);
 
         await use(user);
     },
