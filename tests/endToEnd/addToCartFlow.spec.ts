@@ -9,7 +9,7 @@ test.describe('Add to cart flow', () => {
     let newUser: User;
     const currentYear = new Date().getFullYear();
 
-    test.beforeAll('Register and store new user', async ({newUserRegistered}) => {
+    test.beforeAll('Register and store new user data', async ({newUserRegistered}) => {
         newUser = newUserRegistered;
     });
     
