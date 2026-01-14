@@ -2,6 +2,7 @@ import { Locator, Page } from "@playwright/test";
 import { BasePage } from "../BasePage";
 import { ShoppingCartPaymentPage } from "./ShoppingCartPaymentPage";
 const user = require("../../types/user")
+import { BillingFields } from "../../types/billingFields";
 
 export class ShoppingCartBillingPage extends BasePage {
 
@@ -20,25 +21,30 @@ export class ShoppingCartBillingPage extends BasePage {
         this.proceesToCheckOutButton = page.getByRole('button', {name: 'Proceed to checkout'}); 
     }
 
-    async getStreetInput(): Promise<string> {
-        return await this.street.inputValue();
+    getStreetInput(): Locator {
+        return  this.street;
     }
 
-    async getCityInput(): Promise<string> {
-        return await this.city.inputValue();
+    getCityInput(): Locator {
+        return this.city;
     }
 
-    async getStateInput(): Promise<string> {
-        return await this.state.inputValue();
+    getStateInput(): Locator {
+        return this.state;
     }
 
-    async getPostCodeInput(): Promise<string> {
-        return await this.postCode.inputValue();
+    getPostCodeInput(): Locator {
+        return this.postCode;
     }
 
-    async getBillingAddresInputFields(): Promise<string[]> {
+    getBillingAddresInputFields(): BillingFields {
 
-        return await Promise.all([this.getStreetInput(), this.getCityInput(), this.getStateInput(), this.getPostCodeInput()]);
+        return {
+                street: this.getStreetInput(),
+                city: this.getCityInput(),
+                state: this.getStateInput(),
+                postCode: this.getPostCodeInput()
+            };
     }
 
     async clickProceedToCheckout(): Promise<ShoppingCartPaymentPage> {

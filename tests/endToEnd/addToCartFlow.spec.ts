@@ -3,16 +3,17 @@ import { expect } from "@playwright/test";
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
 import { User } from "../../types/user";
+import { completeCheckoutAndVerifyBilling } from "../../utils/project-utils";
 
 test.describe('Add to cart flow', () => {
     let newUser: User;
     const currentYear = new Date().getFullYear();
-    
-    test('Add to cart (signed in user)', async({page, newUserLoggedIn}) => {
-        newUser = newUserLoggedIn;
 
-        console.log(newUser.email);
-        console.log(newUser.password);
+    test.beforeAll('Register new user', async ({newUserRegistered}) => {
+        newUser = newUserRegistered;
+    });
+    
+    test('Add to cart (signed in user)', async({page}) => {
 
         const homePage = await new HomePage(page).goTo();
         
@@ -21,19 +22,13 @@ test.describe('Add to cart flow', () => {
         const myAccountPage = await new LoginPage(page)
             .loginSuccess(newUser.email, newUser.password);
 
-        console.log(`User with email ${newUser.email} has logged in.`)
-
         await myAccountPage.header.clickHomePageLink();
-        
-        console.log('Navigated to home page');
-        
+                
         const productPage = await homePage.clickFirstProduct();
 
         await productPage.clickAddToCart();
 
         await expect(productPage.getAddedToCartPopUp()).toBeVisible();
-
-        await productPage.header.clickCartIcon();
 
         const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
@@ -41,31 +36,26 @@ test.describe('Add to cart flow', () => {
 
         const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-        const billingDetailsFields = await shoppingCartBillingPage.getBillingAddresInputFields();
+        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, currentYear);
+    })
 
-        const userBillingData = [
-            newUser.address.street,
-            newUser.address.city,
-            newUser.address.state,
-            newUser.address.postal_code
-        ];
+    test('Add to cart (signed out existing user)', async({page}) => {
+        const homePage = await new HomePage(page).goTo();
+                
+        const productPage = await homePage.clickFirstProduct();
 
-        billingDetailsFields.forEach(async (field) => {
-            expect(userBillingData.includes(field)).toBeTruthy();
-        })
+        await productPage.clickAddToCart();
 
-        const shoppingCartPaymentPage = await shoppingCartBillingPage.clickProceedToCheckout();
+        await expect(productPage.getAddedToCartPopUp()).toBeVisible();
 
-        await shoppingCartPaymentPage.openPaymentMethodsDropdownMenu();
-        await shoppingCartPaymentPage.selectCashOnDeliveryOption();
-        await shoppingCartPaymentPage.clickConfirmButton();
+        const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
-        await expect(shoppingCartPaymentPage.getPaymentSuccessMessage())
-            .toHaveText('Payment was successful');
+        const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
-        await shoppingCartPaymentPage.clickConfirmButton();
+        await shoppingCartLoginPage.loginExistingUser(newUser.email, newUser.password);
 
-        await expect(shoppingCartPaymentPage.getInvoiceMessage())
-            .toContainText(`Thanks for your order! Your invoice number is INV-${currentYear}`);
+        const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
+
+        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, currentYear);
     })
 });

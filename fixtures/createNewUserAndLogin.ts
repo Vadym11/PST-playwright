@@ -1,4 +1,4 @@
-import { deleteUserById, getUserIdByEmail } from "../test-utils/test-utils";
+import { deleteUserById, getUserIdByEmail } from "../utils/test-utils";
 import { User } from "../types/user";
 import { test as baseTest} from './apiFixtures';
 
@@ -8,16 +8,16 @@ type NewUserLoggedInFixture = {
 
  const test = baseTest.extend<NewUserLoggedInFixture>({
 
-    newUserLoggedIn: async ({registerNewUser}, use) => {
-        const newUser = registerNewUser;
+    newUserLoggedIn: async ({newUserRegistered}, use) => {
+        const newUser = newUserRegistered;
 
         await use(newUser);
 
-        const newUserId = await getUserIdByEmail(newUser.email);
+        // const newUserId = await getUserIdByEmail(newUser.email);
 
-        console.log(`User ID to be deleted: ${newUserId}`);
+        // console.log(`User ID to be deleted: ${newUserId}`);
 
-        await deleteUserById(newUserId);
+        // await deleteUserById(newUserId);
     }
 })
 

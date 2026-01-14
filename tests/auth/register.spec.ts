@@ -1,26 +1,33 @@
-import test, { expect } from "@playwright/test";
+import { test } from "../../fixtures/apiFixtures";
+import { expect } from '@playwright/test';
 import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
-import { deleteUserById, generateRandomuserData, getUserIdByEmail } from "../../test-utils/test-utils";
+import { generateRandomuserData,
+        getUserIdByEmailAPI,
+        getUserDataByEmailAPI,
+        deleteUserByIdAPI as deleteUser} from "../../utils/test-utils";
 import { User } from "../../types/user";
-const connection = require('../../test-utils/mysqldb');
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
 
     let newUserData: User;
+    let token: string;
 
-    test.beforeAll('Generate new user data', async () => {
+    test.beforeAll('Generate new user data', async ({adminToken}) => {
+        token = adminToken;
         newUserData = generateRandomuserData();
+        console.log(`User with email ${newUserData.email} has been generated.`);
     });
 
-    // test.afterAll('Cleanup: delete new user', async () => {
-    //     const userId = await getUserIdByEmail(newUserData.email);
-    //     console.log(`Deleting user with ID: ${userId}`);
-    //     await deleteUserById(userId);
-    // });
+    test.afterAll('Delete registered user', async ({request}) => {
+        const newUserId = await getUserIdByEmailAPI(request, token, newUserData.email);
 
-    test('Register new user: happy path', async ({page}) => {
+        await deleteUser(request, token, newUserId);
+        console.log(`User with email ${newUserData.email} has been deleted.`);
+    });
+
+    test('Register new user: happy path', async ({page, request}) => {
 
         await test.step('Register new user', async () => {
             const homePage = await new HomePage(page).goTo();
@@ -36,14 +43,12 @@ test.describe.serial('Registration feature', () => {
             console.log(`User with email ${newUserData.email} and password ${newUserData.password} has registered.`)
         })
 
-        await test.step.skip('Verify created user in DB', async () => {
-           
-            const [rows] = await connection.execute('SELECT * FROM users ORDER BY updated_at DESC LIMIT 1;');
-            const newUser = rows[0];
+        await test.step('Verify user has been registered ', async () => {
+            const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
 
             expect(newUser.first_name).toBe(newUserData.first_name);
             expect(newUser.last_name).toBe(newUserData.last_name);
-            expect(newUser.email).toBe(newUserData.email);
+            expect(newUser.dob).toBe(newUserData.dob);
         })
     })
 
