@@ -13,7 +13,7 @@ test.describe('Add to cart flow', () => {
         newUser = newUserRegistered;
     });
     
-    test('Add to cart (signed in user)', async({page}) => {
+    test('Add to cart (signed in existing user)', async({page}) => {
 
         const homePage = await new HomePage(page).goTo();
         
