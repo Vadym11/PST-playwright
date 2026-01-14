@@ -18,4 +18,5 @@ const pool = mysql.createPool({
 });
 
 export default pool;
-// module.exports = pool.promise(); // Use promise-based API for async/await support
+// Use promise-based API for async/await support
+// module.exports = pool.promise(); 
