@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+import mysql from 'mysql2/promise'; // Import the promise version directly
 
 const MYSQL_HOST = process.env.MYSQL_HOST || 'pst-db';
 const MYSQL_PORT = parseInt(process.env.MYSQL_PORT || '3306');
@@ -17,4 +17,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-module.exports = pool.promise(); // Use promise-based API for async/await support
+export default pool;
+// Use promise-based API for async/await support
+// module.exports = pool.promise(); 

@@ -6,13 +6,11 @@ import config from '../playwright.config';
 import { APIRequestContext, expect } from "@playwright/test";
 
 export const getAPIBaseUrl = () => {
-
-    const baseURL = config.use?.baseURL;
-    if (!baseURL?.includes('practicesoftwaretesting.com')) {
-        return baseURL + '/api';
-    } else {
-        return baseURL?.split('//')[0] + '//' + 'api.' + baseURL?.split('//')[1];
+    const baseURL = config.use?.baseURL || '';
+    if (baseURL.includes('practicesoftwaretesting.com')) {
+        return baseURL.replace('://', '://api.');
     }
+    return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
 }
 
 const apiBaseURL = getAPIBaseUrl();
@@ -33,10 +31,20 @@ export function getRandomIntInclusive(min: number, max: number): number {
     return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
 }
 
+/**
+ * Returns a random element from an array.
+ * @param array The array to select an element from.
+ * @returns A random element from the array.
+ */
 export function getRandomArrayElement(array: any[]) {
     return array[getRandomIntInclusive(0, array.length - 1)]
 }
 
+/**
+ * Generates random user data for registration.
+ * User data is sourced from predefined arrays in registerUserData.json.
+ * @returns A User object with random data.
+ */
 export function generateRandomuserData(): User {
     const randomNumber = getRandomIntInclusive(0, 9999);
 
@@ -69,6 +77,11 @@ export function generateRandomuserData(): User {
     }
 }
 
+/**
+ * Retrieves a user ID from the database by email.
+ * @param email The email address of the user.
+ * @returns The user ID.
+ */
 export async function getUserIdByEmail(email: string): Promise<string> {
     for (let i = 0; i < 5; i++) {
         const [rows] = await connection.execute('SELECT id FROM users WHERE email = ?;', [email]);
@@ -79,6 +92,11 @@ export async function getUserIdByEmail(email: string): Promise<string> {
     throw new Error(`User with email ${email} was not found in DB after registration.`);
 }
 
+/** Retrieves user data from the API by email using Axios.
+ * @param token The authorization token.
+ * @param email The email address of the user.
+ * @returns The user data.
+ */
 export async function getUserDataByEmailAxios(token: string, email: string): Promise<any> {
     const apiURL = `${apiBaseURL}/users/search`;
 
@@ -101,6 +119,13 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
     }
 }
 
+/**
+ * Retrieves user data from the API by email.
+ * @param request The Playwright API request context.
+ * @param token The authorization token.
+ * @param email The email address of the user.
+ * @returns The user data.
+ */
 export async function getUserDataByEmailAPI(request: APIRequestContext, token: string, email: string): Promise<any> {
     const apiURL = `${apiBaseURL}/users/search`;
     const payload = {
@@ -126,12 +151,23 @@ export async function getUserDataByEmailAPI(request: APIRequestContext, token: s
     return body.data[0];
 }
 
+/** Retrieves user ID from the API by email.
+ * @param request The Playwright API request context.
+ * @param token The authorization token.
+ * @param email The email address of the user.
+ * @returns The user ID.
+ */
 export async function getUserIdByEmailAPI(request: APIRequestContext, token: string, email: string): Promise<string> {
     const user = await getUserDataByEmailAPI(request, token, email);
 
     return user.id;
 }
 
+/** Deletes a user via API by user ID.
+ * @param request The Playwright API request context.
+ * @param token The authorization token.
+ * @param userID The ID of the user to delete.
+ */
 export async function deleteUserByIdAPI(request: APIRequestContext, token: string, userID: string): Promise<void> {
     const apiURL = `${apiBaseURL}/users/${userID}`;
 
@@ -147,21 +183,29 @@ export async function deleteUserByIdAPI(request: APIRequestContext, token: strin
     expect(response.status()).toBe(204);
 }
 
+/** Deletes a user and related data from the database by user ID.
+ * @param userId The ID of the user to delete.
+ */
 export async function deleteUserById(userId: string): Promise<void> {
-
     const [result1] = await connection.execute('DELETE FROM invoice_items WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);', [userId]);
     console.log(`Cleanup: deleted ${result1.affectedRows} invoice items`);
+
     const [result2] = await connection.execute('DELETE FROM payments WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);', [userId]);
     console.log(`Cleanup: deleted ${result2.affectedRows} payments`);
+
     const [result3] = await connection.execute('DELETE FROM invoices WHERE user_id = ?;', [userId]);
     console.log(`Cleanup: deleted ${result3.affectedRows} invoices`);
+
     const [result4] = await connection.execute('DELETE FROM users WHERE id = ?;', [userId]);
     console.log(`Cleanup: deleted ${result4.affectedRows} users`);  
-    
 }
 
-export async function generateAndRegisterUsers(count: number, adminToken: string): Promise<void> {
-    const apiURL = `${apiBaseURL}/api/users/register`;
+/** Generates and registers multiple users via API.
+ * @param userCount The number of users to generate and register.
+ * @param adminToken The authorization token.
+ */
+export async function generateAndRegisterUsers(userCount: number, adminToken: string): Promise<void> {
+    const apiURL = `${apiBaseURL}/users/register`;
    
     const config = {
         headers: {
@@ -170,11 +214,11 @@ export async function generateAndRegisterUsers(count: number, adminToken: string
         }
     };
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < userCount; i++) {
         try {
             const newUser = generateRandomuserData();
             const response = await axios.post(apiURL, newUser, config);
-            console.log(`User ${i + 1}/${count} registered: ${response.data.id}`);
+            console.log(`User ${i + 1}/${userCount} registered: ${response.data.id}`);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 // TypeScript now knows 'error' has 'response', 'status', etc.
