@@ -2,8 +2,13 @@ import { expect } from "@playwright/test";
 import { ShoppingCartBillingPage } from "../pages/shoppingCart/ShoppingCartBillingPage";
 import { User } from "../types/user";
 
+/**
+ * Completes the checkout process and verifies billing details.
+ * @param shoppingCartBillingPage 
+ * @param newUser 
+ * @param currentYear 
+ */
 export async function completeCheckoutAndVerifyBilling(shoppingCartBillingPage: ShoppingCartBillingPage, newUser: User, currentYear: number) {
-
     const billingDetailsFields = shoppingCartBillingPage.getBillingAddresInputFields();
 
     await expect(billingDetailsFields.street).toHaveValue(newUser.address.street);
