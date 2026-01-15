@@ -9,11 +9,11 @@ test.describe('Add to cart flow', () => {
     let newUser: User;
     const currentYear = new Date().getFullYear();
 
-    test.beforeAll('Register new user', async ({newUserRegistered}) => {
+    test.beforeAll('Register and store new user data', async ({newUserRegistered}) => {
         newUser = newUserRegistered;
     });
     
-    test('Add to cart (signed in user)', async({page}) => {
+    test('Add to cart (signed in existing user)', async({page}) => {
 
         const homePage = await new HomePage(page).goTo();
         
