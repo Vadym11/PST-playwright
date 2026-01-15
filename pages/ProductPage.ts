@@ -24,4 +24,8 @@ export class ProductPage extends BasePage {
         // return this.page.getByRole('alert', {name: 'Pruduct added to shopping cart.'});
         return this.page.locator("//div[@aria-label='Product added to shopping cart.']");
     }
+
+    getCartQuantity(): Locator {
+        return this.page.getByTestId(`cart-quantity`);
+    }
 }

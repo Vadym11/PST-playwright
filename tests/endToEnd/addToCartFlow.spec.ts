@@ -4,10 +4,11 @@ import { HomePage } from "../../pages/HomePage";
 import { LoginPage } from "../../pages/LoginPage";
 import { User } from "../../types/user";
 import { completeCheckoutAndVerifyBilling } from "../../utils/project-utils";
+import { PaymentMethods } from "../../types/paymentMethods";
 
 test.describe('Add to cart flow', () => {
     let newUser: User;
-    const currentYear = new Date().getFullYear();
+    const paymentMethod = PaymentMethods.cashOnDelivery;
 
     test.beforeAll('Register and store new user data', async ({newUserRegistered}) => {
         newUser = newUserRegistered;
@@ -29,6 +30,7 @@ test.describe('Add to cart flow', () => {
         await productPage.clickAddToCart();
 
         await expect(productPage.getAddedToCartPopUp()).toBeVisible();
+        await expect(productPage.getCartQuantity()).toHaveText('1');
 
         const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
@@ -36,7 +38,7 @@ test.describe('Add to cart flow', () => {
 
         const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, currentYear);
+        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
     })
 
     test('Add to cart (signed out existing user)', async({page}) => {
@@ -47,6 +49,7 @@ test.describe('Add to cart flow', () => {
         await productPage.clickAddToCart();
 
         await expect(productPage.getAddedToCartPopUp()).toBeVisible();
+        await expect(productPage.getCartQuantity()).toHaveText('1');
 
         const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
@@ -56,6 +59,6 @@ test.describe('Add to cart flow', () => {
 
         const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, currentYear);
+        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
     })
 });
