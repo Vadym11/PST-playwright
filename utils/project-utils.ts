@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { ShoppingCartBillingPage } from "../pages/shoppingCart/ShoppingCartBillingPage";
 import { User } from "../types/user";
+import { PaymentMethods } from "../types/paymentMethods";
 
 /**
  * Completes the checkout process and verifies billing details.
@@ -8,7 +9,12 @@ import { User } from "../types/user";
  * @param newUser 
  * @param currentYear 
  */
-export async function completeCheckoutAndVerifyBilling(shoppingCartBillingPage: ShoppingCartBillingPage, newUser: User, currentYear: number) {
+export async function completeCheckoutAndVerifyBilling(
+    shoppingCartBillingPage: ShoppingCartBillingPage, 
+    newUser: User, 
+    paymentMethod: PaymentMethods
+) {
+    const currentYear = new Date().getFullYear();
     const billingDetailsFields = shoppingCartBillingPage.getBillingAddresInputFields();
 
     await expect(billingDetailsFields.street).toHaveValue(newUser.address.street);
@@ -19,7 +25,26 @@ export async function completeCheckoutAndVerifyBilling(shoppingCartBillingPage: 
     const shoppingCartPaymentPage = await shoppingCartBillingPage.clickProceedToCheckout();
 
     await shoppingCartPaymentPage.openPaymentMethodsDropdownMenu();
-    await shoppingCartPaymentPage.selectCashOnDeliveryOption();
+    switch (paymentMethod) {
+        case PaymentMethods.cashOnDelivery:
+            await shoppingCartPaymentPage.selectCashOnDeliveryOption();
+            break;
+        case PaymentMethods.bankTransfer:
+            await shoppingCartPaymentPage.selectBankTransferAndFillDetails();
+            break;
+        case PaymentMethods.creditCard:
+            await shoppingCartPaymentPage.selectCreditCardAndFillDetails(newUser.first_name + ' ' + newUser.last_name);
+            break;
+        case PaymentMethods.giftCard:
+            await shoppingCartPaymentPage.selectGiftCard();
+            break;
+        case PaymentMethods.buyNowPayLater:
+            await shoppingCartPaymentPage.selectBuyNowPayLater();
+            break;
+        default:
+            throw new Error(`Method ${paymentMethod} not implemented yet.`);
+    }
+    // await shoppingCartPaymentPage.selectCashOnDeliveryOption();
     await shoppingCartPaymentPage.clickConfirmButton();
 
     await expect(shoppingCartPaymentPage.getPaymentSuccessMessage())
