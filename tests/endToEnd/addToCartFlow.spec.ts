@@ -10,7 +10,7 @@ test.describe('Add to cart flow', () => {
     let newUser: User;
     const paymentMethod = PaymentMethods.cashOnDelivery;
 
-    test.beforeAll('Register and store new user data', async ({newUserRegistered}) => {
+    test.beforeAll('Register and store new user data ', async ({newUserRegistered}) => {
         newUser = newUserRegistered;
     });
     

@@ -1,5 +1,5 @@
 # Use official Playwright image with browsers preinstalled
-FROM mcr.microsoft.com/playwright:v1.53.1-jammy
+FROM mcr.microsoft.com/playwright:v1.57.0-jammy
 
 # Set working directory inside the container
 WORKDIR /tests
