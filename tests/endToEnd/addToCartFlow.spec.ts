@@ -1,64 +1,62 @@
-import { test } from "../../fixtures/createNewUserAndLogin";
-import { expect } from "@playwright/test";
-import { HomePage } from "../../pages/HomePage";
-import { LoginPage } from "../../pages/LoginPage";
-import { User } from "../../types/user";
-import { completeCheckoutAndVerifyBilling } from "../../utils/project-utils";
-import { PaymentMethods } from "../../types/paymentMethods";
+import { test } from '../../fixtures/createNewUserAndLogin';
+import { expect } from '@playwright/test';
+import { HomePage } from '../../pages/HomePage';
+import { LoginPage } from '../../pages/LoginPage';
+import { User } from '../../types/user';
+import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
+import { PaymentMethods } from '../../types/paymentMethods';
 
 test.describe('Add to cart flow', () => {
-    let newUser: User;
-    const paymentMethod = PaymentMethods.cashOnDelivery;
+  let newUser: User;
+  const paymentMethod = PaymentMethods.cashOnDelivery;
 
-    test.beforeAll('Register and store new user data ', async ({newUserRegistered}) => {
-        newUser = newUserRegistered;
-    });
-    
-    test('Add to cart (signed in existing user)', async({page}) => {
+  test.beforeAll('Register and store new user data ', async ({ newUserRegistered }) => {
+    newUser = newUserRegistered;
+  });
 
-        const homePage = await new HomePage(page).goTo();
-        
-        await homePage.header.clickSignInLink();
+  test('Add to cart (signed in existing user)', async ({ page }) => {
+    const homePage = await new HomePage(page).goTo();
 
-        const myAccountPage = await new LoginPage(page)
-            .loginSuccess(newUser.email, newUser.password);
+    await homePage.header.clickSignInLink();
 
-        await myAccountPage.header.clickHomePageLink();
-                
-        const productPage = await homePage.clickFirstProduct();
+    const myAccountPage = await new LoginPage(page).loginSuccess(newUser.email, newUser.password);
 
-        await productPage.clickAddToCart();
+    await myAccountPage.header.clickHomePageLink();
 
-        await expect(productPage.getAddedToCartPopUp()).toBeVisible();
-        await expect(productPage.getCartQuantity()).toHaveText('1');
+    const productPage = await homePage.clickFirstProduct();
 
-        const shoppingCartMainPage = await productPage.header.clickCartIcon();
+    await productPage.clickAddToCart();
 
-        const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
+    await expect(productPage.getAddedToCartPopUp()).toBeVisible();
+    await expect(productPage.getCartQuantity()).toHaveText('1');
 
-        const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
+    const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
-        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
-    })
+    const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
-    test('Add to cart (signed out existing user)', async({page}) => {
-        const homePage = await new HomePage(page).goTo();
-                
-        const productPage = await homePage.clickFirstProduct();
+    const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-        await productPage.clickAddToCart();
+    await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
+  });
 
-        await expect(productPage.getAddedToCartPopUp()).toBeVisible();
-        await expect(productPage.getCartQuantity()).toHaveText('1');
+  test('Add to cart (signed out existing user)', async ({ page }) => {
+    const homePage = await new HomePage(page).goTo();
 
-        const shoppingCartMainPage = await productPage.header.clickCartIcon();
+    const productPage = await homePage.clickFirstProduct();
 
-        const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
+    await productPage.clickAddToCart();
 
-        await shoppingCartLoginPage.loginExistingUser(newUser.email, newUser.password);
+    await expect(productPage.getAddedToCartPopUp()).toBeVisible();
+    await expect(productPage.getCartQuantity()).toHaveText('1');
 
-        const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
+    const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
-        await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
-    })
+    const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
+
+    await shoppingCartLoginPage.loginExistingUser(newUser.email, newUser.password);
+
+    const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
+
+    await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
+  });
 });

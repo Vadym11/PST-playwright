@@ -1,68 +1,70 @@
-import { test } from "../../fixtures/apiFixtures";
+import { test } from '../../fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { HomePage } from "../../pages/HomePage";
-import { LoginPage } from "../../pages/LoginPage";
-import { generateRandomuserData,
-        getUserIdByEmailAPI,
-        getUserDataByEmailAPI,
-        deleteUserByIdAPI as deleteUser} from "../../utils/test-utils";
-import { User } from "../../types/user";
+import { HomePage } from '../../pages/HomePage';
+import { LoginPage } from '../../pages/LoginPage';
+import {
+  generateRandomuserData,
+  getUserIdByEmailAPI,
+  getUserDataByEmailAPI,
+  deleteUserByIdAPI as deleteUser,
+} from '../../utils/test-utils';
+import { User } from '../../types/user';
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
+  let newUserData: User;
+  let token: string;
 
-    let newUserData: User;
-    let token: string;
+  test.beforeAll('Generate new user data', async ({ adminToken }) => {
+    token = adminToken;
+    newUserData = generateRandomuserData();
+    console.log(`User with email ${newUserData.email} has been generated.`);
+  });
 
-    test.beforeAll('Generate new user data', async ({adminToken}) => {
-        token = adminToken;
-        newUserData = generateRandomuserData();
-        console.log(`User with email ${newUserData.email} has been generated.`);
+  test.afterAll('Delete registered user', async ({ request }) => {
+    const newUserId = await getUserIdByEmailAPI(request, token, newUserData.email);
+
+    await deleteUser(request, token, newUserId);
+    console.log(`User with email ${newUserData.email} has been deleted.`);
+  });
+
+  test('Register new user: happy path', async ({ page, request }) => {
+    await test.step('Register new user', async () => {
+      const homePage = await new HomePage(page).goTo();
+
+      await homePage.header.clickSignInLink();
+
+      const registerPage = await new LoginPage(page).clickRegisterLink();
+
+      const loginPage = await registerPage.registerNewUser(newUserData);
+
+      await expect(loginPage.getLoginHeader()).toContainText('Login');
+
+      console.log(
+        `User with email ${newUserData.email} and password ${newUserData.password} has registered.`,
+      );
     });
 
-    test.afterAll('Delete registered user', async ({request}) => {
-        const newUserId = await getUserIdByEmailAPI(request, token, newUserData.email);
+    await test.step('Verify user has been registered ', async () => {
+      const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
 
-        await deleteUser(request, token, newUserId);
-        console.log(`User with email ${newUserData.email} has been deleted.`);
+      expect(newUser.first_name).toBe(newUserData.first_name);
+      expect(newUser.last_name).toBe(newUserData.last_name);
+      expect(newUser.dob).toBe(newUserData.dob);
     });
+  });
 
-    test('Register new user: happy path', async ({page, request}) => {
+  test('Register new user: user exists', async ({ page }) => {
+    const homePage = await new HomePage(page).goTo();
 
-        await test.step('Register new user', async () => {
-            const homePage = await new HomePage(page).goTo();
+    await homePage.header.clickSignInLink();
 
-            await homePage.header.clickSignInLink();
+    const registerPage = await new LoginPage(page).clickRegisterLink();
 
-            const registerPage = await new LoginPage(page).clickRegisterLink();
+    await registerPage.registerNewUser(newUserData);
 
-            const loginPage = await registerPage.registerNewUser(newUserData);
-            
-            await expect(loginPage.getLoginHeader()).toContainText('Login');
-
-            console.log(`User with email ${newUserData.email} and password ${newUserData.password} has registered.`)
-        })
-
-        await test.step('Verify user has been registered ', async () => {
-            const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
-
-            expect(newUser.first_name).toBe(newUserData.first_name);
-            expect(newUser.last_name).toBe(newUserData.last_name);
-            expect(newUser.dob).toBe(newUserData.dob);
-        })
-    })
-
-    test('Register new user: user exists', async ({page}) => {
-        
-        const homePage = await new HomePage(page).goTo();
-
-        await homePage.header.clickSignInLink();
-
-        const registerPage = await new LoginPage(page).clickRegisterLink();
-
-        await registerPage.registerNewUser(newUserData);
-        
-        await expect(registerPage.getCustomerExistMessage())
-            .toContainText('A customer with this email address already exists.');
-    })
-})
+    await expect(registerPage.getCustomerExistMessage()).toContainText(
+      'A customer with this email address already exists.',
+    );
+  });
+});
