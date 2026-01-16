@@ -7,16 +7,16 @@ const MYSQL_DATABASE = process.env.MYSQL_DATABASE;
 const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD;
 
 const pool = mysql.createPool({
-    host: MYSQL_HOST,
-    port: MYSQL_PORT,
-    user: MYSQL_USER,
-    password: MYSQL_PASSWORD,
-    database: MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: MYSQL_HOST,
+  port: MYSQL_PORT,
+  user: MYSQL_USER,
+  password: MYSQL_PASSWORD,
+  database: MYSQL_DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 export default pool;
 // Use promise-based API for async/await support
-// module.exports = pool.promise(); 
+// module.exports = pool.promise();

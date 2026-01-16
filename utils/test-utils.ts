@@ -1,18 +1,18 @@
-import { User } from "../types/user";
+import { User } from '../types/user';
 import axios from 'axios';
-const userData = require("../test-data/registerUserData.json");
-const connection = require("./mysqldb");
+const userData = require('../test-data/registerUserData.json');
+const connection = require('./mysqldb');
 import config from '../playwright.config';
-import { APIRequestContext, expect } from "@playwright/test";
+import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 
 export const getAPIBaseUrl = () => {
-    const baseURL = config.use?.baseURL || '';
-    if (baseURL.includes('practicesoftwaretesting.com')) {
-        return baseURL.replace('://', '://api.');
-    }
-    return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
-}
+  const baseURL = config.use?.baseURL || '';
+  if (baseURL.includes('practicesoftwaretesting.com')) {
+    return baseURL.replace('://', '://api.');
+  }
+  return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
+};
 
 const apiBaseURL = getAPIBaseUrl();
 
@@ -23,13 +23,13 @@ const apiBaseURL = getAPIBaseUrl();
  * @returns A random integer.
  */
 export function getRandomIntInclusive(min: number, max: number): number {
-    // Ensure inputs are treated as integers for correct range calculation
-    const minCeiled: number = Math.ceil(min);
-    const maxFloored: number = Math.floor(max);
-    
-    // The maximum is inclusive and the minimum is inclusive
-    // Math.random() generates a number from [0, 1). Multiplying ensures it covers the whole range.
-    return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+  // Ensure inputs are treated as integers for correct range calculation
+  const minCeiled: number = Math.ceil(min);
+  const maxFloored: number = Math.floor(max);
+
+  // The maximum is inclusive and the minimum is inclusive
+  // Math.random() generates a number from [0, 1). Multiplying ensures it covers the whole range.
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
 }
 
 /**
@@ -38,7 +38,7 @@ export function getRandomIntInclusive(min: number, max: number): number {
  * @returns A random element from the array.
  */
 export function getRandomArrayElement(array: any[]) {
-    return array[getRandomIntInclusive(0, array.length - 1)]
+  return array[getRandomIntInclusive(0, array.length - 1)];
 }
 
 /**
@@ -47,68 +47,68 @@ export function getRandomArrayElement(array: any[]) {
  * @returns A User object with random data.
  */
 export function generateRandomuserData(): User {
-    const randomNumber = getRandomIntInclusive(0, 9999);
+  const randomNumber = getRandomIntInclusive(0, 9999);
 
-    const FIRST_NAME = getRandomArrayElement(userData.firstNames);
-    const LAST_NAME = getRandomArrayElement(userData.lastNames);
-    const DOB = getRandomArrayElement(userData.dob);
-    const STREET = getRandomArrayElement(userData.streets);
-    const POSTCODE = getRandomArrayElement(userData.postcodes);
-    const CITY = getRandomArrayElement(userData.cities);
-    const STATE = getRandomArrayElement(userData.states);
-    const COUNTRY = getRandomArrayElement(userData.countries);
-    const PHONE = getRandomArrayElement(userData.phones);
-    const EMAIL = `${FIRST_NAME}.${LAST_NAME}${randomNumber}@gmail.com`;
-    const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
+  const FIRST_NAME = getRandomArrayElement(userData.firstNames);
+  const LAST_NAME = getRandomArrayElement(userData.lastNames);
+  const DOB = getRandomArrayElement(userData.dob);
+  const STREET = getRandomArrayElement(userData.streets);
+  const POSTCODE = getRandomArrayElement(userData.postcodes);
+  const CITY = getRandomArrayElement(userData.cities);
+  const STATE = getRandomArrayElement(userData.states);
+  const COUNTRY = getRandomArrayElement(userData.countries);
+  const PHONE = getRandomArrayElement(userData.phones);
+  const EMAIL = `${FIRST_NAME}.${LAST_NAME}${randomNumber}@gmail.com`;
+  const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
 
-    return {
-        first_name: FIRST_NAME,
-        last_name: LAST_NAME,
-        address: {
-            street: STREET,
-            postal_code: POSTCODE,
-            city: CITY,
-            state: STATE,
-            country: COUNTRY,
-        },
-        dob: DOB,
-        phone: PHONE,
-        email: EMAIL.toLowerCase(),
-        password: PASSWORD
-    }
+  return {
+    first_name: FIRST_NAME,
+    last_name: LAST_NAME,
+    address: {
+      street: STREET,
+      postal_code: POSTCODE,
+      city: CITY,
+      state: STATE,
+      country: COUNTRY,
+    },
+    dob: DOB,
+    phone: PHONE,
+    email: EMAIL.toLowerCase(),
+    password: PASSWORD,
+  };
 }
 
 /** Generates random user data for registration using Faker library.
  * @returns A User object with random data.
  */
 export function generateRandomuserDataFaker(): User {
-    const FIRST_NAME = faker.name.firstName();
-    const LAST_NAME = faker.name.lastName();
-    const DOB = faker.date.birthdate({min: 18, max: 65, mode: 'age'}).toISOString().split('T')[0];
-    const STREET = faker.address.streetAddress();
-    const POSTCODE = faker.address.zipCode();
-    const CITY = faker.address.city();
-    const STATE = faker.address.state();
-    const COUNTRY = faker.address.country();
-    const PHONE = faker.phone.number('+#-###-###-####');
-    const EMAIL = `${FIRST_NAME}.${LAST_NAME}@gmail.com`;
-    const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
+  const FIRST_NAME = faker.name.firstName();
+  const LAST_NAME = faker.name.lastName();
+  const DOB = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
+  const STREET = faker.address.streetAddress();
+  const POSTCODE = faker.address.zipCode();
+  const CITY = faker.address.city();
+  const STATE = faker.address.state();
+  const COUNTRY = faker.address.country();
+  const PHONE = faker.phone.number('+#-###-###-####');
+  const EMAIL = `${FIRST_NAME}.${LAST_NAME}@gmail.com`;
+  const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
 
-    return {
-        first_name: FIRST_NAME,
-        last_name: LAST_NAME,
-        address: {
-            street: STREET,
-            postal_code: POSTCODE,
-            city: CITY,
-            state: STATE,
-            country: COUNTRY,
-        },
-        dob: DOB,
-        phone: PHONE,
-        email: EMAIL.toLowerCase(),
-        password: PASSWORD
-    }
+  return {
+    first_name: FIRST_NAME,
+    last_name: LAST_NAME,
+    address: {
+      street: STREET,
+      postal_code: POSTCODE,
+      city: CITY,
+      state: STATE,
+      country: COUNTRY,
+    },
+    dob: DOB,
+    phone: PHONE,
+    email: EMAIL.toLowerCase(),
+    password: PASSWORD,
+  };
 }
 
 /**
@@ -117,13 +117,13 @@ export function generateRandomuserDataFaker(): User {
  * @returns The user ID.
  */
 export async function getUserIdByEmail(email: string): Promise<string> {
-    for (let i = 0; i < 5; i++) {
-        const [rows] = await connection.execute('SELECT id FROM users WHERE email = ?;', [email]);
-        if (rows && rows.length > 0) return rows[0].id;
-        await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-    }
-    
-    throw new Error(`User with email ${email} was not found in DB after registration.`);
+  for (let i = 0; i < 5; i++) {
+    const [rows] = await connection.execute('SELECT id FROM users WHERE email = ?;', [email]);
+    if (rows && rows.length > 0) return rows[0].id;
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  }
+
+  throw new Error(`User with email ${email} was not found in DB after registration.`);
 }
 
 /** Retrieves user data from the API by email using Axios.
@@ -132,25 +132,25 @@ export async function getUserIdByEmail(email: string): Promise<string> {
  * @returns The user data.
  */
 export async function getUserDataByEmailAxios(token: string, email: string): Promise<any> {
-    const apiURL = `${apiBaseURL}/users/search`;
+  const apiURL = `${apiBaseURL}/users/search`;
 
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        params: {
-            q: email
-        }
-    }
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    params: {
+      q: email,
+    },
+  };
 
-    const response = await axios.get(apiURL, config);
+  const response = await axios.get(apiURL, config);
 
-    if (response.data.data.length === 0) {
-        throw new Error(`User with email ${email} was not found in API response.`);
-    } else {
-        return response.data.data[0];
-    }
+  if (response.data.data.length === 0) {
+    throw new Error(`User with email ${email} was not found in API response.`);
+  } else {
+    return response.data.data[0];
+  }
 }
 
 /**
@@ -160,29 +160,33 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
  * @param email The email address of the user.
  * @returns The user data.
  */
-export async function getUserDataByEmailAPI(request: APIRequestContext, token: string, email: string): Promise<any> {
-    const apiURL = `${apiBaseURL}/users/search`;
-    const payload = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        params: {
-            q: email
-        }
-    }
+export async function getUserDataByEmailAPI(
+  request: APIRequestContext,
+  token: string,
+  email: string,
+): Promise<any> {
+  const apiURL = `${apiBaseURL}/users/search`;
+  const payload = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    params: {
+      q: email,
+    },
+  };
 
-    const response = await request.get(apiURL, payload);
+  const response = await request.get(apiURL, payload);
 
-    expect(response.status()).toBe(200);
+  expect(response.status()).toBe(200);
 
-    const body = await response.json();
+  const body = await response.json();
 
-    if (body.data.length === 0) {
-        throw new Error(`User with email ${email} was not found in API response.`);
-    }
+  if (body.data.length === 0) {
+    throw new Error(`User with email ${email} was not found in API response.`);
+  }
 
-    return body.data[0];
+  return body.data[0];
 }
 
 /** Retrieves user ID from the API by email.
@@ -191,10 +195,14 @@ export async function getUserDataByEmailAPI(request: APIRequestContext, token: s
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(request: APIRequestContext, token: string, email: string): Promise<string> {
-    const user = await getUserDataByEmailAPI(request, token, email);
+export async function getUserIdByEmailAPI(
+  request: APIRequestContext,
+  token: string,
+  email: string,
+): Promise<string> {
+  const user = await getUserDataByEmailAPI(request, token, email);
 
-    return user.id;
+  return user.id;
 }
 
 /** Deletes a user via API by user ID.
@@ -202,66 +210,79 @@ export async function getUserIdByEmailAPI(request: APIRequestContext, token: str
  * @param token The authorization token.
  * @param userID The ID of the user to delete.
  */
-export async function deleteUserByIdAPI(request: APIRequestContext, token: string, userID: string): Promise<void> {
-    const apiURL = `${apiBaseURL}/users/${userID}`;
+export async function deleteUserByIdAPI(
+  request: APIRequestContext,
+  token: string,
+  userID: string,
+): Promise<void> {
+  const apiURL = `${apiBaseURL}/users/${userID}`;
 
-    const payload = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    }
+  const payload = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  };
 
-    const response = await request.delete(apiURL, payload);
+  const response = await request.delete(apiURL, payload);
 
-    expect(response.status()).toBe(204);
+  expect(response.status()).toBe(204);
 }
 
 /** Deletes a user and related data from the database by user ID.
  * @param userId The ID of the user to delete.
  */
 export async function deleteUserById(userId: string): Promise<void> {
-    const [result1] = await connection.execute('DELETE FROM invoice_items WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);', [userId]);
-    console.log(`Cleanup: deleted ${result1.affectedRows} invoice items`);
+  const [result1] = await connection.execute(
+    'DELETE FROM invoice_items WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);',
+    [userId],
+  );
+  console.log(`Cleanup: deleted ${result1.affectedRows} invoice items`);
 
-    const [result2] = await connection.execute('DELETE FROM payments WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);', [userId]);
-    console.log(`Cleanup: deleted ${result2.affectedRows} payments`);
+  const [result2] = await connection.execute(
+    'DELETE FROM payments WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);',
+    [userId],
+  );
+  console.log(`Cleanup: deleted ${result2.affectedRows} payments`);
 
-    const [result3] = await connection.execute('DELETE FROM invoices WHERE user_id = ?;', [userId]);
-    console.log(`Cleanup: deleted ${result3.affectedRows} invoices`);
+  const [result3] = await connection.execute('DELETE FROM invoices WHERE user_id = ?;', [userId]);
+  console.log(`Cleanup: deleted ${result3.affectedRows} invoices`);
 
-    const [result4] = await connection.execute('DELETE FROM users WHERE id = ?;', [userId]);
-    console.log(`Cleanup: deleted ${result4.affectedRows} users`);  
+  const [result4] = await connection.execute('DELETE FROM users WHERE id = ?;', [userId]);
+  console.log(`Cleanup: deleted ${result4.affectedRows} users`);
 }
 
 /** Generates and registers multiple users via API.
  * @param userCount The number of users to generate and register.
  * @param adminToken The authorization token.
  */
-export async function generateAndRegisterUsers(userCount: number, adminToken: string): Promise<void> {
-    const apiURL = `${apiBaseURL}/users/register`;
-   
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-        }
-    };
+export async function generateAndRegisterUsers(
+  userCount: number,
+  adminToken: string,
+): Promise<void> {
+  const apiURL = `${apiBaseURL}/users/register`;
 
-    for (let i = 0; i < userCount; i++) {
-        try {
-            const newUser = generateRandomuserData();
-            const response = await axios.post(apiURL, newUser, config);
-            console.log(`User ${i + 1}/${userCount} registered: ${response.data.id}`);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                // TypeScript now knows 'error' has 'response', 'status', etc.
-                console.error(`Status: ${error.response?.status}`);
-                console.error(`Data:`, error.response?.data);
-            } else {
-                // Handle non-axios errors (like code crashes)
-                console.error('An unexpected error occurred:', error);
-            }    
-        }
+  const config = {
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+    },
+  };
+
+  for (let i = 0; i < userCount; i++) {
+    try {
+      const newUser = generateRandomuserData();
+      const response = await axios.post(apiURL, newUser, config);
+      console.log(`User ${i + 1}/${userCount} registered: ${response.data.id}`);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // TypeScript now knows 'error' has 'response', 'status', etc.
+        console.error(`Status: ${error.response?.status}`);
+        console.error(`Data:`, error.response?.data);
+      } else {
+        // Handle non-axios errors (like code crashes)
+        console.error('An unexpected error occurred:', error);
+      }
     }
+  }
 }
