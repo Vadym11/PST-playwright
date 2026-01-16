@@ -1,53 +1,50 @@
-import { Locator, Page } from "@playwright/test";
-import { BasePage } from "../BasePage";
-import { ShoppingCartBillingPage } from "./ShoppingCartBillingPage";
+import { Locator, Page } from '@playwright/test';
+import { BasePage } from '../BasePage';
+import { ShoppingCartBillingPage } from './ShoppingCartBillingPage';
 
 export class ShoppingCartLoginPage extends BasePage {
+  private readonly proceedToCheckoutButton: Locator;
+  private readonly emailAddressField: Locator;
+  private readonly passwordField: Locator;
+  private readonly loginButton: Locator;
 
-    private readonly proceedToCheckoutButton: Locator;
-    private readonly emailAddressField: Locator;
-    private readonly passwordField: Locator;
-    private readonly loginButton: Locator;
+  constructor(page: Page) {
+    super(page);
+    this.proceedToCheckoutButton = page.getByRole('button', { name: 'Proceed to checkout' });
+    this.emailAddressField = page.getByTestId('email');
+    this.passwordField = page.getByTestId('password');
+    this.loginButton = page.getByTestId('login-submit');
+  }
 
+  async clickProceedToCheckout(): Promise<ShoppingCartBillingPage> {
+    await this.proceedToCheckoutButton.click();
 
-    constructor(page: Page) {
-        super(page);
-        this.proceedToCheckoutButton = page.getByRole('button', {name: 'Proceed to checkout'});
-        this.emailAddressField = page.getByTestId('email');
-        this.passwordField = page.getByTestId('password');
-        this.loginButton = page.getByTestId('login-submit');
-    }
+    return new ShoppingCartBillingPage(this.page);
+  }
 
-    async clickProceedToCheckout(): Promise<ShoppingCartBillingPage> {
+  async enterEmailAddress(email: string): Promise<this> {
+    await this.emailAddressField.fill(email);
 
-        await this.proceedToCheckoutButton.click();
+    return this;
+  }
 
-        return new ShoppingCartBillingPage(this.page);
-    }
+  async enterPassword(password: string): Promise<this> {
+    await this.passwordField.fill(password);
 
-    async enterEmailAddress(email: string): Promise<this> {
-        await this.emailAddressField.fill(email);
+    return this;
+  }
 
-        return this;
-    }
+  async clickLoginButton(): Promise<this> {
+    await this.loginButton.click();
 
-    async enterPassword(password: string): Promise<this> {
-        await this.passwordField.fill(password);
+    return this;
+  }
 
-        return this;
-    }
+  async loginExistingUser(email: string, password: string): Promise<this> {
+    await this.enterEmailAddress(email);
+    await this.enterPassword(password);
+    await this.clickLoginButton();
 
-    async clickLoginButton(): Promise<this> {
-        await this.loginButton.click();
-
-        return this;
-    }
-
-    async loginExistingUser(email: string, password: string): Promise<this> {
-        await this.enterEmailAddress(email);
-        await this.enterPassword(password);
-        await this.clickLoginButton();
-
-        return this;
-    }
+    return this;
+  }
 }

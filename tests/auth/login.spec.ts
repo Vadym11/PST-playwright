@@ -1,82 +1,75 @@
-import {test, expect, FullConfig} from '@playwright/test';
+import { test, expect, FullConfig } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import { HomePage } from '../../pages/HomePage';
 import { LoginPage } from '../../pages/LoginPage';
 
 test.describe('Login Feature ', () => {
+  const authFile = path.join(__dirname, '../playwright/.auth/userGlobal.json');
 
-    const authFile = path.join(__dirname, '../playwright/.auth/userGlobal.json');
+  const email = process.env.EMAIL!;
+  const password = process.env.PASSWORD_!;
 
-    const email = process.env.EMAIL!;
-    const password = process.env.PASSWORD_!;
+  test.skip('Login_withValidUserCredentials_dasboardIsDisplayed', async ({ page }) => {
+    await page.goto('');
 
-    test.skip('Login_withValidUserCredentials_dasboardIsDisplayed', async ({page}) => {
-        await page.goto('');
+    await page.locator('[data-test="nav-sign-in"]').click();
 
-        await page.locator('[data-test="nav-sign-in"]').click();
+    await page.locator('[data-test="email"]').fill(email);
+    await page.locator('[data-test="password"]').fill(password);
+    await page.locator('[data-test="login-submit"]').click();
 
-        await page.locator('[data-test="email"]').fill(email);
-        await page.locator('[data-test="password"]').fill(password);
-        await page.locator('[data-test="login-submit"]').click();
+    await expect(page.locator('[data-test="page-title"]')).toContainText('My account');
+  });
 
-        await expect(page.locator('[data-test="page-title"]')).toContainText('My account');
-    });
+  test('Login and save storage state', async ({ page }) => {
+    const authFile = path.join(__dirname, '.authFile/userLocal.json');
+    if (!fs.existsSync(authFile)) {
+      console.log('Starting authentification...');
+      const homePage = new HomePage(page);
+      homePage.goTo();
 
-    test('Login and save storage state', async ({page}) => {
-        const authFile = path.join(__dirname, '.authFile/userLocal.json');
-        if (!fs.existsSync(authFile)) {
-            console.log('Starting authentification...')
-            const homePage = new HomePage(page);
-            homePage.goTo();
+      await homePage.header.clickMainBanner();
 
-            await homePage.header.clickMainBanner();
+      await homePage.header.clickSignInLink();
 
-            await homePage.header.clickSignInLink();
+      const myAccountPage = await new LoginPage(page).loginSuccess(email, password);
 
-            const myAccountPage = await new LoginPage(page)
-                .loginSuccess(email, password);
+      await expect(myAccountPage.myAccountTitle).toHaveText('My account');
 
-            await expect(myAccountPage.myAccountTitle).toHaveText('My account');
+      await page.context().storageState({ path: authFile });
 
-            await page.context().storageState({ path: authFile });
+      console.log('Authentification finished sucessfully!');
+    }
+  });
 
-            console.log('Authentification finished sucessfully!')
-        }   
-    });
+  test.skip('Login POM happy path', async ({ page }) => {
+    const homePage = await new HomePage(page).goTo();
 
-    test.skip('Login POM happy path', async ({page}) => {
+    await homePage.header.signOut();
+    await homePage.header.clickSignInLink();
 
-        const homePage = await new HomePage(page).goTo();
+    const myAccountPage = await new LoginPage(page).loginSuccess(email, password);
 
-        await homePage.header.signOut();
-        await homePage.header.clickSignInLink();
+    await expect(myAccountPage.myAccountTitle).toHaveText('My account');
+  });
 
-        const myAccountPage = await new LoginPage(page)
-            .loginSuccess(email, password);
+  test.skip('Login POM incorrect email format', async ({ page }) => {
+    const homePage = await new HomePage(page).goTo();
 
-        await expect(myAccountPage.myAccountTitle).toHaveText('My account');
-    });
+    await homePage.header.signOut();
+    await homePage.header.clickSignInLink();
 
-    test.skip('Login POM incorrect email format', async ({page}) => {
+    const loginPage = await new LoginPage(page).loginFail('emaill.@gmail.com', password);
 
-        const homePage = await new HomePage(page).goTo();
+    await expect(loginPage.invalidEmailFormatMsg).toHaveText('Email format is invalid');
+  });
 
-        await homePage.header.signOut();
-        await homePage.header.clickSignInLink();
-
-        const loginPage = await new LoginPage(page)
-            .loginFail('emaill.@gmail.com', password);
-
-        await expect(loginPage.invalidEmailFormatMsg).toHaveText('Email format is invalid');
-    });
-
-
-    // The after hook ensures cleanup happens regardless of test pass/fail
-    test.afterAll(async () => {
-        if (fs.existsSync(authFile)) {
-            console.log(`Deleting storage state file: ${authFile}`);
-            fs.unlinkSync(authFile); // Force delete the file
-        }
-    });
+  // The after hook ensures cleanup happens regardless of test pass/fail
+  test.afterAll(async () => {
+    if (fs.existsSync(authFile)) {
+      console.log(`Deleting storage state file: ${authFile}`);
+      fs.unlinkSync(authFile); // Force delete the file
+    }
+  });
 });

@@ -3,10 +3,9 @@ import { Page } from '@playwright/test';
 // import { LoginPage } from './loginPage';
 
 export abstract class BasePage {
+  protected readonly page: Page;
 
-    protected readonly page: Page;
-    
-    constructor(page: Page) {
-        this.page = page;
-    }
+  constructor(page: Page) {
+    this.page = page;
+  }
 }

@@ -1,4 +1,3 @@
-import { deleteUserById, getUserIdByEmail } from "../utils/test-utils";
 import { User } from "../types/user";
 import { test as baseTest} from './apiFixtures';
 
