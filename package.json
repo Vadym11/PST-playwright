@@ -3,15 +3,34 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format:check": "prettier --check ."
+  },
+  "lint-staged": {
+  "*.ts": [
+    "prettier --write",
+    "eslint --fix"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.53.1",
     "@types/node": "^24.0.7",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
     "dotenv": "^17.2.3",
-    "mysql2": "^3.16.0"
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "mysql2": "^3.16.0",
+    "prettier": "^3.8.0"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
