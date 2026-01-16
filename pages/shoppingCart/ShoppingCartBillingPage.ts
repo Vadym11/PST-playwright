@@ -1,7 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "../BasePage";
 import { ShoppingCartPaymentPage } from "./ShoppingCartPaymentPage";
-const user = require("../../types/user")
 import { BillingFields } from "../../types/billingFields";
 
 export class ShoppingCartBillingPage extends BasePage {

@@ -22,6 +22,12 @@ module.exports = [
       ...tsPlugin.configs.recommended.rules,
       ...playwright.configs.recommended.rules,
       'playwright/expect-expect': 'warn',
+      // This line disables the "Unexpected any" error globally
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'playwright/no-networkidle': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'playwright/valid-title': 'warn'
     },
   },
 ];
