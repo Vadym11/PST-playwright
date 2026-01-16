@@ -25,6 +25,7 @@ export async function completeCheckoutAndVerifyBilling(
     const shoppingCartPaymentPage = await shoppingCartBillingPage.clickProceedToCheckout();
 
     await shoppingCartPaymentPage.openPaymentMethodsDropdownMenu();
+
     switch (paymentMethod) {
         case PaymentMethods.cashOnDelivery:
             await shoppingCartPaymentPage.selectCashOnDeliveryOption();
@@ -44,7 +45,7 @@ export async function completeCheckoutAndVerifyBilling(
         default:
             throw new Error(`Method ${paymentMethod} not implemented yet.`);
     }
-    // await shoppingCartPaymentPage.selectCashOnDeliveryOption();
+
     await shoppingCartPaymentPage.clickConfirmButton();
 
     await expect(shoppingCartPaymentPage.getPaymentSuccessMessage())

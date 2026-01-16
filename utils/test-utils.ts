@@ -4,6 +4,7 @@ const userData = require("../test-data/registerUserData.json");
 const connection = require("./mysqldb");
 import config from '../playwright.config';
 import { APIRequestContext, expect } from "@playwright/test";
+import { faker } from '@faker-js/faker';
 
 export const getAPIBaseUrl = () => {
     const baseURL = config.use?.baseURL || '';
@@ -58,6 +59,39 @@ export function generateRandomuserData(): User {
     const COUNTRY = getRandomArrayElement(userData.countries);
     const PHONE = getRandomArrayElement(userData.phones);
     const EMAIL = `${FIRST_NAME}.${LAST_NAME}${randomNumber}@gmail.com`;
+    const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
+
+    return {
+        first_name: FIRST_NAME,
+        last_name: LAST_NAME,
+        address: {
+            street: STREET,
+            postal_code: POSTCODE,
+            city: CITY,
+            state: STATE,
+            country: COUNTRY,
+        },
+        dob: DOB,
+        phone: PHONE,
+        email: EMAIL.toLowerCase(),
+        password: PASSWORD
+    }
+}
+
+/** Generates random user data for registration using Faker library.
+ * @returns A User object with random data.
+ */
+export function generateRandomuserDataFaker(): User {
+    const FIRST_NAME = faker.name.firstName();
+    const LAST_NAME = faker.name.lastName();
+    const DOB = faker.date.birthdate({min: 18, max: 65, mode: 'age'}).toISOString().split('T')[0];
+    const STREET = faker.address.streetAddress();
+    const POSTCODE = faker.address.zipCode();
+    const CITY = faker.address.city();
+    const STATE = faker.address.state();
+    const COUNTRY = faker.address.country();
+    const PHONE = faker.phone.number('+#-###-###-####');
+    const EMAIL = `${FIRST_NAME}.${LAST_NAME}@gmail.com`;
     const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
 
     return {

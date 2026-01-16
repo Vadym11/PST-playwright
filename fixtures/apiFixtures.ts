@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
 import { User } from "../types/user";
-import { generateRandomuserData, getAPIBaseUrl } from '../utils/test-utils';
+import { generateRandomuserData, generateRandomuserDataFaker, getAPIBaseUrl } from '../utils/test-utils';
 
 const email = process.env.EMAIL!;
 const password = process.env.PASSWORD_!;
@@ -44,7 +44,7 @@ const test = base.extend<ApiFixtures>({
 
     newUserRegistered: async ({request, adminToken}, use) => {
         const apiURL = `${apiBaseURL}/users/register`;
-        const user = generateRandomuserData();
+        const user = generateRandomuserDataFaker();
         const payload = {
             headers: {
                 Authorization: `Bearer ${adminToken}`
