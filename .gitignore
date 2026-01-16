@@ -25,3 +25,5 @@ tests/auth/.authFile
 .DS_Store
 
 .cmd
+
+fix-casing.sh
