@@ -21,6 +21,11 @@ test.describe('Checkout flow', () => {
 
   const userPath = path.join(process.cwd(), 'playwright/.auth/user.json');
   const userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
+
+  test.afterEach(async ({ page }) => {
+    // Cooldown for the backend
+    await page.waitForTimeout(2000); 
+  });
   
   paymentMethods.forEach((paymentMethod) => {
     test(`Use ${paymentMethod}`, async ({ page }) => {
