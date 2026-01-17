@@ -5,8 +5,9 @@ import { LoginPage } from '../../pages/LoginPage';
 import { User } from '../../types/user';
 import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
 import { PaymentMethods } from '../../types/paymentMethods';
+import path from 'path';
 
-test.describe('Add to cart flow', () => {
+test.describe('Checkout flow', () => {
   let newUser: User;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
@@ -14,12 +15,13 @@ test.describe('Add to cart flow', () => {
     newUser = newUserRegistered;
   });
 
-  test('Add to cart (signed in existing user)', async ({ page }) => {
+  test('Signed in existing user)', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     await homePage.header.clickSignInLink();
 
-    const myAccountPage = await new LoginPage(page).loginSuccess(newUser.email, newUser.password);
+    const myAccountPage = await new LoginPage(page)
+      .loginSuccess(newUser.email, newUser.password);
 
     await myAccountPage.header.clickHomePageLink();
 
@@ -39,7 +41,7 @@ test.describe('Add to cart flow', () => {
     await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
   });
 
-  test('Add to cart (signed out existing user)', async ({ page }) => {
+  test('Signed out existing user)', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     const productPage = await homePage.clickFirstProduct();
