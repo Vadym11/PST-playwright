@@ -28,7 +28,7 @@ export class ShoppingCartPaymentPage extends BasePage {
   async selectBankTransferAndFillDetails(): Promise<this> {
     const bankAccountName = faker.finance.accountName();
     const bankAccountNumber = faker.finance.account(10);
-    const bankName = `${faker.company.name().replaceAll(/[-,]/g, ' ')} Bank`;
+    const bankName = `${faker.company.name().replaceAll(/[-,]/g, '')} Bank`;
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'bank-transfer' });
 
@@ -50,7 +50,7 @@ export class ShoppingCartPaymentPage extends BasePage {
     const cvv = faker.finance.creditCardCVV();
     const expDate = new Intl.DateTimeFormat('en-US', {
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     }).format(faker.date.future());
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'credit-card' });
@@ -68,7 +68,7 @@ export class ShoppingCartPaymentPage extends BasePage {
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'buy-now-pay-later' });
 
-    await this.page.getByTestId('monthly_installments').selectOption({ value: option});
+    await this.page.getByTestId('monthly_installments').selectOption({ value: option });
 
     return this;
   }
