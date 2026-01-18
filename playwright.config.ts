@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-
-dotenv.config({debug: true});
+// import dotenv from 'dotenv';
+import 'dotenv/config';
 
 const baseURL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${baseURL}`);

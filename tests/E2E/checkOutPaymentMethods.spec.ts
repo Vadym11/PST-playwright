@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 
 test.describe('Checkout flow', () => {
+  let userData: any;
 
   const paymentMethods = [
     PaymentMethods.cashOnDelivery,
@@ -16,15 +17,12 @@ test.describe('Checkout flow', () => {
     PaymentMethods.creditCard
   ];
 
-  const authFile = '../../playwright/.auth/userGlobal.json';
+  const authFile = '../../playwright/.auth/userState.json';
   test.use({ storageState: path.join(__dirname, authFile) });
 
-  const userPath = path.join(process.cwd(), 'playwright/.auth/user.json');
-  const userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
-
-  test.afterEach(async ({ page }) => {
-    // Cooldown for the backend
-    await page.waitForTimeout(1000); 
+  test.beforeAll(async () => {
+    const userPath = path.join(process.cwd(), 'playwright/.auth/userData.json');
+    userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
   });
   
   paymentMethods.forEach((paymentMethod) => {
