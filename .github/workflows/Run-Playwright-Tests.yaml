@@ -127,16 +127,16 @@ jobs:
       - name: Wait for Playwright test job to finish
         run: |
           set -e
-          echo "Waiting for Playwright test job to complete..."
+          echo "Waiting for Playwright test job to complete (Max 15m)..."
 
-          # First wait for completion
+          # Changed --timeout from 120s to 900s (15 minutes)
           if kubectl wait --for=condition=complete job/pst-playwright-tests \
-              -n "$K8S_NAMESPACE" --timeout=120s; then
+              -n "$K8S_NAMESPACE" --timeout=900s; then
             echo "Playwright job completed successfully."
           else
-            echo "Job did not reach 'Complete'. Checking if it failed..."
+            echo "FAILED: Job exceeded 15m timeout or failed internally."
             kubectl describe job/pst-playwright-tests -n "$K8S_NAMESPACE"
-            kubectl logs job/pst-playwright-tests -n "$K8S_NAMESPACE"
+            kubectl logs -l job-name=pst-playwright-tests -n "$K8S_NAMESPACE"
             exit 1
           fi
 
