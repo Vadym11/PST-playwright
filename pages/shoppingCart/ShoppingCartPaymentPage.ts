@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { HeaderCommon } from '../HeaderCommon';
+import { faker } from '@faker-js/faker';
 
 export class ShoppingCartPaymentPage extends BasePage {
   private readonly choosePaymentMethodMenu: Locator;
@@ -25,11 +26,15 @@ export class ShoppingCartPaymentPage extends BasePage {
   }
 
   async selectBankTransferAndFillDetails(): Promise<this> {
+    const bankAccountName = faker.finance.accountName();
+    const bankAccountNumber = faker.finance.account(10);
+    const bankName = `${faker.company.name().replaceAll(/[-,]/g, ' ')} Bank`;
+
     await this.choosePaymentMethodMenu.selectOption({ value: 'bank-transfer' });
 
-    await this.page.getByTestId('bank_name').fill('Test Bank');
-    await this.page.getByTestId('account_name').fill('Test Account');
-    await this.page.getByTestId('account_number').fill('123456781');
+    await this.page.getByTestId('bank_name').fill(bankName);
+    await this.page.getByTestId('account_name').fill(bankAccountName);
+    await this.page.getByTestId('account_number').fill(bankAccountNumber);
 
     return this;
   }
@@ -41,29 +46,41 @@ export class ShoppingCartPaymentPage extends BasePage {
   }
 
   async selectCreditCardAndFillDetails(cardHolderName: string): Promise<this> {
+    const creditCardNumber = faker.finance.creditCardNumber('####-####-####-####');
+    const cvv = faker.finance.creditCardCVV();
+    const expDate = new Intl.DateTimeFormat('en-US', {
+      month: '2-digit',
+      year: 'numeric'
+    }).format(faker.date.future());
+
     await this.choosePaymentMethodMenu.selectOption({ value: 'credit-card' });
 
-    await this.page.getByTestId('credit_card_number').fill('4111-1111-1111-1111');
-    await this.page.getByTestId('expiration_date').fill('05/2029');
-    await this.page.getByTestId('cvv').fill('123');
+    await this.page.getByTestId('credit_card_number').fill(creditCardNumber);
+    await this.page.getByTestId('expiration_date').fill(expDate);
+    await this.page.getByTestId('cvv').fill(cvv);
     await this.page.getByTestId('card_holder_name').fill(cardHolderName);
 
     return this;
   }
 
   async selectBuyNowPayLater(): Promise<this> {
+    const option = faker.helpers.arrayElement(['3', '6', '9', '12']);
+
     await this.choosePaymentMethodMenu.selectOption({ value: 'buy-now-pay-later' });
 
-    await this.page.getByTestId('monthly_installments').selectOption({ value: '6' });
+    await this.page.getByTestId('monthly_installments').selectOption({ value: option});
 
     return this;
   }
 
   async selectGiftCard(): Promise<this> {
+    const giftCardNumber = `GIFTCARD${faker.random.alphaNumeric(6).toUpperCase()}`;
+    const giftCardCode = `CODE${faker.random.alphaNumeric(6).toUpperCase()}`;
+
     await this.choosePaymentMethodMenu.selectOption({ value: 'gift-card' });
 
-    await this.page.getByTestId('gift_card_number').fill('GIFTCARD1234');
-    await this.page.getByTestId('validation_code').fill('CODE123');
+    await this.page.getByTestId('gift_card_number').fill(giftCardNumber);
+    await this.page.getByTestId('validation_code').fill(giftCardCode);
 
     return this;
   }
