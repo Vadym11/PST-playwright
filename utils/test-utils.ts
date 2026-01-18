@@ -111,6 +111,50 @@ export function generateRandomuserDataFaker(): User {
   };
 }
 
+export async function registerRandomUser(request: APIRequestContext): Promise<User> {
+  const email = process.env.EMAIL!;
+  const password = process.env.PASSWORD_!;
+  const apiBaseURL = getAPIBaseUrl();
+
+  const user = generateRandomuserDataFaker();
+
+  let apiURL = `${apiBaseURL}/users/login`;
+
+  const payload = {
+    data: {
+        "email": email,
+        "password": password
+    },
+    headers: { 'Content-Type': 'application/json' }
+  }
+  
+  const response = await request.post(apiURL, payload);
+
+  if (!response.ok()) {
+    const errorText = await response.text(); 
+    console.error('--- SERVER ERROR DETAIL ---');
+    console.error(errorText); // This will tell you EXACTLY what failed in the PHP/Laravel backend
+    console.error('---------------------------');
+    throw new Error(`Login failed: ${response.status()}`);
+  }
+
+  const token = await response.json().then(data => data.access_token);
+
+  apiURL = `${apiBaseURL}/users/register`;
+  const payload1 = {
+      headers: {
+          Authorization: `Bearer ${token}`
+      },
+      data: user
+  }
+
+  await request.post(apiURL, payload1);
+
+  console.log(`User with email ${user.email} has been registered via API.`);
+
+  return user;
+}
+
 /**
  * Retrieves a user ID from the database by email.
  * @param email The email address of the user.

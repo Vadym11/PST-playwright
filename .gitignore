@@ -11,7 +11,8 @@ stryker.log
 
 # Authentication file
 # -------------------------
-playwright/.auth
+
+playwright/.auth/
 tests/auth/.authFile
 
 # -------------------------
