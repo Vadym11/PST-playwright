@@ -10,10 +10,10 @@ test.describe('Checkout flow', () => {
 
   const paymentMethods = [
     PaymentMethods.cashOnDelivery,
-    PaymentMethods.giftCard
-    // PaymentMethods.bankTransfer,
-    // PaymentMethods.buyNowPayLater,
-    // PaymentMethods.creditCard
+    PaymentMethods.giftCard,
+    PaymentMethods.bankTransfer,
+    PaymentMethods.buyNowPayLater,
+    PaymentMethods.creditCard
   ];
 
   const authFile = '../../playwright/.auth/userGlobal.json';

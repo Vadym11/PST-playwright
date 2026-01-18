@@ -160,5 +160,14 @@ jobs:
       - name: Delete namespace
         if: always()
         run: |
-          echo "Deleting namespace: $K8S_NAMESPACE"
-          kubectl delete namespace "$K8S_NAMESPACE" --wait=false || true
+          # Check if the job status is 'failure'
+          if [ "${{ job.status }}" == "failure" ]; then
+            echo "Tests failed! Keeping namespace $K8S_NAMESPACE for 10 minutes of investigation..."
+            echo "You can now run: kubectl get pods -n $K8S_NAMESPACE"
+            sleep 600
+          fi
+
+          # echo "Deleting namespace: $K8S_NAMESPACE"
+          # kubectl delete namespace "$K8S_NAMESPACE" --wait=false || true
+          # echo "Deleting namespace: $K8S_NAMESPACE"
+          # kubectl delete namespace "$K8S_NAMESPACE" --wait=false || true
