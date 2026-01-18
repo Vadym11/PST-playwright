@@ -7,7 +7,7 @@ import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
 import { PaymentMethods } from '../../types/paymentMethods';
 import path from 'path';
 
-test.describe('Checkout flow', () => {
+test.describe('Checkout flow: cash', () => {
   let newUser: User;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
@@ -15,7 +15,7 @@ test.describe('Checkout flow', () => {
     newUser = newUserRegistered;
   });
 
-  test('Signed in existing user)', async ({ page }) => {
+  test('Signed in existing user', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     await homePage.header.clickSignInLink();
@@ -41,7 +41,7 @@ test.describe('Checkout flow', () => {
     await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
   });
 
-  test('Signed out existing user)', async ({ page }) => {
+  test('Signed out existing user', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     const productPage = await homePage.clickFirstProduct();

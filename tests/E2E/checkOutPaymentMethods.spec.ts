@@ -24,7 +24,7 @@ test.describe('Checkout flow', () => {
 
   test.afterEach(async ({ page }) => {
     // Cooldown for the backend
-    await page.waitForTimeout(2000); 
+    await page.waitForTimeout(1000); 
   });
   
   paymentMethods.forEach((paymentMethod) => {

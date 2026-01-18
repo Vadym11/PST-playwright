@@ -167,5 +167,5 @@ jobs:
             sleep 300
           fi
 
-          # echo "Deleting namespace: $K8S_NAMESPACE"
-          # kubectl delete namespace "$K8S_NAMESPACE" --wait=false || true
+          echo "Deleting namespace: $K8S_NAMESPACE"
+          kubectl delete namespace "$K8S_NAMESPACE" --wait=false || true
