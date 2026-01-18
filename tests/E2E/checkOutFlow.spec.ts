@@ -11,11 +11,11 @@ test.describe('Checkout flow: cash', () => {
   let newUser: User;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test.beforeAll('Register and store new user data ', async ({ newUserRegistered }) => {
+  test.beforeAll('Register and store new user data', async ({ newUserRegistered }) => {
     newUser = newUserRegistered;
   });
 
-  test('Signed in existing user', async ({ page }) => {
+  test('Logged in existing user', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     await homePage.header.clickSignInLink();
@@ -40,7 +40,7 @@ test.describe('Checkout flow: cash', () => {
     await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
   });
 
-  test('Signed out existing user', async ({ page }) => {
+  test('Logged out existing user', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     const productPage = await homePage.clickFirstProduct();
