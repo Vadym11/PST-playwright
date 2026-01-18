@@ -20,8 +20,7 @@ test.describe('Checkout flow: cash', () => {
 
     await homePage.header.clickSignInLink();
 
-    const myAccountPage = await new LoginPage(page)
-      .loginSuccess(newUser.email, newUser.password);
+    const myAccountPage = await new LoginPage(page).loginSuccess(newUser.email, newUser.password);
 
     await myAccountPage.header.clickHomePageLink();
 
