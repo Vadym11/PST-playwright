@@ -52,7 +52,14 @@ export default defineConfig({
     {
       name: 'chromium',
       dependencies: ['setup'],
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // uncomment lines below to use fullscreen chrome window
+        // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default
+        // launchOptions: {
+        //   args: ['--start-maximized']
+        // }
+      },
     },
     // uncomment browser below to enable them
     // {

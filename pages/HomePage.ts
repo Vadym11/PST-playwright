@@ -36,16 +36,18 @@ export class HomePage extends BasePage {
     const productCards = this.page.locator("//*[@class='card']");
     let inStockCount: number[] = [];
 
-    for (let i = 0; i < 9; i++) {
+    const productsOnPageCount = await productCards.count();
+
+    for (let i = 0; i < productsOnPageCount; i++) {
       const isOutOfStock = await productCards.nth(i).getByTestId('out-of-stock').isVisible();
       if (!isOutOfStock) {
         inStockCount.push(i);
       }
     }
 
-    const randomProduct = faker.helpers.arrayElement(inStockCount);
+    const randomProductNumber = faker.helpers.arrayElement(inStockCount);
 
-    await productCards.nth(randomProduct).click();
+    await productCards.nth(randomProductNumber).click();
 
     return new ProductPage(this.page);
   }
