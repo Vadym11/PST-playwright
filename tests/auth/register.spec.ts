@@ -7,6 +7,7 @@ import {
   getUserIdByEmailAPI,
   getUserDataByEmailAPI,
   deleteUserByIdAPI as deleteUser,
+  generateRandomuserDataFaker,
 } from '../../utils/test-utils';
 import { User } from '../../types/user';
 
@@ -17,7 +18,7 @@ test.describe.serial('Registration feature', () => {
 
   test.beforeAll('Generate new user data', async ({ adminToken }) => {
     token = adminToken;
-    newUserData = generateRandomuserData();
+    newUserData = generateRandomuserDataFaker();
     console.log(`User with email ${newUserData.email} has been generated.`);
   });
 
@@ -45,7 +46,7 @@ test.describe.serial('Registration feature', () => {
       );
     });
 
-    await test.step('Verify user has been registered ', async () => {
+    await test.step('Verify user has been registered', async () => {
       const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
 
       expect(newUser.first_name).toBe(newUserData.first_name);

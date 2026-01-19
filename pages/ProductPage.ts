@@ -13,21 +13,17 @@ export class ProductPage extends BasePage {
   }
 
   async clickAddToCart(count: number = 1): Promise<this> {
-    await this.addToCartButton.click({clickCount: count, delay: 300});
+    await this.addToCartButton.click({ clickCount: count, delay: 300 });
 
     return this;
   }
 
-  getAddedToCartPopUp(count: number = 1): Locator {
-    // return this.page.getByRole('alert', {name: 'Pruduct added to shopping cart.'});
-    // const popUps = this.page.locator("//div[@aria-label='Product added to shopping cart.']");
-    // await expect(popUps).toHaveCount(count);
-
+  getAddedToCartPopUp(): Locator {
     return this.page.locator("//div[@aria-label='Product added to shopping cart.']").last();
   }
 
   async clickAddToCartAndAssertPopUps(count: number = 1): Promise<void> {
-    for (let i = 0; i < count; i++ ) {
+    for (let i = 0; i < count; i++) {
       await this.clickAddToCart();
 
       await expect(this.getAddedToCartPopUp()).toBeVisible();

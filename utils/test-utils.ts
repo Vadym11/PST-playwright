@@ -90,7 +90,7 @@ export function generateRandomuserDataFaker(): User {
   const CITY = faker.address.city();
   const STATE = faker.address.state();
   const COUNTRY = faker.address.country();
-  const PHONE = faker.phone.number('+#-###-###-####');
+  const PHONE = faker.phone.number('510########');
   const EMAIL = `${FIRST_NAME}.${LAST_NAME}@gmail.com`;
   const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
 
@@ -122,31 +122,31 @@ export async function registerRandomUser(request: APIRequestContext): Promise<Us
 
   const payload = {
     data: {
-        "email": email,
-        "password": password
+      email: email,
+      password: password,
     },
-    headers: { 'Content-Type': 'application/json' }
-  }
-  
+    headers: { 'Content-Type': 'application/json' },
+  };
+
   const response = await request.post(apiURL, payload);
 
   if (!response.ok()) {
-    const errorText = await response.text(); 
+    const errorText = await response.text();
     console.error('--- SERVER ERROR DETAIL ---');
-    console.error(errorText); // This will tell you EXACTLY what failed in the PHP/Laravel backend
+    console.error(errorText);
     console.error('---------------------------');
     throw new Error(`Login failed: ${response.status()}`);
   }
 
-  const token = await response.json().then(data => data.access_token);
+  const token = await response.json().then((data) => data.access_token);
 
   apiURL = `${apiBaseURL}/users/register`;
   const payload1 = {
-      headers: {
-          Authorization: `Bearer ${token}`
-      },
-      data: user
-  }
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: user,
+  };
 
   await request.post(apiURL, payload1);
 
