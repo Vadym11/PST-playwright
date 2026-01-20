@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+const fs = require('fs');
 
 const { spawn } = require('child_process');
 const axios = require('axios');
@@ -94,6 +94,8 @@ async function sendSlackNotification({ exitCode, durationMs }) {
     );
 
     await sendSlackNotification({ exitCode: code, durationMs });
+
+    fs.writeFileSync('/tests/tests_finished.txt', 'done');
 
     const delayMinutes = 3;
     console.log(`Waiting ${delayMinutes} minutes for artifact collection before exiting...`);

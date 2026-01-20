@@ -1,15 +1,11 @@
 import { test } from '../../fixtures/apiFixtures';
-import { APIHandler } from '../../utils/apiHandler';
 import { getAPIBaseUrl, getUserDataByEmailAPI } from '../../utils/test-utils';
 import { UserAPI } from '../../types/usersAPI';
-import { Product } from '../../types/productsAPI';
 import { PaginatedResponse } from '../../types/api-responses';
 
 test('API handlers', async ({ apiHandler }) => {
   const baseAPIUrl = getAPIBaseUrl();
   const fullAPIUrl = `${baseAPIUrl}/users`;
-
-  // const apiHandler = new APIHandler(request);
 
   const params = { page: 3 };
 
