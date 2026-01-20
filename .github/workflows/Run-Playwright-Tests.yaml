@@ -142,6 +142,27 @@ jobs:
 
           echo "==== Playwright job logs ===="
           kubectl logs job/pst-playwright-tests -n "$K8S_NAMESPACE" || true
+    
+      - name: Copy Artifacts from K8s Pod
+        if: always()
+        run: |
+          # Find the pod name
+          POD_NAME=$(kubectl get pods -n "$K8S_NAMESPACE" -l job-name=pst-playwright-tests -o name | head -n 1)
+          
+          # Copy the results folder from the pod to the GitHub Runner
+          # Ensure this path matches the 'outputDir' in your playwright.config.ts
+          kubectl cp -n "$K8S_NAMESPACE" "${POD_NAME#pod/}:/app/test-results" ./test-results || true
+          kubectl cp -n "$K8S_NAMESPACE" "${POD_NAME#pod/}:/app/playwright-report" ./playwright-report || true
+
+      - name: Upload to GitHub Actions
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 1
 
       # (Later you’ll add a step here to run Playwright against BASE_URL=http://127.0.0.1:${K8S_APP_PORT})
 
