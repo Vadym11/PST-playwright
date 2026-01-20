@@ -95,7 +95,7 @@ async function sendSlackNotification({ exitCode, durationMs }) {
 
     await sendSlackNotification({ exitCode: code, durationMs });
 
-    fs.writeFileSync('/tests/tests_finished.txt', 'done');
+    fs.writeFileSync('/tests/tests_finished.txt', code.toString());
 
     const delayMinutes = 3;
     console.log(`Waiting ${delayMinutes} minutes for artifact collection before exiting...`);
