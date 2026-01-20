@@ -95,8 +95,13 @@ async function sendSlackNotification({ exitCode, durationMs }) {
 
     await sendSlackNotification({ exitCode: code, durationMs });
 
-    // Propagate Playwright exit code to CI/K8s
-    process.exit(code);
+    const delayMinutes = 3;
+    console.log(`Waiting ${delayMinutes} minutes for artifact collection before exiting...`);
+    
+    setTimeout(() => {
+      console.log('Exiting now.');
+      process.exit(code);
+    }, delayMinutes * 60 * 1000); 
   });
 
   proc.on('error', (err) => {

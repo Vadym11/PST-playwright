@@ -5,6 +5,9 @@ const connection = require('./mysqldb');
 import config from '../playwright.config';
 import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
+import { APIHandler } from './apiHandler';
+import { UserAPI } from '../types/usersAPI';
+import { PaginatedResponse } from '../types/api-responses';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -122,31 +125,31 @@ export async function registerRandomUser(request: APIRequestContext): Promise<Us
 
   const payload = {
     data: {
-        "email": email,
-        "password": password
+      email: email,
+      password: password,
     },
-    headers: { 'Content-Type': 'application/json' }
-  }
-  
+    headers: { 'Content-Type': 'application/json' },
+  };
+
   const response = await request.post(apiURL, payload);
 
   if (!response.ok()) {
-    const errorText = await response.text(); 
+    const errorText = await response.text();
     console.error('--- SERVER ERROR DETAIL ---');
     console.error(errorText); // This will tell you EXACTLY what failed in the PHP/Laravel backend
     console.error('---------------------------');
     throw new Error(`Login failed: ${response.status()}`);
   }
 
-  const token = await response.json().then(data => data.access_token);
+  const token = await response.json().then((data) => data.access_token);
 
   apiURL = `${apiBaseURL}/users/register`;
   const payload1 = {
-      headers: {
-          Authorization: `Bearer ${token}`
-      },
-      data: user
-  }
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: user,
+  };
 
   await request.post(apiURL, payload1);
 
@@ -200,37 +203,22 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
 /**
  * Retrieves user data from the API by email.
  * @param request The Playwright API request context.
- * @param token The authorization token.
  * @param email The email address of the user.
  * @returns The user data.
  */
 export async function getUserDataByEmailAPI(
-  request: APIRequestContext,
-  token: string,
+  apiHandler: APIHandler,
   email: string,
-): Promise<any> {
+): Promise<UserAPI> {
   const apiURL = `${apiBaseURL}/users/search`;
-  const payload = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    params: {
-      q: email,
-    },
-  };
 
-  const response = await request.get(apiURL, payload);
+  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
 
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-
-  if (body.data.length === 0) {
-    throw new Error(`User with email ${email} was not found in API response.`);
+  if (!response.data || response.data.length === 0) {
+    throw new Error(`API Error: No user found for email: ${email}`);
   }
 
-  return body.data[0];
+  return response.data[0];
 }
 
 /** Retrieves user ID from the API by email.
@@ -239,12 +227,8 @@ export async function getUserDataByEmailAPI(
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(
-  request: APIRequestContext,
-  token: string,
-  email: string,
-): Promise<string> {
-  const user = await getUserDataByEmailAPI(request, token, email);
+export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
+  const user = await getUserDataByEmailAPI(apiHandler, email);
 
   return user.id;
 }
