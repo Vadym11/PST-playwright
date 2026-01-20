@@ -21,8 +21,8 @@ setup('Authenticate', async ({ request }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto(process.env.BASE_URL!);
-    const homePage = new HomePage(page);
+    // await page.goto(process.env.BASE_URL!);
+    const homePage = await new HomePage(page).goTo();
     await homePage.header.clickSignInLink();
     
     const myAccountPage = await new LoginPage(page).loginSuccess(user.email, user.password);

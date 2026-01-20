@@ -14,7 +14,7 @@ test.describe('Checkout flow', () => {
     PaymentMethods.giftCard,
     PaymentMethods.bankTransfer,
     PaymentMethods.buyNowPayLater,
-    PaymentMethods.creditCard
+    PaymentMethods.creditCard,
   ];
 
   const authFile = '../../playwright/.auth/userState.json';
@@ -24,13 +24,12 @@ test.describe('Checkout flow', () => {
     const userPath = path.join(process.cwd(), 'playwright/.auth/userData.json');
     userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
   });
-  
+
   paymentMethods.forEach((paymentMethod) => {
     test(`Use ${paymentMethod}`, async ({ page }) => {
-      
       const homePage = await new HomePage(page).goTo();
 
-      const productPage = await homePage.clickFirstProduct();
+      const productPage = await homePage.selectRandomProduct();
 
       await productPage.clickAddToCart();
 
@@ -45,5 +44,5 @@ test.describe('Checkout flow', () => {
 
       await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
     });
-  })
+  });
 });
