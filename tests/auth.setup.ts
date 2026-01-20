@@ -15,7 +15,6 @@ setup('Authenticate', async ({ request, page }) => {
   const user = await registerRandomUser(request);
 
   // 2. Save User Data (email/password) to its own JSON file
-  // This lets the tests know WHO was registered
   fs.writeFileSync(userFile, JSON.stringify(user, null, 4));
 
   // 3. Perform Browser Login
