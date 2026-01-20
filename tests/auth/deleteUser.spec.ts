@@ -23,10 +23,10 @@ test.describe.serial('User deletion feature', () => {
     token = adminToken;
   });
 
-  test('Register new user', async ({ newUserRegistered, request }) => {
+  test('Register new user', async ({ newUserRegistered, apiHandler }) => {
     newUserData = newUserRegistered;
 
-    newUserID = await getUserIdByEmailAPI(request, token, newUserData.email);
+    newUserID = await getUserIdByEmailAPI(apiHandler, newUserData.email);
 
     console.log(`User with ID: ${newUserID} and email ${newUserData.email} has been registered.`);
   });
