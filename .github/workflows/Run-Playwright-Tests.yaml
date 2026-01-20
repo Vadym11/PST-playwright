@@ -149,8 +149,8 @@ jobs:
             mkdir -p ./test-results
             
             # Copy from container to runner
-            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/app/playwright-report" ./playwright-report || true
-            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/app/test-results" ./test-results || true
+            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/tests/playwright-report" ./playwright-report || true
+            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/tests/test-results" ./test-results || true
           else
             echo "No pod found to copy artifacts from."
           fi

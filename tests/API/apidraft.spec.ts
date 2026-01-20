@@ -21,7 +21,7 @@ test('API user login', async ({ request, baseURL }) => {
 });
 
 test.skip('Get user from DB', async ({ request, baseURL }) => {
-  const response = await request.get(`${baseURL}/api/users/`, {
+  const response = await request.get(`${baseURL}/api/users`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
