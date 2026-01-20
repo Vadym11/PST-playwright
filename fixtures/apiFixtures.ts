@@ -54,7 +54,7 @@ const test = base.extend<ApiFixtures>({
 
     await request.post(apiURL, payload);
 
-    console.log(`User with email ${user.email} has been registered via API.`);
+    console.log(`User with email ${user.email} has been registered via API Fixture.`);
 
     await use(user);
   },

@@ -17,6 +17,8 @@ test.describe.serial('User deletion feature', () => {
   test('Register new user', async ({ newUserRegistered, apiHandler }) => {
     newUserData = newUserRegistered;
 
+    console.log(`New registered user email: ${newUserData.email}`);
+
     newUserID = await getUserIdByEmailAPI(apiHandler, newUserData.email);
 
     console.log(`User with ID: ${newUserID} and email ${newUserData.email} has been registered.`);
