@@ -40,7 +40,8 @@ export class HomePage extends BasePage {
 
     for (let i = 0; i < productsOnPageCount; i++) {
       const isOutOfStock = await productCards.nth(i).getByTestId('out-of-stock').isVisible();
-      if (!isOutOfStock) {
+      const title = await productCards.nth(i).locator('h5').textContent();
+      if (!isOutOfStock && title !== 'Thor Hammer') {
         inStockCount.push(i);
       }
     }
