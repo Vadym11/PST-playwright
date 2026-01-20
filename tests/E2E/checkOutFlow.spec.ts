@@ -41,9 +41,9 @@ test.describe('Checkout flow: cash', () => {
 
       await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, newUser, paymentMethod);
     });
-  })
+  });
 
-  test('', async ({ page }) => {
+  test('Logged out existing user', async ({ page }) => {
     count = faker.datatype.number({ min: 1, max: 10 });
 
     const homePage = await new HomePage(page).goTo();

@@ -124,46 +124,55 @@ jobs:
           kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-playwright.yaml
 
       # 8.2. Wait for Playwright test job to finish
-      - name: Wait for Playwright test job to finish
+      - name: Wait for Test Completion and Check Result
         run: |
-          set -e
-          echo "Waiting for Playwright test job to complete (Max 15m)..."
+          # 1. Get the pod name
+          POD_NAME=$(kubectl get pods -n "$K8S_NAMESPACE" -l job-name=pst-playwright-tests -o jsonpath='{.items[0].metadata.name}')
+          
+          # 2. Wait for the file to appear
+          echo "Waiting for tests_finished.txt..."
+          timeout 600s sh -c "until kubectl exec -n $K8S_NAMESPACE $POD_NAME -- ls /tests/tests_finished.txt; do sleep 5; done"
 
-          # Changed --timeout from 120s to 900s (15 minutes)
-          if kubectl wait --for=condition=complete job/pst-playwright-tests \
-              -n "$K8S_NAMESPACE" --timeout=900s; then
-            echo "Playwright job completed successfully."
-          else
-            echo "FAILED: Job exceeded 15m timeout or failed internally."
-            kubectl describe job/pst-playwright-tests -n "$K8S_NAMESPACE"
-            kubectl logs -l job-name=pst-playwright-tests -n "$K8S_NAMESPACE"
+          # 3. READ the exit code from the file
+          TEST_EXIT_CODE=$(kubectl exec -n "$K8S_NAMESPACE" "$POD_NAME" -- cat /tests/tests_finished.txt)
+          echo "Playwright exited with code: $TEST_EXIT_CODE"
+
+          # 4. Fail the GitHub step if the code is not 0
+          if [ "$TEST_EXIT_CODE" -ne "0" ]; then
+            echo "Tests failed! Exiting pipeline with error."
             exit 1
           fi
-
-          echo "==== Playwright job logs ===="
-          kubectl logs job/pst-playwright-tests -n "$K8S_NAMESPACE" || true
-    
-      - name: Copy Artifacts from K8s Pod
-        if: always()
+      
+      - name: Copy Artifacts
+        if: always() # CRITICAL: ensures logs/traces are pulled even if tests fail
         run: |
-          # Find the pod name
-          POD_NAME=$(kubectl get pods -n "$K8S_NAMESPACE" -l job-name=pst-playwright-tests -o name | head -n 1)
+          echo "Looking for pod in namespace: $K8S_NAMESPACE"
+          # Get the pod name using the job label
+          POD_NAME=$(kubectl get pods -l job-name=pst-playwright-tests -n "$K8S_NAMESPACE" -o jsonpath='{.items[0].metadata.name}')
           
-          # Copy the results folder from the pod to the GitHub Runner
-          # Ensure this path matches the 'outputDir' in your playwright.config.ts
-          kubectl cp -n "$K8S_NAMESPACE" "${POD_NAME#pod/}:/app/test-results" ./test-results || true
-          kubectl cp -n "$K8S_NAMESPACE" "${POD_NAME#pod/}:/app/playwright-report" ./playwright-report || true
+          if [ -n "$POD_NAME" ]; then
+            echo "Copying artifacts from pod: $POD_NAME"
+            # Ensure the local destination folders exist
+            mkdir -p ./playwright-report
+            mkdir -p ./test-results
+            
+            # Copy from container to runner
+            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/tests/playwright-report" ./playwright-report || true
+            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/tests/test-results" ./test-results || true
+          else
+            echo "No pod found to copy artifacts from."
+          fi
 
-      - name: Upload to GitHub Actions
+      # 8.4. Upload to GitHub Actions UI
+      - name: Upload Artifacts to GitHub
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-results
           path: |
-            test-results/
             playwright-report/
+            test-results/
           retention-days: 1
-
       # (Later you’ll add a step here to run Playwright against BASE_URL=http://127.0.0.1:${K8S_APP_PORT})
 
       # 9. Stop port-forward (always attempt, even if previous steps failed)

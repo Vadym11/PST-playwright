@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-// import dotenv from 'dotenv';
 import 'dotenv/config';
 
 const baseURL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
@@ -15,6 +14,7 @@ console.log(`Base URL set to: ${baseURL}`);
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 60000,
   testDir: './tests',
   /* This will apply Storage State globally.
   Alternatively, it could be applied for a specific project (e.g. Chromium):  */
@@ -41,18 +41,16 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'on',
-    video: 'on'
+    video: 'on',
   },
 
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup',
-      testMatch: /.*\.setup\.ts/
-    },
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'chromium',
       dependencies: ['setup'],
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // uncomment lines below to use fullscreen chrome window
         // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default

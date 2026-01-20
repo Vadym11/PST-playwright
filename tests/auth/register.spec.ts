@@ -3,7 +3,6 @@ import { expect } from '@playwright/test';
 import { HomePage } from '../../pages/HomePage';
 import { LoginPage } from '../../pages/LoginPage';
 import {
-  generateRandomuserData,
   getUserIdByEmailAPI,
   getUserDataByEmailAPI,
   deleteUserByIdAPI as deleteUser,
@@ -22,14 +21,14 @@ test.describe.serial('Registration feature', () => {
     console.log(`User with email ${newUserData.email} has been generated.`);
   });
 
-  test.afterAll('Delete registered user', async ({ request }) => {
-    const newUserId = await getUserIdByEmailAPI(request, token, newUserData.email);
+  test.afterAll('Delete registered user', async ({ request, apiHandler }) => {
+    const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
 
     await deleteUser(request, token, newUserId);
     console.log(`User with email ${newUserData.email} has been deleted.`);
   });
 
-  test('Register new user: happy path', async ({ page, request }) => {
+  test('Register new user: happy path', async ({ page, apiHandler }) => {
     await test.step('Register new user', async () => {
       const homePage = await new HomePage(page).goTo();
 
@@ -47,8 +46,7 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      const newUser = await getUserDataByEmailAPI(request, token, newUserData.email);
-
+      const newUser = await getUserDataByEmailAPI(apiHandler, newUserData.email);
       expect(newUser.first_name).toBe(newUserData.first_name);
       expect(newUser.last_name).toBe(newUserData.last_name);
       expect(newUser.dob).toBe(newUserData.dob);

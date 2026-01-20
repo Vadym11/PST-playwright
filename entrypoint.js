@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+const fs = require('fs');
 
 const { spawn } = require('child_process');
 const axios = require('axios');
@@ -95,8 +95,15 @@ async function sendSlackNotification({ exitCode, durationMs }) {
 
     await sendSlackNotification({ exitCode: code, durationMs });
 
-    // Propagate Playwright exit code to CI/K8s
-    process.exit(code);
+    fs.writeFileSync('/tests/tests_finished.txt', code.toString());
+
+    const delayMinutes = 3;
+    console.log(`Waiting ${delayMinutes} minutes for artifact collection before exiting...`);
+    
+    setTimeout(() => {
+      console.log('Exiting now.');
+      process.exit(code);
+    }, delayMinutes * 60 * 1000); 
   });
 
   proc.on('error', (err) => {
