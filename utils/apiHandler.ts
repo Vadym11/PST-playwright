@@ -13,11 +13,12 @@ export class APIHandler {
     this.adminPassword = process.env.PASSWORD_!;
   }
 
-  async post(url: string, payload: object, headers: object = {}): Promise<any> {
+  async post<T>(url: string, token: string, data: object, headers: object = {}): Promise<T> {
     const response = await this.request.post(url, {
-      data: payload,
-      headers: {
+      'data': data,
+      'headers': {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
         ...headers,
       },
     });
@@ -27,27 +28,25 @@ export class APIHandler {
       throw new Error(`POST ${url} failed (${response.status()}): ${errorBody}`);
     }
 
-    return await response.json();
+    return await response.json() as T;
   }
 
-  private async getAdminToken(): Promise<string> {
-    const payload = {
-      email: this.adminEmail,
-      password: this.adminPassword,
-    };
+  // private async getAdminToken(): Promise<string> {
+  //   const payload = {
+  //     email: this.adminEmail,
+  //     password: this.adminPassword,
+  //   };
 
-    console.log(`${this.apiBaseURL}/users/login`);
+  //   console.log(`${this.apiBaseURL}/users/login`);
 
-    const response = this.post(`${this.apiBaseURL}/users/login`, payload);
+  //   const response = this.post(`${this.apiBaseURL}/users/login`, payload);
 
-    const token = await response.then((data) => data.access_token);
+  //   const token = await response.then((data) => data.access_token);
 
-    return token;
-  }
+  //   return token;
+  // }
 
-  async get<T>(url: string, params: object = {}, headers: object = {}): Promise<T> {
-    const adminToken = await this.getAdminToken();
-
+  async get<T>(url: string, adminToken: string, params: object = {}, headers: object = {}): Promise<T> {
     const response = await this.request.get(url, {
       params: { ...params },
       headers: {
@@ -60,6 +59,28 @@ export class APIHandler {
     if (!response.ok()) {
       const errorBody = await response.text();
       throw new Error(`GET ${url} failed (${response.status()}): ${errorBody}`);
+    }
+
+    return response.json() as T;
+  }
+
+  async delete<T>(url: string, adminToken: string, params: object = {}, headers: object = {}): Promise<T> {
+    const response = await this.request.delete(url, {
+      params: { ...params },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        ...headers,
+      },
+    });
+
+    if (!response.ok()) {
+      const errorBody = await response.text();
+      throw new Error(`DELETE ${url} failed (${response.status()}): ${errorBody}`);
+    }
+
+    if (response.status() === 204) {
+      return response.status() as T;
     }
 
     return response.json() as T;

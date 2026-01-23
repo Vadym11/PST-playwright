@@ -6,8 +6,8 @@ import config from '../playwright.config';
 import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from './apiHandler';
-import { UserAPI } from '../types/usersAPI';
-import { PaginatedResponse } from '../types/api-responses';
+import { UserAPI, UserAPICreate } from '../types/usersAPI';
+import { DeleteResponse, PaginatedResponse } from '../types/api-responses';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -85,8 +85,8 @@ export function generateRandomuserData(): User {
  * @returns A User object with random data.
  */
 export function generateRandomuserDataFaker(): User {
-  const FIRST_NAME = faker.name.firstName();
-  const LAST_NAME = faker.name.lastName();
+  const FIRST_NAME = faker.name.firstName().replaceAll("'", '');
+  const LAST_NAME = faker.name.lastName().replaceAll("'", '');
   const DOB = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
   const STREET = faker.address.streetAddress();
   const POSTCODE = faker.address.zipCode();
@@ -114,46 +114,18 @@ export function generateRandomuserDataFaker(): User {
   };
 }
 
-export async function registerRandomUser(request: APIRequestContext): Promise<User> {
+export async function registerRandomUser(apiHandler: APIHandler, token: string): Promise<User> {
   const email = process.env.EMAIL!;
   const password = process.env.PASSWORD_!;
   const apiBaseURL = getAPIBaseUrl();
 
   const user = generateRandomuserDataFaker();
 
-  let apiURL = `${apiBaseURL}/users/login`;
+  const apiURL = `${apiBaseURL}/users/register`;
 
-  const payload = {
-    data: {
-      email: email,
-      password: password,
-    },
-    headers: { 'Content-Type': 'application/json' },
-  };
+  const response = await apiHandler.post<UserAPICreate>(apiURL, token, user);
 
-  const response = await request.post(apiURL, payload);
-
-  if (!response.ok()) {
-    const errorText = await response.text();
-    console.error('--- SERVER ERROR DETAIL ---');
-    console.error(errorText);
-    console.error('---------------------------');
-    throw new Error(`Login failed: ${response.status()}`);
-  }
-
-  const token = await response.json().then((data) => data.access_token);
-
-  apiURL = `${apiBaseURL}/users/register`;
-  const payload1 = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data: user,
-  };
-
-  await request.post(apiURL, payload1);
-
-  console.log(`User with email ${user.email} has been registered via API.`);
+  console.log(`User with email ${response.email} has been registered via API.`);
 
   return user;
 }
@@ -208,11 +180,12 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
  */
 export async function getUserDataByEmailAPI(
   apiHandler: APIHandler,
+  adminToken: string,
   email: string,
 ): Promise<UserAPI> {
   const apiURL = `${apiBaseURL}/users/search`;
 
-  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
+  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, adminToken, { q: email });
 
   if (!response.data || response.data.length === 0) {
     throw new Error(`API Error: No user found for email: ${email}`);
@@ -227,8 +200,8 @@ export async function getUserDataByEmailAPI(
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
-  const user = await getUserDataByEmailAPI(apiHandler, email);
+export async function getUserIdByEmailAPI(apiHandler: APIHandler, adminToken: string, email: string): Promise<string> {
+  const user = await getUserDataByEmailAPI(apiHandler, adminToken, email);
 
   return user.id;
 }
@@ -242,7 +215,7 @@ export async function deleteUserByIdAPI(
   request: APIRequestContext,
   token: string,
   userID: string,
-): Promise<void> {
+): Promise<number> {
   const apiURL = `${apiBaseURL}/users/${userID}`;
 
   const payload = {
@@ -254,7 +227,20 @@ export async function deleteUserByIdAPI(
 
   const response = await request.delete(apiURL, payload);
 
-  expect(response.status()).toBe(204);
+  return response.status();
+
+  // expect(response.status()).toBe(204);
+}
+
+export async function deleteUserByIdAPIH(
+  apiHandler: APIHandler,
+  adminToken: string,
+  userID: string,
+): Promise<any> {
+
+  const apiURL = `${apiBaseURL}/users/${userID}`;
+
+  return await apiHandler.delete(apiURL, adminToken);
 }
 
 /** Deletes a user and related data from the database by user ID.

@@ -27,6 +27,8 @@ const test = base.extend<ApiFixtures>({
 
     const token = await response.json().then((data) => data.access_token);
 
+    console.log('Admin token has been generated via API Fixture.');
+
     await use(token);
   },
 

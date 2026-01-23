@@ -7,6 +7,7 @@ import {
   getUserDataByEmailAPI,
   deleteUserByIdAPI as deleteUser,
   generateRandomuserDataFaker,
+  deleteUserByIdAPIH,
 } from '../../utils/test-utils';
 import { User } from '../../types/user';
 
@@ -21,11 +22,16 @@ test.describe.serial('Registration feature', () => {
     console.log(`User with email ${newUserData.email} has been generated.`);
   });
 
-  test.afterAll('Delete registered user', async ({ request, apiHandler }) => {
-    const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
+  test.afterAll('Delete registered user', async ({ apiHandler }) => {
+    const newUserId = await getUserIdByEmailAPI(apiHandler, token, newUserData.email);
 
-    await deleteUser(request, token, newUserId);
-    console.log(`User with email ${newUserData.email} has been deleted.`);
+    const response = await deleteUserByIdAPIH(apiHandler, token, newUserId);
+
+    if (response !== 204) {
+        console.warn(`Cleanup Warning: Failed to delete user ${newUserData.email}. Manual cleanup may be required.`);
+    } else {
+      console.log(`User with email ${newUserData.email} has been deleted.`);
+    }
   });
 
   test('Register new user: happy path', async ({ page, apiHandler }) => {
@@ -46,7 +52,7 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      const newUser = await getUserDataByEmailAPI(apiHandler, newUserData.email);
+      const newUser = await getUserDataByEmailAPI(apiHandler, token, newUserData.email);
       expect(newUser.first_name).toBe(newUserData.first_name);
       expect(newUser.last_name).toBe(newUserData.last_name);
       expect(newUser.dob).toBe(newUserData.dob);

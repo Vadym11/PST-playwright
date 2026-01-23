@@ -1,4 +1,5 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '../fixtures/apiFixtures';
+import { expect } from '@playwright/test';
 import path from 'path';
 import { LoginPage } from '../pages/LoginPage';
 import { HomePage } from '../pages/HomePage';
@@ -10,9 +11,9 @@ const userFile = path.join(__dirname, '../playwright/.auth/userData.json');
 
 setup.use({ headless: true });
 
-setup('Authenticate', async ({ request, page }) => {
-  // 1. Create the user
-  const user = await registerRandomUser(request);
+setup('Authenticate', async ({ page, apiHandler, adminToken }) => {
+  // 1. Create and register a random user
+  const user = await registerRandomUser(apiHandler, adminToken);
 
   // 2. Save User Data (email/password) to its own JSON file
   fs.writeFileSync(userFile, JSON.stringify(user, null, 4));

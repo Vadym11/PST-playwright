@@ -21,7 +21,4 @@ test('API handler util', async ({ apiHandler }) => {
   const userPath = path.join(process.cwd(), 'playwright/.auth/userData.json');
   const userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
   const user = await getUserDataByEmailAPI(apiHandler, userData.email);
-
-  console.log(user.id);
-  console.log(user.first_name + ' ' + user.last_name);
 });

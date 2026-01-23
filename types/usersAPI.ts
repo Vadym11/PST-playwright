@@ -38,3 +38,18 @@ export enum Role {
   User = 'user',
   Admin = 'admin',
 }
+
+export interface UserAPICreate {
+  first_name:            string;
+  last_name:             string;
+  phone:                 string;
+  dob:                   Date;
+  email:                 string;
+  id:                    string;
+  created_at:            Date;
+  address:               Address;
+  enabled:               null;
+  role:                  string;
+  failed_login_attempts: null;
+}
+
