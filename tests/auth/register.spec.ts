@@ -15,7 +15,6 @@ test.describe.serial('Registration feature', () => {
   let newUserData: User;
 
   test.beforeAll('Generate new user data', async () => {
-    // token = adminToken;
     newUserData = generateRandomuserDataFaker();
     console.log(`User with email ${newUserData.email} has been generated.`);
   });

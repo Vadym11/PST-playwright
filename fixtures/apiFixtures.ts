@@ -67,18 +67,6 @@ const test = base.extend<ApiFixtures>({
     await handler.authenticate();
     await use(handler);
   },
-
-  // deleteUser: async ({request, baseURL, adminToken, registerNewUser}, use) => {
-  //     const getNewUserId = await getUserIdByEmail(registerNewUser.email);
-
-  //     const response = await request.delete(`${baseURL}/api/users/${getNewUserId}`, {
-  //         headers: {
-  //             Authorization: `Bearer ${adminToken}`
-  //         }
-  //     });
-
-  //     await use(response);
-  // }
 });
 
 export { test };
