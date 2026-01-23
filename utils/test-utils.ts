@@ -114,7 +114,7 @@ export function generateRandomuserDataFaker(): User {
   };
 }
 
-export async function registerRandomUser(apiHandler: APIHandler, token: string): Promise<User> {
+export async function registerRandomUser(apiHandler: APIHandler): Promise<User> {
   const email = process.env.EMAIL!;
   const password = process.env.PASSWORD_!;
   const apiBaseURL = getAPIBaseUrl();
@@ -123,7 +123,7 @@ export async function registerRandomUser(apiHandler: APIHandler, token: string):
 
   const apiURL = `${apiBaseURL}/users/register`;
 
-  const response = await apiHandler.post<UserAPICreate>(apiURL, token, user);
+  const response = await apiHandler.post<UserAPICreate>(apiURL, user);
 
   console.log(`User with email ${response.email} has been registered via API.`);
 
@@ -180,12 +180,11 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
  */
 export async function getUserDataByEmailAPI(
   apiHandler: APIHandler,
-  adminToken: string,
   email: string,
 ): Promise<UserAPI> {
   const apiURL = `${apiBaseURL}/users/search`;
 
-  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, adminToken, { q: email });
+  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
 
   if (!response.data || response.data.length === 0) {
     throw new Error(`API Error: No user found for email: ${email}`);
@@ -200,8 +199,8 @@ export async function getUserDataByEmailAPI(
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(apiHandler: APIHandler, adminToken: string, email: string): Promise<string> {
-  const user = await getUserDataByEmailAPI(apiHandler, adminToken, email);
+export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
+  const user = await getUserDataByEmailAPI(apiHandler, email);
 
   return user.id;
 }
@@ -211,7 +210,7 @@ export async function getUserIdByEmailAPI(apiHandler: APIHandler, adminToken: st
  * @param token The authorization token.
  * @param userID The ID of the user to delete.
  */
-export async function deleteUserByIdAPI(
+export async function deleteUserByIdAPIDeprecated(
   request: APIRequestContext,
   token: string,
   userID: string,
@@ -232,15 +231,10 @@ export async function deleteUserByIdAPI(
   // expect(response.status()).toBe(204);
 }
 
-export async function deleteUserByIdAPIH(
-  apiHandler: APIHandler,
-  adminToken: string,
-  userID: string,
-): Promise<any> {
-
+export async function deleteUserByIdAPI(apiHandler: APIHandler, userID: string): Promise<any> {
   const apiURL = `${apiBaseURL}/users/${userID}`;
 
-  return await apiHandler.delete(apiURL, adminToken);
+  return await apiHandler.delete(apiURL);
 }
 
 /** Deletes a user and related data from the database by user ID.

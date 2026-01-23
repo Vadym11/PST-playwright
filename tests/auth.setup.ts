@@ -11,9 +11,9 @@ const userFile = path.join(__dirname, '../playwright/.auth/userData.json');
 
 setup.use({ headless: true });
 
-setup('Authenticate', async ({ page, apiHandler, adminToken }) => {
+setup('Authenticate', async ({ page, apiHandler }) => {
   // 1. Create and register a random user
-  const user = await registerRandomUser(apiHandler, adminToken);
+  const user = await registerRandomUser(apiHandler);
 
   // 2. Save User Data (email/password) to its own JSON file
   fs.writeFileSync(userFile, JSON.stringify(user, null, 4));

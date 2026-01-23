@@ -64,6 +64,7 @@ const test = base.extend<ApiFixtures>({
   apiHandler: async ({ request }, use) => {
     // This 'request' is fresh for every test
     const handler = new APIHandler(request);
+    await handler.authenticate();
     await use(handler);
   },
 
