@@ -2,13 +2,9 @@ import { test } from '../../fixtures/apiFixtures';
 import { expect } from '@playwright/test';
 import { HomePage } from '../../pages/HomePage';
 import { LoginPage } from '../../pages/LoginPage';
-import {
-  getUserIdByEmailAPI,
-  getUserDataByEmailAPI,
-  generateRandomuserDataFaker,
-  deleteUserByIdAPI,
-} from '../../utils/test-utils';
+import { generateRandomuserDataFaker } from '../../utils/test-utils';
 import { User } from '../../types/user';
+import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '../../utils/api-utils';
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
@@ -22,7 +18,7 @@ test.describe.serial('Registration feature', () => {
   test.afterAll('Delete registered user', async ({ apiHandler }) => {
     const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
 
-    const response = await deleteUserByIdAPI(apiHandler, newUserId);
+    const response = await deleteUserAPI(apiHandler, newUserId);
 
     if (response !== 204) {
       console.warn(
@@ -51,7 +47,8 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      const newUser = await getUserDataByEmailAPI(apiHandler, newUserData.email);
+      const newUser = await getUserByEmailAPI(apiHandler, newUserData.email);
+
       expect(newUser.first_name).toBe(newUserData.first_name);
       expect(newUser.last_name).toBe(newUserData.last_name);
       expect(newUser.dob).toBe(newUserData.dob);

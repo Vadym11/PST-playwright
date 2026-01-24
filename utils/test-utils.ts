@@ -7,7 +7,8 @@ import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from './apiHandler';
 import { UserAPI, UserAPICreate } from '../types/usersAPI';
-import { DeleteResponse, PaginatedResponse } from '../types/api-responses';
+import { PaginatedResponse } from '../types/api-responses';
+import { registerUserAPI } from './api-utils';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -115,15 +116,9 @@ export function generateRandomuserDataFaker(): User {
 }
 
 export async function registerRandomUser(apiHandler: APIHandler): Promise<User> {
-  const email = process.env.EMAIL!;
-  const password = process.env.PASSWORD_!;
-  const apiBaseURL = getAPIBaseUrl();
-
   const user = generateRandomuserDataFaker();
 
-  const apiURL = `${apiBaseURL}/users/register`;
-
-  const response = await apiHandler.post<UserAPICreate>(apiURL, user);
+  const response = await registerUserAPI(apiHandler, user);
 
   console.log(`User with email ${response.email} has been registered via API.`);
 
@@ -178,20 +173,20 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
  * @param email The email address of the user.
  * @returns The user data.
  */
-export async function getUserDataByEmailAPI(
-  apiHandler: APIHandler,
-  email: string,
-): Promise<UserAPI> {
-  const apiURL = `${apiBaseURL}/users/search`;
+// export async function getUserDataByEmailAPI(
+//   apiHandler: APIHandler,
+//   email: string,
+// ): Promise<UserAPI> {
+//   const apiURL = `${apiBaseURL}/users/search`;
 
-  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
+//   const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
 
-  if (!response.data || response.data.length === 0) {
-    throw new Error(`API Error: No user found for email: ${email}`);
-  }
+//   if (!response.data || response.data.length === 0) {
+//     throw new Error(`API Error: No user found for email: ${email}`);
+//   }
 
-  return response.data[0];
-}
+//   return response.data[0];
+// }
 
 /** Retrieves user ID from the API by email.
  * @param request The Playwright API request context.
@@ -199,11 +194,11 @@ export async function getUserDataByEmailAPI(
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
-  const user = await getUserDataByEmailAPI(apiHandler, email);
+// export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
+//   const user = await getUserDataByEmailAPI(apiHandler, email);
 
-  return user.id;
-}
+//   return user.id;
+// }
 
 /** Deletes a user via API by user ID.
  * @param request The Playwright API request context.

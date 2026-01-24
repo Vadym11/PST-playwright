@@ -1,15 +1,3 @@
-// import { PaginatedResponse } from './api-responses';
-
-// export interface Users {
-//     current_page: number;
-//     data:         User[];
-//     from:         number;
-//     last_page:    number;
-//     per_page:     number;
-//     to:           number;
-//     total:        number;
-// }
-
 export interface UserAPI {
   id: string;
   provider: null;
@@ -40,16 +28,28 @@ export enum Role {
 }
 
 export interface UserAPICreate {
-  first_name:            string;
-  last_name:             string;
-  phone:                 string;
-  dob:                   Date;
-  email:                 string;
-  id:                    string;
-  created_at:            Date;
-  address:               Address;
-  enabled:               null;
-  role:                  string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  dob: Date;
+  email: string;
+  id: string;
+  created_at: Date;
+  address: Address;
+  enabled: null;
+  role: string;
   failed_login_attempts: null;
 }
 
+export interface CurrentUser {
+  id: string;
+  provider: null;
+  first_name: string;
+  last_name: string;
+  phone: null;
+  dob: Date;
+  email: string;
+  totp_enabled: boolean;
+  created_at: Date;
+  address: Address;
+}

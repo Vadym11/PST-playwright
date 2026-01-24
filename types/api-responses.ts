@@ -8,6 +8,16 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
-export interface DeleteResponse {
-  
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface ResponseSuccess {
+  success: boolean;
+}
+
+export interface LogOutResponse {
+  message: string;
 }

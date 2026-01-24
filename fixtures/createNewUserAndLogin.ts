@@ -1,23 +1,17 @@
-import { User } from "../types/user";
-import { test as baseTest} from './apiFixtures';
+import { User } from '../types/user';
+import { UserAPI } from '../types/usersAPI';
+import { test as baseTest } from './apiFixtures';
 
 type NewUserLoggedInFixture = {
-    newUserLoggedIn: User;
-}
+  newUserLoggedIn: UserAPI;
+};
 
- const test = baseTest.extend<NewUserLoggedInFixture>({
+const test = baseTest.extend<NewUserLoggedInFixture>({
+  newUserLoggedIn: async ({ newUserRegistered }, use) => {
+    const newUser = newUserRegistered;
 
-    newUserLoggedIn: async ({newUserRegistered}, use) => {
-        const newUser = newUserRegistered;
-
-        await use(newUser);
-
-        // const newUserId = await getUserIdByEmail(newUser.email);
-
-        // console.log(`User ID to be deleted: ${newUserId}`);
-
-        // await deleteUserById(newUserId);
-    }
-})
+    await use(newUser);
+  },
+});
 
 export { test };
