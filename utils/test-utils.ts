@@ -6,8 +6,9 @@ import config from '../playwright.config';
 import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from './apiHandler';
-import { UserAPI } from '../types/usersAPI';
+import { UserAPI, UserAPICreate } from '../types/usersAPI';
 import { PaginatedResponse } from '../types/api-responses';
+import { registerUserAPI } from './api-utils';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -85,8 +86,8 @@ export function generateRandomuserData(): User {
  * @returns A User object with random data.
  */
 export function generateRandomuserDataFaker(): User {
-  const FIRST_NAME = faker.name.firstName();
-  const LAST_NAME = faker.name.lastName();
+  const FIRST_NAME = faker.name.firstName().replaceAll("'", '');
+  const LAST_NAME = faker.name.lastName().replaceAll("'", '');
   const DOB = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
   const STREET = faker.address.streetAddress();
   const POSTCODE = faker.address.zipCode();
@@ -114,46 +115,12 @@ export function generateRandomuserDataFaker(): User {
   };
 }
 
-export async function registerRandomUser(request: APIRequestContext): Promise<User> {
-  const email = process.env.EMAIL!;
-  const password = process.env.PASSWORD_!;
-  const apiBaseURL = getAPIBaseUrl();
-
+export async function registerRandomUser(apiHandler: APIHandler): Promise<User> {
   const user = generateRandomuserDataFaker();
 
-  let apiURL = `${apiBaseURL}/users/login`;
+  const response = await registerUserAPI(apiHandler, user);
 
-  const payload = {
-    data: {
-      email: email,
-      password: password,
-    },
-    headers: { 'Content-Type': 'application/json' },
-  };
-
-  const response = await request.post(apiURL, payload);
-
-  if (!response.ok()) {
-    const errorText = await response.text();
-    console.error('--- SERVER ERROR DETAIL ---');
-    console.error(errorText);
-    console.error('---------------------------');
-    throw new Error(`Login failed: ${response.status()}`);
-  }
-
-  const token = await response.json().then((data) => data.access_token);
-
-  apiURL = `${apiBaseURL}/users/register`;
-  const payload1 = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data: user,
-  };
-
-  await request.post(apiURL, payload1);
-
-  console.log(`User with email ${user.email} has been registered via API.`);
+  console.log(`User with email ${response.email} has been registered via API.`);
 
   return user;
 }
@@ -206,20 +173,20 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
  * @param email The email address of the user.
  * @returns The user data.
  */
-export async function getUserDataByEmailAPI(
-  apiHandler: APIHandler,
-  email: string,
-): Promise<UserAPI> {
-  const apiURL = `${apiBaseURL}/users/search`;
+// export async function getUserDataByEmailAPI(
+//   apiHandler: APIHandler,
+//   email: string,
+// ): Promise<UserAPI> {
+//   const apiURL = `${apiBaseURL}/users/search`;
 
-  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
+//   const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
 
-  if (!response.data || response.data.length === 0) {
-    throw new Error(`API Error: No user found for email: ${email}`);
-  }
+//   if (!response.data || response.data.length === 0) {
+//     throw new Error(`API Error: No user found for email: ${email}`);
+//   }
 
-  return response.data[0];
-}
+//   return response.data[0];
+// }
 
 /** Retrieves user ID from the API by email.
  * @param request The Playwright API request context.
@@ -227,22 +194,22 @@ export async function getUserDataByEmailAPI(
  * @param email The email address of the user.
  * @returns The user ID.
  */
-export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
-  const user = await getUserDataByEmailAPI(apiHandler, email);
+// export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
+//   const user = await getUserDataByEmailAPI(apiHandler, email);
 
-  return user.id;
-}
+//   return user.id;
+// }
 
 /** Deletes a user via API by user ID.
  * @param request The Playwright API request context.
  * @param token The authorization token.
  * @param userID The ID of the user to delete.
  */
-export async function deleteUserByIdAPI(
+export async function deleteUserByIdAPIDeprecated(
   request: APIRequestContext,
   token: string,
   userID: string,
-): Promise<void> {
+): Promise<number> {
   const apiURL = `${apiBaseURL}/users/${userID}`;
 
   const payload = {
@@ -254,7 +221,15 @@ export async function deleteUserByIdAPI(
 
   const response = await request.delete(apiURL, payload);
 
-  expect(response.status()).toBe(204);
+  return response.status();
+
+  // expect(response.status()).toBe(204);
+}
+
+export async function deleteUserByIdAPI(apiHandler: APIHandler, userID: string): Promise<any> {
+  const apiURL = `${apiBaseURL}/users/${userID}`;
+
+  return await apiHandler.delete(apiURL);
 }
 
 /** Deletes a user and related data from the database by user ID.

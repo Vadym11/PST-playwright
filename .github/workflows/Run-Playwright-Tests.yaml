@@ -137,6 +137,10 @@ jobs:
           TEST_EXIT_CODE=$(kubectl exec -n "$K8S_NAMESPACE" "$POD_NAME" -- cat /tests/tests_finished.txt)
           echo "Playwright exited with code: $TEST_EXIT_CODE"
 
+          # 3.1 Print logs for debugging
+          echo "Fetching Playwright test pod logs for debugging..."
+          kubectl logs -n "$K8S_NAMESPACE" "$POD_NAME"
+
           # 4. Fail the GitHub step if the code is not 0
           if [ "$TEST_EXIT_CODE" -ne "0" ]; then
             echo "Tests failed! Exiting pipeline with error."

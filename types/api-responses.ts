@@ -7,3 +7,17 @@ export interface PaginatedResponse<T> {
   to: number;
   total: number;
 }
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface ResponseSuccess {
+  success: boolean;
+}
+
+export interface LogOutResponse {
+  message: string;
+}

@@ -1,11 +1,12 @@
-import { APIRequestContext, APIResponse } from '@playwright/test';
+import { APIRequestContext } from '@playwright/test';
 import { getAPIBaseUrl } from '../utils/test-utils';
 
 export class APIHandler {
   private readonly request: APIRequestContext;
   private readonly adminEmail: string;
   private readonly adminPassword: string;
-  private apiBaseURL = getAPIBaseUrl();
+  private adminToken: string | null = null;
+  readonly apiBaseURL = getAPIBaseUrl();
 
   constructor(request: APIRequestContext) {
     this.request = request;
@@ -13,55 +14,86 @@ export class APIHandler {
     this.adminPassword = process.env.PASSWORD_!;
   }
 
-  async post(url: string, payload: object, headers: object = {}): Promise<any> {
-    const response = await this.request.post(url, {
-      data: payload,
+  async authenticate() {
+    const response = await this.request.post(`${this.apiBaseURL}/users/login`, {
+      data: { email: this.adminEmail, password: this.adminPassword },
+    });
+    const body = await response.json();
+
+    if (!response.ok()) {
+      throw new Error(
+        `APIHandler Authentication Failed: ${response.status()} ${await response.text()}`,
+      );
+    }
+
+    this.adminToken = body.access_token;
+
+    console.log('APIHandler: Admin authenticated successfully.');
+  }
+
+  async post<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
+    const response = await this.request.post(`${this.apiBaseURL}${endpoint}`, {
+      data: data,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.adminToken}`,
         ...headers,
       },
     });
 
     if (!response.ok()) {
       const errorBody = await response.text();
-      throw new Error(`POST ${url} failed (${response.status()}): ${errorBody}`);
+      throw new Error(`POST ${endpoint} failed (${response.status()}): ${errorBody}`);
     }
 
-    return await response.json();
+    return (await response.json()) as T;
   }
 
-  private async getAdminToken(): Promise<string> {
-    const payload = {
-      email: this.adminEmail,
-      password: this.adminPassword,
-    };
-
-    console.log(`${this.apiBaseURL}/users/login`);
-
-    const response = this.post(`${this.apiBaseURL}/users/login`, payload);
-
-    const token = await response.then((data) => data.access_token);
-
-    return token;
-  }
-
-  async get<T>(url: string, params: object = {}, headers: object = {}): Promise<T> {
-    const adminToken = await this.getAdminToken();
-
-    const response = await this.request.get(url, {
+  async get<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
+    const response = await this.request.get(`${this.apiBaseURL}${endpoint}`, {
       params: { ...params },
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${adminToken}`,
+        Authorization: `Bearer ${this.adminToken}`,
         ...headers,
       },
     });
 
     if (!response.ok()) {
       const errorBody = await response.text();
-      throw new Error(`GET ${url} failed (${response.status()}): ${errorBody}`);
+      throw new Error(`GET ${endpoint} failed (${response.status()}): ${errorBody}`);
     }
 
     return response.json() as T;
+  }
+
+  async delete<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
+    const response = await this.request.delete(`${this.apiBaseURL}${endpoint}`, {
+      params: { ...params },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.adminToken}`,
+        ...headers,
+      },
+    });
+
+    if (!response.ok()) {
+      const errorBody = await response.text();
+      throw new Error(`DELETE ${endpoint} failed (${response.status()}): ${errorBody}`);
+    }
+
+    if (response.status() === 204) {
+      return response.status() as T;
+    }
+
+    return response.json() as T;
+  }
+
+  async getToken(): Promise<string> {
+    if (!this.adminToken) {
+      await this.authenticate();
+    }
+
+    return this.adminToken!;
   }
 }

@@ -2,30 +2,31 @@ import { test } from '../../fixtures/apiFixtures';
 import { expect } from '@playwright/test';
 import { HomePage } from '../../pages/HomePage';
 import { LoginPage } from '../../pages/LoginPage';
-import {
-  getUserIdByEmailAPI,
-  getUserDataByEmailAPI,
-  deleteUserByIdAPI as deleteUser,
-  generateRandomuserDataFaker,
-} from '../../utils/test-utils';
+import { generateRandomuserDataFaker } from '../../utils/test-utils';
 import { User } from '../../types/user';
+import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '../../utils/api-utils';
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
   let newUserData: User;
-  let token: string;
 
-  test.beforeAll('Generate new user data', async ({ adminToken }) => {
-    token = adminToken;
+  test.beforeAll('Generate new user data', async () => {
     newUserData = generateRandomuserDataFaker();
     console.log(`User with email ${newUserData.email} has been generated.`);
   });
 
-  test.afterAll('Delete registered user', async ({ request, apiHandler }) => {
+  test.afterAll('Delete registered user', async ({ apiHandler }) => {
     const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
 
-    await deleteUser(request, token, newUserId);
-    console.log(`User with email ${newUserData.email} has been deleted.`);
+    const response = await deleteUserAPI(apiHandler, newUserId);
+
+    if (response !== 204) {
+      console.warn(
+        `Cleanup Warning: Failed to delete user ${newUserData.email}. Manual cleanup may be required.`,
+      );
+    } else {
+      console.log(`User with email ${newUserData.email} has been deleted.`);
+    }
   });
 
   test('Register new user: happy path', async ({ page, apiHandler }) => {
@@ -46,7 +47,8 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      const newUser = await getUserDataByEmailAPI(apiHandler, newUserData.email);
+      const newUser = await getUserByEmailAPI(apiHandler, newUserData.email);
+
       expect(newUser.first_name).toBe(newUserData.first_name);
       expect(newUser.last_name).toBe(newUserData.last_name);
       expect(newUser.dob).toBe(newUserData.dob);
