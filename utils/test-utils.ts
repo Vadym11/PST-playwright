@@ -6,9 +6,16 @@ import config from '../playwright.config';
 import { APIRequestContext, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from './apiHandler';
-import { UserAPI, UserAPICreate } from '../types/usersAPI';
+import { GetAllUsersResponse, RegisterUserResponse } from '../types/api-user';
 import { PaginatedResponse } from '../types/api-responses';
-import { registerUserAPI } from './api-utils';
+import {
+  getAllBrandsAPI,
+  getAllCategoriesAPI,
+  getAllImagesAPI,
+  registerUserAPI,
+} from './api-utils';
+import { Product } from '../types/api-product';
+import { get } from 'http';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -114,6 +121,71 @@ export function generateRandomuserDataFaker(): User {
     password: PASSWORD,
   };
 }
+
+export async function generateRandomProductData(apiHandler: APIHandler): Promise<Product> {
+  const NAME = faker.commerce.productName();
+  const DESCRIPTION = faker.commerce.productDescription();
+  const PRICE = parseFloat(faker.commerce.price(10, 200, 2));
+  const IS_LOCATION_OFFER = getRandomIntInclusive(0, 1);
+  const IS_RENTAL = getRandomIntInclusive(0, 1);
+  const CO2_RATING = getRandomArrayElement(['A', 'B', 'C', 'D', 'E']);
+  const CATEGORY_ID = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
+  const BRAND_ID = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
+  const PRODUCT_IMAGE_ID = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+
+  const product: Product = {
+    name: NAME,
+    description: DESCRIPTION,
+    price: PRICE,
+    is_location_offer: IS_LOCATION_OFFER,
+    is_rental: IS_RENTAL,
+    co2_rating: CO2_RATING,
+    category_id: CATEGORY_ID,
+    brand_id: BRAND_ID,
+    product_image_id: PRODUCT_IMAGE_ID,
+  };
+
+  return product;
+}
+
+export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> {
+  const categoryIDs: string[] = [];
+  const categories = await getAllCategoriesAPI(apiHandler);
+
+  for (const category of categories) {
+    categoryIDs.push(category.id);
+  }
+
+  return categoryIDs;
+}
+
+export async function getBrandIDs(apiHandler: APIHandler): Promise<string[]> {
+  const brandIDs: string[] = [];
+  const brands = await getAllBrandsAPI(apiHandler);
+
+  for (const brand of brands) {
+    brandIDs.push(brand.id);
+  }
+
+  return brandIDs;
+}
+
+export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
+  const imageIDs: string[] = [];
+  const images = await getAllImagesAPI(apiHandler);
+
+  for (const image of images) {
+    imageIDs.push(image.id);
+  }
+
+  return imageIDs;
+}
+
+/**
+ * Generates and registers a random user via API.
+ * @param apiHandler The API handler instance.
+ * @returns The registered User object.
+ */
 
 export async function registerRandomUser(apiHandler: APIHandler): Promise<User> {
   const user = generateRandomuserDataFaker();

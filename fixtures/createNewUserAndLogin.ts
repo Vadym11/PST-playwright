@@ -1,9 +1,9 @@
 import { User } from '../types/user';
-import { UserAPI } from '../types/usersAPI';
+import { GetAllUsersResponse } from '../types/api-user';
 import { test as baseTest } from './apiFixtures';
 
 type NewUserLoggedInFixture = {
-  newUserLoggedIn: UserAPI;
+  newUserLoggedIn: GetAllUsersResponse;
 };
 
 const test = baseTest.extend<NewUserLoggedInFixture>({

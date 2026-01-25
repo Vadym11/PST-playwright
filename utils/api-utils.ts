@@ -1,15 +1,22 @@
 import { APIHandler } from '../utils/apiHandler';
-import { CurrentUser, UserAPI } from '../types/usersAPI';
+import { GetCurrentUserResponse, GetAllUsersResponse } from '../types/api-user';
 import { User } from '../types/user';
+import { GetProductResponse, Product } from '../types/api-product';
 import {
   LoginResponse,
   LogOutResponse,
   PaginatedResponse,
-  ResponseSuccess,
+  SuccessResponse,
 } from '../types/api-responses';
+import { GetBrand } from '../types/api-brand';
+import { GetCategoriesResponse, GetCategoryResponse } from '../types/api-category';
+import { ProductImage } from '../types/api-product-image';
 
-export async function registerUserAPI(apiHandler: APIHandler, userData: User): Promise<UserAPI> {
-  const registeredUser = await apiHandler.post<UserAPI>('/users/register', userData);
+export async function registerUserAPI(
+  apiHandler: APIHandler,
+  userData: User,
+): Promise<GetAllUsersResponse> {
+  const registeredUser = await apiHandler.post<GetAllUsersResponse>('/users/register', userData);
 
   return registeredUser;
 }
@@ -43,8 +50,8 @@ export async function loginUserAPI(
 export async function getCurrentUserData(
   apiHandler: APIHandler,
   token: string,
-): Promise<CurrentUser> {
-  const responseBody = await apiHandler.get<CurrentUser>(
+): Promise<GetCurrentUserResponse> {
+  const responseBody = await apiHandler.get<GetCurrentUserResponse>(
     '/users/me',
     {},
     { Authorization: `Bearer ${token}` },
@@ -72,14 +79,22 @@ export async function deleteUserAPI(apiHandler: APIHandler, userID: string): Pro
   return responseStatus;
 }
 
-export async function getUserByIdAPI(apiHandler: APIHandler, userID: string): Promise<UserAPI> {
-  const response = await apiHandler.get<UserAPI>(`/users/${userID}`);
+export async function getUserByIdAPI(
+  apiHandler: APIHandler,
+  userID: string,
+): Promise<GetAllUsersResponse> {
+  const response = await apiHandler.get<GetAllUsersResponse>(`/users/${userID}`);
 
   return response;
 }
 
-export async function getUserByEmailAPI(apiHandler: APIHandler, email: string): Promise<UserAPI> {
-  const response = await apiHandler.get<PaginatedResponse<UserAPI>>(`/users/search`, { q: email });
+export async function getUserByEmailAPI(
+  apiHandler: APIHandler,
+  email: string,
+): Promise<GetAllUsersResponse> {
+  const response = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(`/users/search`, {
+    q: email,
+  });
 
   if (!response.data || response.data.length === 0) {
     throw new Error(`API Error: No user found for email: ${email}`);
@@ -97,12 +112,88 @@ export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string)
 export async function forgotPasswordAPI(
   apiHandler: APIHandler,
   email: string,
-): Promise<ResponseSuccess> {
+): Promise<SuccessResponse> {
   const data = { email };
 
-  const responseBody = await apiHandler.post<ResponseSuccess>('/users/forgot-password', data, {
+  const responseBody = await apiHandler.post<SuccessResponse>('/users/forgot-password', data, {
     Authorization: '',
   });
+
+  return responseBody;
+}
+
+export async function createProductAPI(
+  apiHandler: APIHandler,
+  productData: Product,
+): Promise<GetProductResponse> {
+  const responseBody = await apiHandler.post<GetProductResponse>('/products', productData);
+
+  return responseBody;
+}
+
+export async function getAllProductsAPI(
+  apiHandler: APIHandler,
+): Promise<PaginatedResponse<GetProductResponse>> {
+  const responseBody = await apiHandler.get<PaginatedResponse<GetProductResponse>>('/products');
+
+  return responseBody;
+}
+
+export async function getProductByIdAPI(
+  apiHandler: APIHandler,
+  productID: string,
+): Promise<GetProductResponse> {
+  const responseBody = await apiHandler.get<GetProductResponse>(`/products/${productID}`);
+
+  return responseBody;
+}
+
+export async function deleteProductByIdAPI(
+  apiHandler: APIHandler,
+  productID: string,
+): Promise<number> {
+  const responseStatus = await apiHandler.delete<number>(`/products/${productID}`);
+
+  return responseStatus;
+}
+
+export async function getAllBrandsAPI(apiHandler: APIHandler): Promise<GetBrand[]> {
+  const responseBody = await apiHandler.get<GetBrand[]>('/brands');
+
+  return responseBody;
+}
+
+export async function getBrandByIdAPI(apiHandler: APIHandler, brandID: string): Promise<GetBrand> {
+  const responseBody = await apiHandler.get<GetBrand>(`/brands/${brandID}`);
+
+  return responseBody;
+}
+
+export async function deleteBrandByIdAPI(apiHandler: APIHandler, brandID: string): Promise<number> {
+  const responseStatus = await apiHandler.delete<number>(`/brands/${brandID}`);
+
+  return responseStatus;
+}
+
+export async function getAllCategoriesAPI(
+  apiHandler: APIHandler,
+): Promise<GetCategoriesResponse[]> {
+  const responseBody = await apiHandler.get<GetCategoriesResponse[]>('/categories');
+
+  return responseBody;
+}
+
+export async function getCategoryByIdAPI(
+  apiHandler: APIHandler,
+  categoryID: string,
+): Promise<GetCategoryResponse> {
+  const responseBody = await apiHandler.get<GetCategoryResponse>(`/categories/tree/${categoryID}`);
+
+  return responseBody;
+}
+
+export async function getAllImagesAPI(apiHandler: APIHandler): Promise<ProductImage[]> {
+  const responseBody = await apiHandler.get<ProductImage[]>('/images');
 
   return responseBody;
 }

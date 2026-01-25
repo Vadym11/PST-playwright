@@ -1,6 +1,5 @@
 import { test } from '../../fixtures/apiFixtures';
-import { getAPIBaseUrl } from '../../utils/test-utils';
-import { UserAPI } from '../../types/usersAPI';
+import { GetAllUsersResponse } from '../../types/api-user';
 import { PaginatedResponse } from '../../types/api-responses';
 import path from 'path';
 import fs from 'fs';
@@ -9,7 +8,7 @@ import { getUserByEmailAPI } from '../../utils/api-utils';
 test('API handlers', async ({ apiHandler }) => {
   const params = { page: 3 };
 
-  const users = await apiHandler.get<PaginatedResponse<UserAPI>>('/users', params);
+  const users = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>('/users', params);
 });
 
 test('API handler util', async ({ apiHandler }) => {
