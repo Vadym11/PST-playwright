@@ -1,16 +1,19 @@
-export interface User {
+export interface BaseUser {
   first_name: string;
   last_name: string;
-  address: Address;
-  dob: string;
   phone: string;
+  dob: string;
   email: string;
+  address: Address;
+}
+export interface User extends BaseUser {
   password: string;
 }
+
 export interface Address {
   street: string;
-  postal_code: string;
   city: string;
   state: string;
   country: string;
+  postal_code: string;
 }

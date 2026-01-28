@@ -14,7 +14,7 @@ export interface LoginResponse {
   expires_in: number;
 }
 
-export interface ResponseSuccess {
+export interface SuccessResponse {
   success: boolean;
 }
 

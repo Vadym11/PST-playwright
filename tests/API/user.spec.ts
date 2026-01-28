@@ -6,7 +6,6 @@ import {
   deleteUserAPI,
   forgotPasswordAPI,
   getCurrentUserData,
-  loginAPI,
   loginUserAPI,
   logOutUserAPI,
   registerUserAPI as registerUserAPI,
