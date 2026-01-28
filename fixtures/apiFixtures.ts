@@ -3,6 +3,7 @@ import { generateRandomuserDataFaker, getAPIBaseUrl } from '../utils/test-utils'
 import { APIHandler } from '../utils/apiHandler';
 import { PaginatedResponse } from '../types/api-responses';
 import { GetAllUsersResponse } from '../types/api-user';
+import { ProductAPI } from '../API/product';
 
 const apiBaseURL = getAPIBaseUrl();
 
@@ -18,7 +19,13 @@ type ApiWorkerFixtures = {
   workerApiHandler: APIHandler;
 };
 
-const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
+type WorkerAPIFixtures = {
+  productApi: ProductAPI;
+};
+
+type CombinedWorkerFixtures = ApiWorkerFixtures & WorkerAPIFixtures;
+
+const test = base.extend<ApiFixtures, CombinedWorkerFixtures>({
   adminToken: async ({ workerApiHandler }, use) => {
     await use(await workerApiHandler.getToken());
   },
@@ -65,6 +72,14 @@ const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
       await use(handler);
 
       await requestContext.dispose();
+    },
+    { scope: 'worker' },
+  ],
+
+  productApi: [
+    async ({ workerApiHandler }, use) => {
+      const api = new ProductAPI(workerApiHandler);
+      await use(api);
     },
     { scope: 'worker' },
   ],
