@@ -3,11 +3,9 @@ import axios from 'axios';
 const userData = require('../test-data/registerUserData.json');
 const connection = require('./mysqldb');
 import config from '../playwright.config';
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from './apiHandler';
-import { GetAllUsersResponse, RegisterUserResponse } from '../types/api-user';
-import { PaginatedResponse } from '../types/api-responses';
 import {
   getAllBrandsAPI,
   getAllCategoriesAPI,
@@ -15,7 +13,6 @@ import {
   registerUserAPI,
 } from './api-utils';
 import { Product } from '../types/api-product';
-import { get } from 'http';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -126,12 +123,14 @@ export async function generateRandomProductData(apiHandler: APIHandler): Promise
   const NAME = faker.commerce.productName();
   const DESCRIPTION = faker.commerce.productDescription();
   const PRICE = parseFloat(faker.commerce.price(10, 200, 2));
-  const IS_LOCATION_OFFER = getRandomIntInclusive(0, 1);
-  const IS_RENTAL = getRandomIntInclusive(0, 1);
-  const CO2_RATING = getRandomArrayElement(['A', 'B', 'C', 'D', 'E']);
+  const IS_LOCATION_OFFER = faker.helpers.arrayElement([0, 1]);
+  const IS_RENTAL = faker.helpers.arrayElement([0, 1]);
+  const CO2_RATING = faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']);
   const CATEGORY_ID = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
   const BRAND_ID = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
   const PRODUCT_IMAGE_ID = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+
+  console.log(`Generated Product Name: ${NAME}`);
 
   const product: Product = {
     name: NAME,

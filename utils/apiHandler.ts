@@ -49,6 +49,24 @@ export class APIHandler {
     return (await response.json()) as T;
   }
 
+  async update<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
+    const response = await this.request.put(`${this.apiBaseURL}${endpoint}`, {
+      data: data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.adminToken}`,
+        ...headers,
+      },
+    });
+
+    if (!response.ok()) {
+      const errorBody = await response.text();
+      throw new Error(`PUT ${endpoint} failed (${response.status()}): ${errorBody}`);
+    }
+
+    return (await response.json()) as T;
+  }
+
   async get<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
     const response = await this.request.get(`${this.apiBaseURL}${endpoint}`, {
       params: { ...params },
