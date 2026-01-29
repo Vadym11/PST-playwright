@@ -4,7 +4,7 @@ import { APIHandler } from '../utils/apiHandler';
 import { PaginatedResponse } from '../types/api-responses';
 import { GetAllUsersResponse } from '../types/api-user';
 import { ProductAPI } from '../API/product';
-
+import { UserAPI } from '../API/user';
 const apiBaseURL = getAPIBaseUrl();
 
 type ApiFixtures = {
@@ -21,6 +21,7 @@ type ApiWorkerFixtures = {
 
 type WorkerAPIFixtures = {
   productApi: ProductAPI;
+  userApi: UserAPI;
 };
 
 type CombinedWorkerFixtures = ApiWorkerFixtures & WorkerAPIFixtures;
@@ -79,6 +80,14 @@ const test = base.extend<ApiFixtures, CombinedWorkerFixtures>({
   productApi: [
     async ({ workerApiHandler }, use) => {
       const api = new ProductAPI(workerApiHandler);
+      await use(api);
+    },
+    { scope: 'worker' },
+  ],
+
+  userApi: [
+    async ({ workerApiHandler }, use) => {
+      const api = new UserAPI(workerApiHandler);
       await use(api);
     },
     { scope: 'worker' },
