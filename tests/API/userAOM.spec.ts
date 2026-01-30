@@ -2,16 +2,33 @@ import { test } from '../../fixtures/apiFixtures';
 import { expect } from '@playwright/test';
 import { User } from '../../types/user';
 import { generateRandomuserDataFaker } from '../../utils/test-utils';
+import { faker } from '@faker-js/faker';
 
 test.describe.serial('User API tests', () => {
   let newUser: User;
   let newUserId: string;
   let userToken: string;
+  const newUserFirstName = faker.name.firstName();
+  const newUserLastName = faker.name.lastName();
+  const newPassword = `${faker.internet.password(8)}$123`;
 
   test.beforeAll('Generate new user', async () => {
     newUser = generateRandomuserDataFaker();
 
     console.log(`Generated user email: ${newUser.email}`);
+  });
+
+  test('Get all users', async ({ userApi }) => {
+    const response = await userApi.getAll();
+
+    expect(response).toBeDefined();
+    expect(Array.isArray(response.data)).toBe(true);
+    expect(response.current_page).toBeDefined();
+    expect(response.per_page).toBeDefined();
+    expect(response.total).toBeDefined();
+    expect(response.last_page).toBeDefined();
+    expect(response.from).toBeDefined();
+    expect(response.to).toBeDefined();
   });
 
   test('Register user', async ({ userApi }) => {
@@ -38,11 +55,26 @@ test.describe.serial('User API tests', () => {
     expect(response.expires_in).toBe(300);
   });
 
+  test('Change password', async ({ userApi }) => {
+    const response = await userApi.changePassword(userToken, newUser.password, newPassword);
+
+    expect(response.success).toBe(true);
+  });
+
+  test('Update user data', async ({ userApi }) => {
+    newUser.first_name = newUserFirstName;
+    newUser.last_name = newUserLastName;
+
+    const response = await userApi.update(newUser, userToken, newUserId);
+
+    expect(response.success).toBe(true);
+  });
+
   test('Get current user data', async ({ userApi }) => {
     const currentUser = await userApi.getCurrentUserData(userToken);
 
-    expect(currentUser.first_name).toBe(newUser.first_name);
-    expect(currentUser.last_name).toBe(newUser.last_name);
+    expect(currentUser.first_name).toBe(newUserFirstName);
+    expect(currentUser.last_name).toBe(newUserLastName);
     expect(currentUser.email).toBe(newUser.email.toLowerCase());
   });
 
@@ -66,6 +98,16 @@ test.describe.serial('User API tests', () => {
     expect(response.access_token).toBeDefined();
     expect(response.token_type).toBe('bearer');
     expect(response.expires_in).toBe(300);
+  });
+
+  test('Refresh token', async ({ userApi }) => {
+    const response = await userApi.refreshToken(userToken);
+
+    expect(response.access_token).toBeDefined();
+    expect(response.token_type).toBe('bearer');
+    expect(response.expires_in).toBe(300);
+
+    userToken = response.access_token;
   });
 
   test('Delete user', async ({ userApi }) => {

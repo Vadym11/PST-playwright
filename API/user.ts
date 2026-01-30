@@ -23,6 +23,14 @@ export class UserAPI {
     return registeredUser;
   }
 
+  async update(userData: User, userToken: string, userId: string): Promise<SuccessResponse> {
+    const response = await this.apiHandler.update<SuccessResponse>(`/users/${userId}`, userData, {
+      Authorization: `Bearer ${userToken}`,
+    });
+
+    return response;
+  }
+
   async login(email: string, password: string): Promise<LoginResponse> {
     const data = { email, password };
 
@@ -86,6 +94,47 @@ export class UserAPI {
       data,
       {
         Authorization: '',
+      },
+    );
+
+    return responseBody;
+  }
+
+  async changePassword(
+    token: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<SuccessResponse> {
+    const data = {
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPassword,
+    };
+
+    const responseBody = await this.apiHandler.post<SuccessResponse>(
+      '/users/change-password',
+      data,
+      {
+        Authorization: `Bearer ${token}`,
+      },
+    );
+
+    return responseBody;
+  }
+
+  async getAll(): Promise<PaginatedResponse<GetAllUsersResponse>> {
+    const responseBody =
+      await this.apiHandler.get<PaginatedResponse<GetAllUsersResponse>>('/users');
+
+    return responseBody;
+  }
+
+  async refreshToken(currentToken: string): Promise<LoginResponse> {
+    const responseBody = await this.apiHandler.get<LoginResponse>(
+      '/users/refresh',
+      {},
+      {
+        Authorization: `Bearer ${currentToken}`,
       },
     );
 
