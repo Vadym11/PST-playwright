@@ -49,7 +49,7 @@ export default defineConfig({
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'chromium',
-      // dependencies: ['setup'],
+      dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
         // uncomment lines below to use fullscreen chrome window

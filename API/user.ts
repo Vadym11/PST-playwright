@@ -31,6 +31,14 @@ export class UserAPI {
     return response;
   }
 
+  async patchUser(userData: {}, userToken: string, userId: string): Promise<SuccessResponse> {
+    const response = await this.apiHandler.patch<SuccessResponse>(`/users/${userId}`, userData, {
+      Authorization: `Bearer ${userToken}`,
+    });
+
+    return response;
+  }
+
   async login(email: string, password: string): Promise<LoginResponse> {
     const data = { email, password };
 

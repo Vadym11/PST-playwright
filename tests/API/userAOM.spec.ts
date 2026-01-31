@@ -78,6 +78,18 @@ test.describe.serial('User API tests', () => {
     expect(currentUser.email).toBe(newUser.email.toLowerCase());
   });
 
+  test('Patch user data', async ({ userApi }) => {
+    const patchedLastName = `${newUserLastName}-Patched`;
+
+    const response = await userApi.patchUser({ last_name: patchedLastName }, userToken, newUserId);
+
+    expect(response.success).toBe(true);
+
+    const currentUser = await userApi.getCurrentUserData(userToken);
+
+    expect(currentUser.last_name).toBe(patchedLastName);
+  });
+
   test('Logout', async ({ userApi }) => {
     const response = await userApi.logOut(userToken);
 
