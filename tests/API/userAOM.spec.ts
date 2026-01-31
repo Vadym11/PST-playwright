@@ -81,7 +81,7 @@ test.describe.serial('User API tests', () => {
   test('Patch user data', async ({ userApi }) => {
     const patchedLastName = `${newUserLastName}-Patched`;
 
-    const response = await userApi.patchUser({ last_name: patchedLastName }, userToken, newUserId);
+    const response = await userApi.patch({ last_name: patchedLastName }, userToken, newUserId);
 
     expect(response.success).toBe(true);
 
