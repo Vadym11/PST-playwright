@@ -38,10 +38,28 @@ test.describe.serial('Product API Tests', () => {
     expect(product.price).toBe(newProductData.price);
   });
 
+  test('Get Related Products by ID', async ({ productApi }) => {
+    const relatedProducts = await productApi.getRelatedProductsById(createdProductID);
+
+    expect(relatedProducts).toBeDefined();
+    expect(Array.isArray(relatedProducts)).toBe(true);
+  });
+
   test('Update Product Price', async ({ productApi }) => {
     newProductData.price = newPrice;
 
     const response = await productApi.update(newProductData, createdProductID);
+
+    expect(response.success).toBe(true);
+  });
+
+  test('Patch Product (update description)', async ({ productApi }) => {
+    newProductData.description = 'Patched description';
+
+    const response = await productApi.patch(
+      { description: newProductData.description },
+      createdProductID,
+    );
 
     expect(response.success).toBe(true);
   });

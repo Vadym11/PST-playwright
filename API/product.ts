@@ -24,6 +24,15 @@ export class ProductAPI {
     return responseBody;
   }
 
+  async patch(productData: Partial<Product>, productID: string): Promise<SuccessResponse> {
+    const responseBody = await this.apiHandler.patch<SuccessResponse>(
+      `/products/${productID}`,
+      productData,
+    );
+
+    return responseBody;
+  }
+
   async getAll(): Promise<PaginatedResponse<GetProductResponse>> {
     const responseBody =
       await this.apiHandler.get<PaginatedResponse<GetProductResponse>>('/products');
@@ -33,6 +42,14 @@ export class ProductAPI {
 
   async getById(productID: string): Promise<GetProductResponse> {
     const responseBody = await this.apiHandler.get<GetProductResponse>(`/products/${productID}`);
+
+    return responseBody;
+  }
+
+  async getRelatedProductsById(productID: string): Promise<GetProductResponse[]> {
+    const responseBody = await this.apiHandler.get<GetProductResponse[]>(
+      `/products/${productID}/related`,
+    );
 
     return responseBody;
   }
