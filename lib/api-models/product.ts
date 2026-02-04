@@ -1,6 +1,6 @@
-import { APIHandler } from '../utils/apiHandler';
-import { GetProductResponse, Product } from '../lib/models/api-product';
-import { PaginatedResponse, SuccessResponse } from '../lib/models/api-responses';
+import { APIHandler } from '@utils/apiHandler';
+import { GetProductResponse, Product } from '@models/api-product';
+import { PaginatedResponse, SuccessResponse } from '@models/api-responses';
 
 export class ProductAPI {
   // We keep them separate: ProductAPI uses the APIHandler

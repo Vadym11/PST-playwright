@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
-import { BasePage } from '../BasePage';
-import { HeaderCommon } from '../HeaderCommon';
+import { BasePage } from '@pages/BasePage';
+import { HeaderCommon } from '@pages/HeaderCommon';
 import { faker } from '@faker-js/faker';
 
 export class ShoppingCartPaymentPage extends BasePage {

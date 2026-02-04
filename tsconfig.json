@@ -3,10 +3,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      // "@test-utils": ["./utils/test-utils/index.ts"],
-      "@utils/*": ["utils/*"] ,
+      "@pages/*": ["lib/pages/*"],
+      "@utils/*": ["lib/utils/*"] ,
       "@models/*": ["lib/models/*"],
-      "@fixtures/*": ["fixtures/*"]
+      "@fixtures/*": ["lib/fixtures/*"],
+      "@data-factory/*": ["lib/data-factory/*"],
+      "@api-models/*": ["lib/api-models/*"],
+      "@playwright.config": ["playwright.config.ts"],
+      "@auth/*": ["playwright/.auth/*"]
     },
     // File Layout
     // "rootDir": "./src",
@@ -53,7 +57,7 @@
     "noEmit": true
     },
   "include": [
-    "pages/**/*.ts",
+    "lib/pages/**/*.ts",
     "tests/**/*.ts",
     "playwright.config.ts"
   ]

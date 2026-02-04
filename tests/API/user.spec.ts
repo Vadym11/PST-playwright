@@ -1,7 +1,7 @@
-import { test } from '../../fixtures/apiFixtures';
+import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { User } from '../../lib/models/user';
-import { generateRandomuserDataFaker } from '../../utils/test-utils';
+import { User } from '@models/user';
+import { generateRandomuserDataFaker } from '@utils/test-utils';
 import {
   deleteUserAPI,
   forgotPasswordAPI,
@@ -9,7 +9,7 @@ import {
   loginUserAPI,
   logOutUserAPI,
   registerUserAPI as registerUserAPI,
-} from '../../utils/api-utils';
+} from '@utils/api-utils';
 
 let newUser: User;
 let newUserId: string;

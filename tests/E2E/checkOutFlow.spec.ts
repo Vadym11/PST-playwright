@@ -1,8 +1,8 @@
-import { test } from '../../fixtures/createNewUserAndLogin';
+import { test } from '@fixtures/createNewUserAndLogin';
 import { expect } from '@playwright/test';
-import { HomePage } from '../../pages/HomePage';
-import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
-import { PaymentMethods } from '../../lib/models/paymentMethods';
+import { HomePage } from '@pages/HomePage';
+import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
+import { PaymentMethods } from '@models/paymentMethods';
 import path from 'path';
 import { faker } from '@faker-js/faker';
 import fs from 'fs';

@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
-import { BasePage } from './BasePage';
-import { LoginPage } from './LoginPage';
+import { BasePage } from '@pages/BasePage';
+import { LoginPage } from '@pages/LoginPage';
 import { User } from '@models/user';
 
 export class RegisterPage extends BasePage {

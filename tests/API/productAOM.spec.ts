@@ -1,6 +1,6 @@
 import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import type { Product } from 'lib/models/api-product';
+import type { Product } from '@models/api-product';
 import { generateRandomProductData } from '@utils/test-utils';
 
 test.describe.serial('Product API Tests', () => {

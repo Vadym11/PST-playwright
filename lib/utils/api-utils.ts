@@ -1,5 +1,5 @@
-import { APIHandler } from '../utils/apiHandler';
-import { GetCurrentUserResponse, GetAllUsersResponse } from '../lib/models/api-user';
+import { APIHandler } from '@utils/apiHandler';
+import { GetCurrentUserResponse, GetAllUsersResponse } from '@models/api-user';
 import { User } from '@models/user';
 import { GetProductResponse, Product } from '@models/api-product';
 import {
@@ -9,7 +9,7 @@ import {
   SuccessResponse,
 } from '@models/api-responses';
 import { GetBrand } from '@models/api-brand';
-import { GetCategoriesResponse, GetCategoryResponse } from '../lib/models/api-category';
+import { GetCategoriesResponse, GetCategoryResponse } from '@models/api-category';
 import { ProductImage } from '@models/api-product-image';
 
 export async function registerUserAPI(

@@ -1,7 +1,7 @@
-import { test } from '../../fixtures/apiFixtures';
+import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { User } from '../../lib/models/user';
-import { generateRandomuserDataFaker } from '../../utils/test-utils';
+import { User } from '@models/user';
+import { generateRandomuserDataFaker } from '@utils/test-utils';
 import { faker } from '@faker-js/faker';
 
 test.describe.serial('User API tests', () => {

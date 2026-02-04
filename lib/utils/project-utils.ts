@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ShoppingCartBillingPage } from '../pages/shoppingCart/ShoppingCartBillingPage';
+import { ShoppingCartBillingPage } from '@pages/shoppingCart/ShoppingCartBillingPage';
 import { User } from '@models/user';
 import { PaymentMethods } from '@models/paymentMethods';
 

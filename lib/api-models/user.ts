@@ -1,11 +1,11 @@
-import { APIHandler } from '../utils/apiHandler';
+import { APIHandler } from '@utils/apiHandler';
 import {
   LoginResponse,
   LogOutResponse,
   PaginatedResponse,
   SuccessResponse,
-} from '../lib/models/api-responses';
-import { GetAllUsersResponse, GetCurrentUserResponse, User } from '../lib/models/api-user';
+} from '@models/api-responses';
+import { GetAllUsersResponse, GetCurrentUserResponse, User } from '@models/api-user';
 
 export class UserAPI {
   // We keep them separate: ProductAPI uses the APIHandler

@@ -1,8 +1,8 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { BasePage } from './BasePage';
-import { HeaderCommon } from './HeaderCommon';
-import { MyAccountPage } from './MyAccountPage';
-import { RegisterPage } from './RegisterPage';
+import { BasePage } from '@pages/BasePage';
+import { HeaderCommon } from '@pages/HeaderCommon';
+import { MyAccountPage } from '@pages/MyAccountPage';
+import { RegisterPage } from '@pages/RegisterPage';
 
 export class LoginPage extends BasePage {
   private readonly signInWithGoogle: Locator;

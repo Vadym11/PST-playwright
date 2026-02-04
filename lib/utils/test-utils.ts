@@ -1,17 +1,17 @@
 import { User } from '@models/user';
 import axios from 'axios';
-const userData = require('../test-data/registerUserData.json');
+const userData = require('@data-factory/registerUserData.json');
 const connection = require('./mysqldb');
-import config from '../playwright.config';
+import config from '@playwright.config';
 import { APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
-import { APIHandler } from './apiHandler';
+import { APIHandler } from '@utils/apiHandler';
 import {
   getAllBrandsAPI,
   getAllCategoriesAPI,
   getAllImagesAPI,
   registerUserAPI,
-} from './api-utils';
+} from '@utils/api-utils';
 import { Product } from '@models/api-product';
 
 export const getAPIBaseUrl = () => {

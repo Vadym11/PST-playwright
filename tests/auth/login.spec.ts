@@ -1,10 +1,10 @@
-import { test, expect, FullConfig } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { HomePage } from '../../pages/HomePage';
-import { LoginPage } from '../../pages/LoginPage';
+import { HomePage } from '@pages/HomePage';
+import { LoginPage } from '@pages/LoginPage';
 
-test.describe('Login Feature ', () => {
+test.describe('Login Feature', () => {
   const authFile = path.join(__dirname, '../playwright/.auth/userGlobal.json');
 
   const email = process.env.EMAIL!;
