@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { HomePage } from '../../pages/HomePage';
 import { LoginPage } from '../../pages/LoginPage';
 import { generateRandomuserDataFaker } from '../../utils/test-utils';
-import { User } from '../../types/user';
+import { User } from '../../lib/models/user';
 import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '../../utils/api-utils';
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });

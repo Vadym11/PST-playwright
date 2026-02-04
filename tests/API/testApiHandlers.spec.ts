@@ -1,6 +1,6 @@
 import { test } from '../../fixtures/apiFixtures';
-import { GetAllUsersResponse } from '../../types/api-user';
-import { PaginatedResponse } from '../../types/api-responses';
+import { GetAllUsersResponse } from '../../lib/models/api-user';
+import { PaginatedResponse } from '../../lib/models/api-responses';
 import path from 'path';
 import fs from 'fs';
 import { getUserByEmailAPI } from '../../utils/api-utils';

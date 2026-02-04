@@ -1,6 +1,6 @@
 import { test } from '../../fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { User } from '../../types/user';
+import { User } from '../../lib/models/user';
 import { generateRandomuserDataFaker } from '../../utils/test-utils';
 import {
   deleteUserAPI,

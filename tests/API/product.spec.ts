@@ -1,5 +1,5 @@
 import { test } from '../../fixtures/apiFixtures';
-import { Product } from '../../types/api-product';
+import { Product } from '../../lib/models/api-product';
 import {
   createProductAPI,
   deleteProductByIdAPI,

@@ -1,6 +1,13 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      // "@test-utils": ["./utils/test-utils/index.ts"],
+      "@utils/*": ["utils/*"] ,
+      "@models/*": ["lib/models/*"],
+      "@fixtures/*": ["fixtures/*"]
+    },
     // File Layout
     // "rootDir": "./src",
     // "outDir": "./dist",

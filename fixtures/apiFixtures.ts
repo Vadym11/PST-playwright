@@ -1,8 +1,8 @@
 import { test as base } from '@playwright/test';
 import { generateRandomuserDataFaker, getAPIBaseUrl } from '../utils/test-utils';
 import { APIHandler } from '../utils/apiHandler';
-import { PaginatedResponse } from '../types/api-responses';
-import { GetAllUsersResponse } from '../types/api-user';
+import { PaginatedResponse } from '../lib/models/api-responses';
+import { GetAllUsersResponse } from '../lib/models/api-user';
 import { ProductAPI } from '../API/product';
 import { UserAPI } from '../API/user';
 const apiBaseURL = getAPIBaseUrl();

@@ -1,4 +1,4 @@
-import { User } from '../types/user';
+import { User } from '@models/user';
 import axios from 'axios';
 const userData = require('../test-data/registerUserData.json');
 const connection = require('./mysqldb');
@@ -12,7 +12,7 @@ import {
   getAllImagesAPI,
   registerUserAPI,
 } from './api-utils';
-import { Product } from '../types/api-product';
+import { Product } from '@models/api-product';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';

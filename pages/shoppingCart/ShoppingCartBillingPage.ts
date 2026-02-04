@@ -1,7 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { ShoppingCartPaymentPage } from './ShoppingCartPaymentPage';
-import { BillingFields } from '../../types/billingFields';
+import { BillingFields } from '@models/billingFields';
 
 export class ShoppingCartBillingPage extends BasePage {
   private readonly street: Locator;

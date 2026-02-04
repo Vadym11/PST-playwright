@@ -1,5 +1,4 @@
-import { User } from '../types/user';
-import { GetAllUsersResponse } from '../types/api-user';
+import { GetAllUsersResponse } from '../lib/models/api-user';
 import { test as baseTest } from './apiFixtures';
 
 type NewUserLoggedInFixture = {

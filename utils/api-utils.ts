@@ -1,16 +1,16 @@
 import { APIHandler } from '../utils/apiHandler';
-import { GetCurrentUserResponse, GetAllUsersResponse } from '../types/api-user';
-import { User } from '../types/user';
-import { GetProductResponse, Product } from '../types/api-product';
+import { GetCurrentUserResponse, GetAllUsersResponse } from '../lib/models/api-user';
+import { User } from '@models/user';
+import { GetProductResponse, Product } from '@models/api-product';
 import {
   LoginResponse,
   LogOutResponse,
   PaginatedResponse,
   SuccessResponse,
-} from '../types/api-responses';
-import { GetBrand } from '../types/api-brand';
-import { GetCategoriesResponse, GetCategoryResponse } from '../types/api-category';
-import { ProductImage } from '../types/api-product-image';
+} from '@models/api-responses';
+import { GetBrand } from '@models/api-brand';
+import { GetCategoriesResponse, GetCategoryResponse } from '../lib/models/api-category';
+import { ProductImage } from '@models/api-product-image';
 
 export async function registerUserAPI(
   apiHandler: APIHandler,

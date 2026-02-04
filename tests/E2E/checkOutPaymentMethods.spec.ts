@@ -2,7 +2,7 @@ import { test } from '../../fixtures/createNewUserAndLogin';
 import { expect } from '@playwright/test';
 import { HomePage } from '../../pages/HomePage';
 import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
-import { PaymentMethods } from '../../types/paymentMethods';
+import { PaymentMethods } from '../../lib/models/paymentMethods';
 import path from 'path';
 import fs from 'fs';
 
