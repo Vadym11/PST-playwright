@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-const connection = require('@test-utils/mysqldb');
+const connection = require('@utils/mysqldb');
 
 type dbFixtures = {
   // adminLogin: APIResponse;

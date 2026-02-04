@@ -3,12 +3,12 @@ import { expect } from '@playwright/test';
 import { HomePage } from '@pages/HomePage';
 import { LoginPage } from '@pages/LoginPage';
 import { generateRandomuserDataFaker } from '@utils/test-utils';
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '@utils/api-utils';
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
-  let newUserData: User;
+  let newUserData: CreateUser;
 
   test.beforeAll('Generate new user data', async () => {
     newUserData = generateRandomuserDataFaker();

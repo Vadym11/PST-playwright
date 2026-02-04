@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { ShoppingCartBillingPage } from '@pages/shoppingCart/ShoppingCartBillingPage';
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 import { PaymentMethods } from '@models/paymentMethods';
 
 /**
@@ -11,7 +11,7 @@ import { PaymentMethods } from '@models/paymentMethods';
  */
 export async function completeCheckoutAndVerifyBilling(
   shoppingCartBillingPage: ShoppingCartBillingPage,
-  newUser: User,
+  newUser: CreateUser,
   paymentMethod: PaymentMethods,
 ) {
   const currentYear = new Date().getFullYear();

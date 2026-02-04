@@ -1,6 +1,6 @@
 import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 import { generateRandomuserDataFaker } from '@utils/test-utils';
 import {
   deleteUserAPI,
@@ -11,7 +11,7 @@ import {
   registerUserAPI as registerUserAPI,
 } from '@utils/api-utils';
 
-let newUser: User;
+let newUser: CreateUser;
 let newUserId: string;
 let userToken: string;
 

@@ -1,7 +1,7 @@
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 import axios from 'axios';
 const userData = require('@data-factory/registerUserData.json');
-const connection = require('./mysqldb');
+const connection = require('@utils/mysqldb');
 import config from '@playwright.config';
 import { APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
@@ -54,7 +54,7 @@ export function getRandomArrayElement(array: any[]) {
  * User data is sourced from predefined arrays in registerUserData.json.
  * @returns A User object with random data.
  */
-export function generateRandomuserData(): User {
+export function generateRandomuserData(): CreateUser {
   const randomNumber = getRandomIntInclusive(0, 9999);
 
   const FIRST_NAME = getRandomArrayElement(userData.firstNames);
@@ -89,7 +89,7 @@ export function generateRandomuserData(): User {
 /** Generates random user data for registration using Faker library.
  * @returns A User object with random data.
  */
-export function generateRandomuserDataFaker(): User {
+export function generateRandomuserDataFaker(): CreateUser {
   const FIRST_NAME = faker.name.firstName().replaceAll("'", '');
   const LAST_NAME = faker.name.lastName().replaceAll("'", '');
   const DOB = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
@@ -186,7 +186,7 @@ export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
  * @returns The registered User object.
  */
 
-export async function registerRandomUser(apiHandler: APIHandler): Promise<User> {
+export async function registerRandomUser(apiHandler: APIHandler): Promise<CreateUser> {
   const user = generateRandomuserDataFaker();
 
   const response = await registerUserAPI(apiHandler, user);

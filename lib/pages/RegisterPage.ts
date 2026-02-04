@@ -1,7 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { LoginPage } from '@pages/LoginPage';
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 
 export class RegisterPage extends BasePage {
   private readonly firstNameField: Locator;
@@ -101,7 +101,7 @@ export class RegisterPage extends BasePage {
     return this;
   }
 
-  async registerNewUser(user: User): Promise<LoginPage> {
+  async registerNewUser(user: CreateUser): Promise<LoginPage> {
     await this.enterFirstName(user.first_name);
     await this.enterLastName(user.last_name);
     await this.enterDob(user.dob);

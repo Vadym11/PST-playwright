@@ -1,6 +1,6 @@
 import { APIHandler } from '@utils/apiHandler';
 import { GetCurrentUserResponse, GetAllUsersResponse } from '@models/api-user';
-import { User } from '@models/user';
+import { CreateUser } from '@models/api-user';
 import { GetProductResponse, Product } from '@models/api-product';
 import {
   LoginResponse,
@@ -14,7 +14,7 @@ import { ProductImage } from '@models/api-product-image';
 
 export async function registerUserAPI(
   apiHandler: APIHandler,
-  userData: User,
+  userData: CreateUser,
 ): Promise<GetAllUsersResponse> {
   const registeredUser = await apiHandler.post<GetAllUsersResponse>('/users/register', userData);
 
