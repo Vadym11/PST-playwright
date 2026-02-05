@@ -1,12 +1,12 @@
-import { test } from '../../fixtures/apiFixtures';
-import { Product } from '../../types/api-product';
+import { test } from '@fixtures/apiFixtures';
+import { Product } from '@models/api-product';
 import {
   createProductAPI,
   deleteProductByIdAPI,
   getAllProductsAPI,
   getProductByIdAPI,
-} from '../../utils/api-utils';
-import { generateRandomProductData } from '../../utils/test-utils';
+} from '@utils/api-utils';
+import { generateRandomProductData } from '@utils/test-utils';
 
 test.describe.serial('Product API Tests', () => {
   let createdProductID: string;

@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
-import { BasePage } from '../BasePage';
-import { ShoppingCartLoginPage } from './ShoppingCartLoginPage';
+import { BasePage } from '@pages/BasePage';
+import { ShoppingCartLoginPage } from '@pages/shoppingCart/ShoppingCartLoginPage';
 
 export class ShoppingCartMainPage extends BasePage {
   private readonly proceedToCheckoutButton: Locator;

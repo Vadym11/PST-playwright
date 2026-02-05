@@ -1,11 +1,11 @@
-import { test } from '../../fixtures/apiFixtures';
+import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { User } from '../../types/user';
-import { generateRandomuserDataFaker } from '../../utils/test-utils';
+import { CreateUser } from '@models/api-user';
+import { generateRandomuserDataFaker } from '@utils/test-utils';
 import { faker } from '@faker-js/faker';
 
 test.describe.serial('User API tests', () => {
-  let newUser: User;
+  let newUser: CreateUser;
   let newUserId: string;
   let userToken: string;
   const newUserFirstName = faker.name.firstName();

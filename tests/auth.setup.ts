@@ -1,10 +1,15 @@
-import { test as setup } from '../fixtures/apiFixtures';
+import { test as setup } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
 import path from 'path';
-import { LoginPage } from '../pages/LoginPage';
-import { HomePage } from '../pages/HomePage';
+import { LoginPage } from '@pages/LoginPage';
+import { HomePage } from '@pages/HomePage';
 import fs from 'fs';
-import { registerRandomUser } from '../utils/test-utils';
+import { registerRandomUser } from '@utils/test-utils';
+import { fileURLToPath } from 'url';
+
+// Recreate __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const authFile = path.join(__dirname, '../playwright/.auth/userState.json');
 const userFile = path.join(__dirname, '../playwright/.auth/userData.json');

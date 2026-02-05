@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
-import { HeaderCommon } from './HeaderCommon';
-import { BasePage } from './BasePage';
-import { ProductPage } from './ProductPage';
+import { HeaderCommon } from '@pages/HeaderCommon';
+import { BasePage } from '@pages/BasePage';
+import { ProductPage } from '@pages/ProductPage';
 import { faker } from '@faker-js/faker';
 
 export class HomePage extends BasePage {

@@ -1,11 +1,11 @@
-import { APIHandler } from '../utils/apiHandler';
+import { APIHandler } from '@utils/apiHandler';
 import {
   LoginResponse,
   LogOutResponse,
   PaginatedResponse,
   SuccessResponse,
-} from '../types/api-responses';
-import { GetAllUsersResponse, GetCurrentUserResponse, User } from '../types/api-user';
+} from '@models/api-responses';
+import { GetAllUsersResponse, GetCurrentUserResponse, CreateUser } from '@models/api-user';
 
 export class UserAPI {
   // We keep them separate: ProductAPI uses the APIHandler
@@ -14,7 +14,7 @@ export class UserAPI {
     this.apiHandler = apiHandler;
   }
 
-  async register(userData: User): Promise<GetAllUsersResponse> {
+  async register(userData: CreateUser): Promise<GetAllUsersResponse> {
     const registeredUser = await this.apiHandler.post<GetAllUsersResponse>(
       '/users/register',
       userData,
@@ -23,7 +23,7 @@ export class UserAPI {
     return registeredUser;
   }
 
-  async update(userData: User, userToken: string, userId: string): Promise<SuccessResponse> {
+  async update(userData: CreateUser, userToken: string, userId: string): Promise<SuccessResponse> {
     const response = await this.apiHandler.update<SuccessResponse>(`/users/${userId}`, userData, {
       Authorization: `Bearer ${userToken}`,
     });
@@ -32,7 +32,7 @@ export class UserAPI {
   }
 
   async patch(
-    userData: Partial<User>,
+    userData: Partial<CreateUser>,
     userToken: string,
     userId: string,
   ): Promise<SuccessResponse> {

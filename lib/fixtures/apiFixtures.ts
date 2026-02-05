@@ -1,10 +1,10 @@
 import { test as base } from '@playwright/test';
-import { generateRandomuserDataFaker, getAPIBaseUrl } from '../utils/test-utils';
-import { APIHandler } from '../utils/apiHandler';
-import { PaginatedResponse } from '../types/api-responses';
-import { GetAllUsersResponse } from '../types/api-user';
-import { ProductAPI } from '../API/product';
-import { UserAPI } from '../API/user';
+import { generateRandomuserDataFaker, getAPIBaseUrl } from '@utils/test-utils';
+import { APIHandler } from '@utils/apiHandler';
+import { PaginatedResponse } from '@models/api-responses';
+import { GetAllUsersResponse } from '@models/api-user';
+import { ProductAPI } from '@api-models/product';
+import { UserAPI } from '@api-models/user';
 const apiBaseURL = getAPIBaseUrl();
 
 type ApiFixtures = {

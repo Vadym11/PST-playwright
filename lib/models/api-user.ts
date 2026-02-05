@@ -6,7 +6,7 @@ export interface BaseUser {
   email: string;
   address: Address;
 }
-export interface User extends BaseUser {
+export interface CreateUser extends BaseUser {
   password: string;
 }
 

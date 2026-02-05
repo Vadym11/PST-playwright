@@ -1,12 +1,17 @@
-import { test } from '../../fixtures/createNewUserAndLogin';
+import { test } from '@fixtures/createNewUserAndLogin';
 import { expect } from '@playwright/test';
-import { HomePage } from '../../pages/HomePage';
-import { completeCheckoutAndVerifyBilling } from '../../utils/project-utils';
-import { PaymentMethods } from '../../types/paymentMethods';
+import { HomePage } from '@pages/HomePage';
+import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
+import { PaymentMethods } from '@models/paymentMethods';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 test.describe('Checkout flow', () => {
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
   let userData: any;
 
   const paymentMethods = [

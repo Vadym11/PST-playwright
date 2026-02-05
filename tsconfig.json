@@ -1,6 +1,17 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@pages/*": ["lib/pages/*"],
+      "@utils/*": ["lib/utils/*"] ,
+      "@models/*": ["lib/models/*"],
+      "@fixtures/*": ["lib/fixtures/*"],
+      "@data-factory/*": ["lib/data-factory/*"],
+      "@api-models/*": ["lib/api-models/*"],
+      "@playwright.config": ["playwright.config.ts"],
+      "@auth/*": ["playwright/.auth/*"]
+    },
     // File Layout
     // "rootDir": "./src",
     // "outDir": "./dist",
@@ -8,8 +19,9 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     // "types": [],
     // For nodejs:
     // "lib": ["esnext"],
@@ -46,7 +58,7 @@
     "noEmit": true
     },
   "include": [
-    "pages/**/*.ts",
+    "lib/**/*.ts",
     "tests/**/*.ts",
     "playwright.config.ts"
   ]

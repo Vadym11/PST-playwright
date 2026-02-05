@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const fs = require('fs');
+import fs from 'fs';
 
-const { spawn } = require('child_process');
-const axios = require('axios');
+import { spawn }  from 'child_process';
+import axios from 'axios';
 
 // --- Config from env ---
 const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL;

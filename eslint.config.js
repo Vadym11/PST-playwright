@@ -1,9 +1,9 @@
-const playwright = require('eslint-plugin-playwright');
-const tsParser = require('@typescript-eslint/parser');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-const globals = require('globals');
+import playwright from 'eslint-plugin-playwright';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import globals from 'globals';
 
-module.exports = [
+export default [
   {
     files: ['**/*.ts'],
     ignores: ['node_modules/**', 'test-results/**', 'playwright-report/**'],

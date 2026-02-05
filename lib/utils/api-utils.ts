@@ -1,20 +1,20 @@
-import { APIHandler } from '../utils/apiHandler';
-import { GetCurrentUserResponse, GetAllUsersResponse } from '../types/api-user';
-import { User } from '../types/user';
-import { GetProductResponse, Product } from '../types/api-product';
+import { APIHandler } from '@utils/apiHandler';
+import { GetCurrentUserResponse, GetAllUsersResponse } from '@models/api-user';
+import { CreateUser } from '@models/api-user';
+import { GetProductResponse, Product } from '@models/api-product';
 import {
   LoginResponse,
   LogOutResponse,
   PaginatedResponse,
   SuccessResponse,
-} from '../types/api-responses';
-import { GetBrand } from '../types/api-brand';
-import { GetCategoriesResponse, GetCategoryResponse } from '../types/api-category';
-import { ProductImage } from '../types/api-product-image';
+} from '@models/api-responses';
+import { GetBrand } from '@models/api-brand';
+import { GetCategoriesResponse, GetCategoryResponse } from '@models/api-category';
+import { ProductImage } from '@models/api-product-image';
 
 export async function registerUserAPI(
   apiHandler: APIHandler,
-  userData: User,
+  userData: CreateUser,
 ): Promise<GetAllUsersResponse> {
   const registeredUser = await apiHandler.post<GetAllUsersResponse>('/users/register', userData);
 

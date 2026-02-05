@@ -1,7 +1,7 @@
-import { test } from '../../fixtures/apiFixtures';
+import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { Product } from '../../types/api-product';
-import { generateRandomProductData } from '../../utils/test-utils';
+import type { Product } from '@models/api-product';
+import { generateRandomProductData } from '@utils/test-utils';
 
 test.describe.serial('Product API Tests', () => {
   let createdProductID: string;

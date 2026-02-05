@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import { getAPIBaseUrl } from '../utils/test-utils';
+import { getAPIBaseUrl } from '@utils/test-utils';
 
 export class APIHandler {
   private readonly request: APIRequestContext;

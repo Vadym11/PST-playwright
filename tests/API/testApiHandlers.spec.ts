@@ -1,9 +1,9 @@
-import { test } from '../../fixtures/apiFixtures';
-import { GetAllUsersResponse } from '../../types/api-user';
-import { PaginatedResponse } from '../../types/api-responses';
+import { test } from '@fixtures/apiFixtures';
+import { GetAllUsersResponse } from '@models/api-user';
+import { PaginatedResponse } from '@models/api-responses';
 import path from 'path';
 import fs from 'fs';
-import { getUserByEmailAPI } from '../../utils/api-utils';
+import { getUserByEmailAPI } from '@utils/api-utils';
 
 test('API handlers', async ({ apiHandler }) => {
   const params = { page: 3 };

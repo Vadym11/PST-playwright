@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { BasePage } from './BasePage';
-import { HeaderCommon } from './HeaderCommon';
+import { BasePage } from '@pages/BasePage';
+import { HeaderCommon } from '@pages/HeaderCommon';
 
 export class ProductPage extends BasePage {
   private readonly addToCartButton: Locator;
