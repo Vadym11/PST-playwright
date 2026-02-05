@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const fs = require('fs');
+import fs from 'fs';
 
 const { spawn } = require('child_process');
 const axios = require('axios');
