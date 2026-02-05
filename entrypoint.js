@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 
-import spawn  from 'child_process';
+import { spawn }  from 'child_process';
 import axios from 'axios';
 
 // --- Config from env ---
