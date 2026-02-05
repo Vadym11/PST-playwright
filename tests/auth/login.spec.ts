@@ -1,10 +1,15 @@
 import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { HomePage } from '@pages/HomePage';
 import { LoginPage } from '@pages/LoginPage';
 
 test.describe('Login Feature', () => {
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
   const authFile = path.join(__dirname, '../playwright/.auth/userGlobal.json');
 
   const email = process.env.EMAIL!;

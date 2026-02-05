@@ -1,7 +1,7 @@
 import { CreateUser } from '@models/api-user';
 import axios from 'axios';
-const userData = require('@data-factory/registerUserData.json');
-const connection = require('@utils/mysqldb');
+import fs from 'fs';
+import connection from '@utils/mysqldb';
 import config from '@playwright.config';
 import { APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
@@ -13,6 +13,7 @@ import {
   registerUserAPI,
 } from '@utils/api-utils';
 import { Product } from '@models/api-product';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -55,6 +56,7 @@ export function getRandomArrayElement(array: any[]) {
  * @returns A User object with random data.
  */
 export function generateRandomuserData(): CreateUser {
+  const userData = JSON.parse(fs.readFileSync('@data-factory/registerUserData.json', 'utf8'));
   const randomNumber = getRandomIntInclusive(0, 9999);
 
   const FIRST_NAME = getRandomArrayElement(userData.firstNames);
@@ -203,7 +205,10 @@ export async function registerRandomUser(apiHandler: APIHandler): Promise<Create
  */
 export async function getUserIdByEmail(email: string): Promise<string> {
   for (let i = 0; i < 5; i++) {
-    const [rows] = await connection.execute('SELECT id FROM users WHERE email = ?;', [email]);
+    const [rows] = await connection.execute<RowDataPacket[]>(
+      'SELECT id FROM users WHERE email = ?;',
+      [email],
+    );
     if (rows && rows.length > 0) return rows[0].id;
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   }
@@ -307,22 +312,27 @@ export async function deleteUserByIdAPI(apiHandler: APIHandler, userID: string):
  * @param userId The ID of the user to delete.
  */
 export async function deleteUserById(userId: string): Promise<void> {
-  const [result1] = await connection.execute(
+  const [result1] = await connection.execute<ResultSetHeader>(
     'DELETE FROM invoice_items WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);',
     [userId],
   );
   console.log(`Cleanup: deleted ${result1.affectedRows} invoice items`);
 
-  const [result2] = await connection.execute(
+  const [result2] = await connection.execute<ResultSetHeader>(
     'DELETE FROM payments WHERE invoice_id = (SELECT id FROM invoices WHERE user_id = ?);',
     [userId],
   );
   console.log(`Cleanup: deleted ${result2.affectedRows} payments`);
 
-  const [result3] = await connection.execute('DELETE FROM invoices WHERE user_id = ?;', [userId]);
+  const [result3] = await connection.execute<ResultSetHeader>(
+    'DELETE FROM invoices WHERE user_id = ?;',
+    [userId],
+  );
   console.log(`Cleanup: deleted ${result3.affectedRows} invoices`);
 
-  const [result4] = await connection.execute('DELETE FROM users WHERE id = ?;', [userId]);
+  const [result4] = await connection.execute<ResultSetHeader>('DELETE FROM users WHERE id = ?;', [
+    userId,
+  ]);
   console.log(`Cleanup: deleted ${result4.affectedRows} users`);
 }
 

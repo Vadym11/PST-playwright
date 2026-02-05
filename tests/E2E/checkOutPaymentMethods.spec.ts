@@ -5,8 +5,13 @@ import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
 import { PaymentMethods } from '@models/paymentMethods';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 test.describe('Checkout flow', () => {
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
   let userData: any;
 
   const paymentMethods = [

@@ -6,11 +6,16 @@ import { PaymentMethods } from '@models/paymentMethods';
 import path from 'path';
 import { faker } from '@faker-js/faker';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 test.describe('Checkout flow: cash', () => {
   let newUser: any;
   let count: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
+
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
 
   const authFile = '../../playwright/.auth/userState.json';
 
