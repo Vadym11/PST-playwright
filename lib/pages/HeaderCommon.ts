@@ -68,7 +68,7 @@ export class HeaderCommon {
   }
 
   async clickSignOut() {
-    await this.page.getByTestId('nav-sign-out').click();
+    await this.signOutLink.click();
   }
 
   async signOut() {

@@ -1,4 +1,4 @@
-import { CreateUser, GetCurrentUserResponse } from '@models/api-user';
+import { CreateUser } from '@models/api-user';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
 import { expect, Locator, Page } from '@playwright/test';

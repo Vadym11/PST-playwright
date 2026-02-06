@@ -16,26 +16,23 @@ export class FavoritesPage extends BasePage {
   async getProductCardsInFavorites(): Promise<Locator[]> {
     const productCards = this.page.locator('//*[@class="card-body"]');
 
-    // const productNames = await productNameElements.allTextContents();
-
     return productCards.all();
   }
 
   async verifyProductInFavorites(expectedProduct: GetProductResponse): Promise<void> {
+    await this.page.waitForLoadState('networkidle'); // Ensure the page has fully loaded
+
     const favorites = await this.getProductCardsInFavorites();
 
     for (const favorite of favorites) {
       const productName = await favorite.getByTestId('product-name').textContent();
 
       if (productName?.trim() === expectedProduct.name.trim()) {
-        // expect(favorite.getByTestId('product-description')).toBe(expectedProduct.description);
-        // expect(favorite.getByTestId('product-description')).toBe(expectedProduct.description);
-
         const productDescription = await favorite.getByTestId('product-description').textContent();
 
-        expect(expectedProduct.description).toContain(
-          productDescription?.replace('...', '').trim() || '',
-        );
+        const productDescriptionShort = productDescription?.replace('...', '').trim() || '';
+
+        expect(expectedProduct.description).toContain(productDescriptionShort);
 
         return; // Product found, exit the function
       }

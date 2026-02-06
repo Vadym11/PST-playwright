@@ -1,7 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { FavoritesPage } from './account/favoritesPage';
 import { ProductAPI } from '@api-models/product';
 import { GetProductResponse } from '@models/api-product';
 

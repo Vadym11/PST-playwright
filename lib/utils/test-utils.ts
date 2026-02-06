@@ -17,6 +17,10 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Recreate __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
   if (baseURL.includes('practicesoftwaretesting.com')) {
@@ -373,26 +377,18 @@ export async function generateAndRegisterUsers(
   }
 }
 
-export const authfile = () => {
-  // Recreate __dirname for ES Modules
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
+export const authFile = () => {
   const authFile = '../../playwright/.auth/userState.json';
 
   return path.join(__dirname, authFile);
 };
 
-export const authfilePath = authfile();
+export const authFilePath = authFile();
 
 export const userDataFile = () => {
-  // Recreate __dirname for ES Modules
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+  const userDataFile = '../../playwright/.auth/userData.json';
 
-  const authFile = '../../playwright/.auth/userData.json';
-
-  return path.join(__dirname, authFile);
+  return path.join(__dirname, userDataFile);
 };
 
 export const userDataFilePath = userDataFile();

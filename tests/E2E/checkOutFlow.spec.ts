@@ -16,8 +16,8 @@ test.describe('Checkout flow: cash', () => {
     userData = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
   });
 
-  test.describe('Logged in existing user', () => {
-    test('', async ({ page }) => {
+  test.describe('Existing user', () => {
+    test('Logged in', async ({ page }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
@@ -38,11 +38,11 @@ test.describe('Checkout flow: cash', () => {
     });
   });
 
-  test.describe('Logged out existing user', () => {
+  test.describe('Existing user', () => {
     // use empty storage state to ensure the user is logged out
     test.use({ storageState: { cookies: [], origins: [] } });
 
-    test('', async ({ page }) => {
+    test('Logged out', async ({ page }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
