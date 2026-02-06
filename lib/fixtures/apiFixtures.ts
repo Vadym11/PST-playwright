@@ -2,40 +2,38 @@ import { test as base } from '@playwright/test';
 import { generateRandomuserDataFaker, getAPIBaseUrl } from '@utils/test-utils';
 import { APIHandler } from '@utils/apiHandler';
 import { PaginatedResponse } from '@models/api-responses';
-import { GetAllUsersResponse } from '@models/api-user';
+import { CreateUser, GetAllUsersResponse } from '@models/api-user';
 import { ProductAPI } from '@api-models/product';
 import { UserAPI } from '@api-models/user';
 const apiBaseURL = getAPIBaseUrl();
 
 type ApiFixtures = {
   adminToken: string;
-  baseAPIUrl: string;
   getAllUsers: GetAllUsersResponse[];
-  newUserRegistered: GetAllUsersResponse;
   apiHandler: APIHandler;
 };
 
-type ApiWorkerFixtures = {
-  workerApiHandler: APIHandler;
-};
-
 type WorkerAPIFixtures = {
+  workerApiHandler: APIHandler;
   productApi: ProductAPI;
   userApi: UserAPI;
+  newUserRegistered: CreateUser & { id: string };
+  baseAPIUrl: string;
 };
 
-type CombinedWorkerFixtures = ApiWorkerFixtures & WorkerAPIFixtures;
-
-const test = base.extend<ApiFixtures, CombinedWorkerFixtures>({
+const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
   adminToken: async ({ workerApiHandler }, use) => {
     await use(await workerApiHandler.getToken());
   },
 
-  baseAPIUrl: async ({}, use) => {
-    const baseAPIUrl = getAPIBaseUrl();
+  baseAPIUrl: [
+    async ({}, use) => {
+      const baseAPIUrl = getAPIBaseUrl();
 
-    await use(baseAPIUrl);
-  },
+      await use(baseAPIUrl);
+    },
+    { scope: 'worker' },
+  ],
 
   getAllUsers: async ({ apiHandler, baseAPIUrl }, use) => {
     const apiURL = `${baseAPIUrl}/users`;
@@ -45,16 +43,18 @@ const test = base.extend<ApiFixtures, CombinedWorkerFixtures>({
     await use(response.data);
   },
 
-  newUserRegistered: async ({ apiHandler, baseAPIUrl }, use) => {
-    const apiURL = `${baseAPIUrl}/users/register`;
-    const user = generateRandomuserDataFaker();
+  newUserRegistered: [
+    async ({ userApi }, use) => {
+      const user: CreateUser = generateRandomuserDataFaker();
 
-    const registeredUser = await apiHandler.post<GetAllUsersResponse>(apiURL, user);
+      const registeredUser = await userApi.register(user);
 
-    console.log(`User with email ${registeredUser.email} has been registered via API Fixture.`);
+      console.log(`User with email ${registeredUser.email} has been registered via API Fixture.`);
 
-    await use(registeredUser);
-  },
+      await use({ ...user, id: registeredUser.id });
+    },
+    { scope: 'worker' },
+  ],
 
   apiHandler: async ({ request }, use) => {
     // This 'request' is fresh for every test

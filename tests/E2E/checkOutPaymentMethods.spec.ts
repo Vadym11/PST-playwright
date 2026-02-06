@@ -1,4 +1,4 @@
-import { test } from '@fixtures/createNewUserAndLogin';
+import { test } from '@fixtures/getAuthenticatedUser';
 import { expect } from '@playwright/test';
 import { HomePage } from '@pages/HomePage';
 import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';

@@ -8,6 +8,9 @@ import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '@utils/ap
 
 // test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
+  // use empty storage state to ensure the user is logged out
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   let newUserData: CreateUser;
 
   test.beforeAll('Generate new user data', async () => {

@@ -1,14 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
 
-const baseURL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
-console.log(`Base URL set to: ${baseURL}`);
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
+console.log(`Base URL set to: ${process.env.BASE_URL}`);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -35,7 +29,7 @@ export default defineConfig({
     // storageState: 'playwright/.auth/userGlobal.json',
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://pst-web.toolshop.svc.cluster.local',
-    baseURL: baseURL || 'https://practicesoftwaretesting.com/',
+    baseURL: process.env.BASE_URL,
     /* Sets the custom attribute (default is 'data-testid') name to 'data-test' */
     testIdAttribute: 'data-test',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -52,6 +46,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
+        storageState: './playwright/.auth/userState.json',
         // uncomment lines below to use fullscreen chrome window
         // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default
         // launchOptions: {

@@ -14,6 +14,8 @@ import {
 } from '@utils/api-utils';
 import { Product } from '@models/api-product';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 export const getAPIBaseUrl = () => {
   const baseURL = config.use?.baseURL || '';
@@ -23,7 +25,7 @@ export const getAPIBaseUrl = () => {
   return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
 };
 
-const apiBaseURL = getAPIBaseUrl();
+export const apiBaseURL = getAPIBaseUrl();
 
 /**
  * Generates a random integer between min (inclusive) and max (inclusive).
@@ -55,7 +57,7 @@ export function getRandomArrayElement(array: any[]) {
  * User data is sourced from predefined arrays in registerUserData.json.
  * @returns A User object with random data.
  */
-export function generateRandomuserData(): CreateUser {
+export function generateRandomUserData(): CreateUser {
   const userData = JSON.parse(fs.readFileSync('@data-factory/registerUserData.json', 'utf8'));
   const randomNumber = getRandomIntInclusive(0, 9999);
 
@@ -99,7 +101,7 @@ export function generateRandomuserDataFaker(): CreateUser {
   const POSTCODE = faker.address.zipCode();
   const CITY = faker.address.city();
   const STATE = faker.address.state();
-  const COUNTRY = faker.address.country().substring(0, 41); // Max length 40 chars
+  const COUNTRY = faker.address.country().substring(0, 40); // Max length 40 chars
   const PHONE = faker.phone.number('510########');
   const EMAIL = `${FIRST_NAME}.${LAST_NAME}@gmail.com`;
   const PASSWORD = `${FIRST_NAME}.${LAST_NAME}**12345$%`;
@@ -355,7 +357,7 @@ export async function generateAndRegisterUsers(
 
   for (let i = 0; i < userCount; i++) {
     try {
-      const newUser = generateRandomuserData();
+      const newUser = generateRandomUserData();
       const response = await axios.post(apiURL, newUser, config);
       console.log(`User ${i + 1}/${userCount} registered: ${response.data.id}`);
     } catch (error) {
@@ -370,3 +372,27 @@ export async function generateAndRegisterUsers(
     }
   }
 }
+
+export const authfile = () => {
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const authFile = '../../playwright/.auth/userState.json';
+
+  return path.join(__dirname, authFile);
+};
+
+export const authfilePath = authfile();
+
+export const userDataFile = () => {
+  // Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const authFile = '../../playwright/.auth/userData.json';
+
+  return path.join(__dirname, authFile);
+};
+
+export const userDataFilePath = userDataFile();
