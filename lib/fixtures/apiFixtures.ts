@@ -35,10 +35,8 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
     { scope: 'worker' },
   ],
 
-  getAllUsers: async ({ apiHandler, baseAPIUrl }, use) => {
-    const apiURL = `${baseAPIUrl}/users`;
-
-    const response = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(apiURL);
+  getAllUsers: async ({ apiHandler }, use) => {
+    const response = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>('/users');
 
     await use(response.data);
   },

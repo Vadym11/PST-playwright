@@ -14,7 +14,7 @@ export class FavoritesPage extends BasePage {
   }
 
   async getProductCardsInFavorites(): Promise<Locator[]> {
-    const productCards = this.page.locator('//*[@class="card-body"]');
+    const productCards = this.page.locator('//*[contains(@class, "card-body")]');
 
     return productCards.all();
   }
@@ -30,6 +30,7 @@ export class FavoritesPage extends BasePage {
       if (productName?.trim() === expectedProduct.name.trim()) {
         const productDescription = await favorite.getByTestId('product-description').textContent();
 
+        // describe the product description in the same way as it is done on the frontend (remove ellipsis and trim)
         const productDescriptionShort = productDescription?.replace('...', '').trim() || '';
 
         expect(expectedProduct.description).toContain(productDescriptionShort);

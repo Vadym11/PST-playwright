@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: playwright
-          image: europe-west1-docker.pkg.dev/project-2e1e6c1d-528d-4a3a-803/toolshop/playwright-k8s:1770465424
+          image: europe-west1-docker.pkg.dev/project-2e1e6c1d-528d-4a3a-803/toolshop/playwright-k8s:1770466061
           resources:
             requests:
               cpu: "200m"
