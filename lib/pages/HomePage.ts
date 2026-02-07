@@ -32,15 +32,15 @@ export class HomePage extends BasePage {
     return this;
   }
 
-  async clickRandomProduct(): Promise<ProductPage> {
-    const productCards = this.page.locator("//*[@class='card']");
+  async clickRandomProduct1(): Promise<ProductPage> {
+    const productCards = await this.page.locator("//*[@class='card']").all();
     let inStockCount: number[] = [];
 
-    const productsOnPageCount = await productCards.count();
+    const productsOnPageCount = productCards.length;
 
     for (let i = 0; i < productsOnPageCount; i++) {
-      const isOutOfStock = await productCards.nth(i).getByTestId('out-of-stock').isVisible();
-      const title = await productCards.nth(i).locator('h5').textContent();
+      const isOutOfStock = await productCards[i].getByTestId('out-of-stock').isVisible();
+      const title = await productCards[i].locator('h5').textContent();
       if (!isOutOfStock && title !== 'Thor Hammer') {
         inStockCount.push(i);
       }
@@ -48,7 +48,35 @@ export class HomePage extends BasePage {
 
     const randomProductNumber = faker.helpers.arrayElement(inStockCount);
 
-    await productCards.nth(randomProductNumber).click();
+    await productCards[randomProductNumber].click();
+
+    return new ProductPage(this.page);
+  }
+
+  async clickRandomProduct(): Promise<ProductPage> {
+    // 1. Define the base locator for all cards
+    const allCards = this.page.locator('.card');
+
+    // 2. Chain filters to find only valid, in-stock products
+    const availableProducts = allCards
+      .filter({
+        hasNot: this.page.getByTestId('out-of-stock'),
+      })
+      .filter({
+        hasNotText: 'Thor Hammer',
+      });
+
+    // 3. Convert to an array of locators
+    const productList = await availableProducts.all();
+
+    // 4. Guard against empty results
+    if (productList.length === 0) {
+      throw new Error('No available products found matching criteria.');
+    }
+
+    // 5. Pick and click
+    const randomProduct = faker.helpers.arrayElement(productList);
+    await randomProduct.click();
 
     return new ProductPage(this.page);
   }

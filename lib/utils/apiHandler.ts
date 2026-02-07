@@ -1,12 +1,11 @@
 import { APIRequestContext } from '@playwright/test';
-import { getAPIBaseUrl } from '@utils/test-utils';
+import { apiBaseURL } from '@utils/test-utils';
 
 export class APIHandler {
   private readonly request: APIRequestContext;
   private readonly adminEmail: string;
   private readonly adminPassword: string;
   private adminToken: string | null = null;
-  readonly apiBaseURL = getAPIBaseUrl();
 
   constructor(request: APIRequestContext) {
     this.request = request;
@@ -15,7 +14,7 @@ export class APIHandler {
   }
 
   async authenticate() {
-    const response = await this.request.post(`${this.apiBaseURL}/users/login`, {
+    const response = await this.request.post(`${apiBaseURL}/users/login`, {
       data: { email: this.adminEmail, password: this.adminPassword },
     });
     const body = await response.json();
@@ -32,7 +31,7 @@ export class APIHandler {
   }
 
   async post<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
-    const response = await this.request.post(`${this.apiBaseURL}${endpoint}`, {
+    const response = await this.request.post(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +49,7 @@ export class APIHandler {
   }
 
   async update<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
-    const response = await this.request.put(`${this.apiBaseURL}${endpoint}`, {
+    const response = await this.request.put(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
@@ -68,7 +67,7 @@ export class APIHandler {
   }
 
   async patch<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
-    const response = await this.request.patch(`${this.apiBaseURL}${endpoint}`, {
+    const response = await this.request.patch(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +85,7 @@ export class APIHandler {
   }
 
   async get<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
-    const response = await this.request.get(`${this.apiBaseURL}${endpoint}`, {
+    const response = await this.request.get(`${apiBaseURL}${endpoint}`, {
       params: { ...params },
       headers: {
         'Content-Type': 'application/json',
@@ -104,7 +103,7 @@ export class APIHandler {
   }
 
   async delete<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
-    const response = await this.request.delete(`${this.apiBaseURL}${endpoint}`, {
+    const response = await this.request.delete(`${apiBaseURL}${endpoint}`, {
       params: { ...params },
       headers: {
         'Content-Type': 'application/json',

@@ -1,19 +1,10 @@
-import { test } from '@fixtures/createNewUserAndLogin';
+import { test } from '@fixtures/getAuthenticatedUser';
 import { expect } from '@playwright/test';
 import { HomePage } from '@pages/HomePage';
 import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
 import { PaymentMethods } from '@models/paymentMethods';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 test.describe('Checkout flow', () => {
-  // Recreate __dirname for ES Modules
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  let userData: any;
-
   const paymentMethods = [
     PaymentMethods.cashOnDelivery,
     PaymentMethods.giftCard,
@@ -22,16 +13,8 @@ test.describe('Checkout flow', () => {
     PaymentMethods.creditCard,
   ];
 
-  const authFile = '../../playwright/.auth/userState.json';
-  test.use({ storageState: path.join(__dirname, authFile) });
-
-  test.beforeAll(async () => {
-    const userPath = path.join(process.cwd(), 'playwright/.auth/userData.json');
-    userData = JSON.parse(fs.readFileSync(userPath, 'utf-8'));
-  });
-
   paymentMethods.forEach((paymentMethod) => {
-    test(`Use ${paymentMethod}`, async ({ page }) => {
+    test(`Use ${paymentMethod}`, async ({ page, authenticatedUserData }) => {
       const homePage = await new HomePage(page).goTo();
 
       const productPage = await homePage.selectRandomProduct();
@@ -47,7 +30,11 @@ test.describe('Checkout flow', () => {
 
       const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-      await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
+      await completeCheckoutAndVerifyBilling(
+        shoppingCartBillingPage,
+        authenticatedUserData,
+        paymentMethod,
+      );
     });
   });
 });

@@ -1,20 +1,30 @@
 import { Locator, Page } from '@playwright/test';
 import { ShoppingCartMainPage } from '@pages/shoppingCart/ShoppingCartMainPage';
 import { HomePage } from '@pages/HomePage';
+import { ProfilePage } from '@pages/account/profilePage';
+import { FavoritesPage } from '@pages/account/favoritesPage';
 
 export class HeaderCommon {
   private readonly page: Page;
   private readonly mainBanner: Locator;
-  private readonly signInLinkk: Locator;
+  private readonly signInLink: Locator;
   private readonly cartIcon: Locator;
   private readonly homePageLink: Locator;
+  private readonly userNavMenu: Locator;
+  private readonly profileLink: Locator;
+  private readonly favoritesLink: Locator;
+  private readonly signOutLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.mainBanner = this.page.getByTitle('Practice Software Testing - Toolshop');
-    this.signInLinkk = this.page.getByTestId('nav-sign-in');
+    this.signInLink = this.page.getByTestId('nav-sign-in');
     this.cartIcon = this.page.getByTestId('nav-cart');
     this.homePageLink = this.page.getByTestId('nav-home');
+    this.userNavMenu = this.page.getByTestId('nav-menu');
+    this.signOutLink = this.page.getByTestId('nav-sign-out');
+    this.profileLink = this.page.getByTestId('nav-my-profile');
+    this.favoritesLink = this.page.getByTestId('nav-my-favorites');
   }
 
   async clickMainBanner(): Promise<void> {
@@ -22,17 +32,41 @@ export class HeaderCommon {
   }
 
   async clickSignInLink(): Promise<void> {
-    await this.signInLinkk.click();
+    await this.signInLink.click();
+  }
+
+  async clickFavoritesLink(): Promise<FavoritesPage> {
+    await this.favoritesLink.click();
+
+    return new FavoritesPage(this.page);
   }
 
   async clickUserNavMenu() {
-    await this.page.getByTestId('nav-menu').click();
+    await this.userNavMenu.click();
 
     return this;
   }
 
+  async clickProfileLink(): Promise<ProfilePage> {
+    await this.profileLink.click();
+
+    return new ProfilePage(this.page);
+  }
+
+  async goToProfilePage(): Promise<ProfilePage> {
+    await this.clickUserNavMenu();
+
+    return this.clickProfileLink();
+  }
+
+  async goToFavoritesPage(): Promise<FavoritesPage> {
+    await this.clickUserNavMenu();
+
+    return this.clickFavoritesLink();
+  }
+
   async clickSignOut() {
-    await this.page.getByTestId('nav-sign-out').click();
+    await this.signOutLink.click();
   }
 
   async signOut() {
