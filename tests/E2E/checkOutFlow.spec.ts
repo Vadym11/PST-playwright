@@ -9,8 +9,8 @@ test.describe('Checkout flow: cash', () => {
   let count: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test.describe('Existing user -', () => {
-    test('logged in', async ({ page, authenticatedUserData }) => {
+  test.describe(() => {
+    test('Existing user - logged in', async ({ page, authenticatedUserData }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
@@ -35,11 +35,11 @@ test.describe('Checkout flow: cash', () => {
     });
   });
 
-  test.describe('Existing user -', () => {
+  test.describe(() => {
     // use empty storage state to ensure the user is logged out
     test.use({ storageState: { cookies: [], origins: [] } });
 
-    test('logged out', async ({ page, authenticatedUserData }) => {
+    test('Existing user - logged out', async ({ page, authenticatedUserData }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();

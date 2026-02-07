@@ -28,7 +28,7 @@ export class ShoppingCartPaymentPage extends BasePage {
   async selectBankTransferAndFillDetails(): Promise<this> {
     const bankAccountName = faker.finance.accountName();
     const bankAccountNumber = faker.finance.account(10);
-    const bankName = `${faker.company.name().replaceAll(/[-,]/g, '')} Bank`;
+    const bankName = `${faker.company.name().replaceAll(/[-,'`.<>]/g, '')} Bank`;
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'bank-transfer' });
 

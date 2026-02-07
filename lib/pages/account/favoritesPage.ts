@@ -30,8 +30,13 @@ export class FavoritesPage extends BasePage {
       if (productName?.trim() === expectedProduct.name.trim()) {
         const productDescription = await favorite.getByTestId('product-description').textContent();
 
+        if (!productDescription || !productDescription.trim()) {
+          throw new Error(
+            `Product description for "${expectedProduct.name}" is empty or could not be read from favorites.`,
+          );
+        }
         // describe the product description in the same way as it is done on the frontend (remove ellipsis and trim)
-        const productDescriptionShort = productDescription?.replace('...', '').trim() || '';
+        const productDescriptionShort = productDescription.replace('...', '').trim();
 
         expect(expectedProduct.description).toContain(productDescriptionShort);
 

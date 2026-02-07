@@ -1,7 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { ProfilePage } from './account/profilePage';
+import { ProfilePage } from '@pages/account/profilePage';
 
 export class MyAccountPage extends BasePage {
   readonly header: HeaderCommon;
