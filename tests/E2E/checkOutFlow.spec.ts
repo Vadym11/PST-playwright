@@ -4,20 +4,13 @@ import { HomePage } from '@pages/HomePage';
 import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
 import { PaymentMethods } from '@models/paymentMethods';
 import { faker } from '@faker-js/faker';
-import fs from 'fs';
-import { userDataFilePath } from '@utils/test-utils';
 
 test.describe('Checkout flow: cash', () => {
-  let userData: any;
   let count: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test.beforeAll('Get existing user data', async () => {
-    userData = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
-  });
-
-  test.describe('Existing user', () => {
-    test('Logged in', async ({ page }) => {
+  test.describe('Existing user -', () => {
+    test('logged in', async ({ page, authenticatedUserData }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
@@ -34,15 +27,19 @@ test.describe('Checkout flow: cash', () => {
 
       const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-      await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
+      await completeCheckoutAndVerifyBilling(
+        shoppingCartBillingPage,
+        authenticatedUserData,
+        paymentMethod,
+      );
     });
   });
 
-  test.describe('Existing user', () => {
+  test.describe('Existing user -', () => {
     // use empty storage state to ensure the user is logged out
     test.use({ storageState: { cookies: [], origins: [] } });
 
-    test('Logged out', async ({ page }) => {
+    test('logged out', async ({ page, authenticatedUserData }) => {
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
@@ -57,11 +54,18 @@ test.describe('Checkout flow: cash', () => {
 
       const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
-      await shoppingCartLoginPage.loginExistingUser(userData.email, userData.password);
+      await shoppingCartLoginPage.loginExistingUser(
+        authenticatedUserData.email,
+        authenticatedUserData.password,
+      );
 
       const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-      await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
+      await completeCheckoutAndVerifyBilling(
+        shoppingCartBillingPage,
+        authenticatedUserData,
+        paymentMethod,
+      );
     });
   });
 });

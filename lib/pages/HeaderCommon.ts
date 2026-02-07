@@ -55,16 +55,14 @@ export class HeaderCommon {
 
   async goToProfilePage(): Promise<ProfilePage> {
     await this.clickUserNavMenu();
-    await this.clickProfileLink();
 
-    return new ProfilePage(this.page);
+    return this.clickProfileLink();
   }
 
   async goToFavoritesPage(): Promise<FavoritesPage> {
     await this.clickUserNavMenu();
-    await this.clickFavoritesLink();
 
-    return new FavoritesPage(this.page);
+    return this.clickFavoritesLink();
   }
 
   async clickSignOut() {
