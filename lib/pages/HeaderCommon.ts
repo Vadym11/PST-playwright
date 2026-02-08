@@ -3,6 +3,7 @@ import { ShoppingCartMainPage } from '@pages/shoppingCart/ShoppingCartMainPage';
 import { HomePage } from '@pages/HomePage';
 import { ProfilePage } from '@pages/account/profilePage';
 import { FavoritesPage } from '@pages/account/favoritesPage';
+import { InvoicesPage } from './account/invoicesPage';
 
 export class HeaderCommon {
   private readonly page: Page;
@@ -39,6 +40,18 @@ export class HeaderCommon {
     await this.favoritesLink.click();
 
     return new FavoritesPage(this.page);
+  }
+
+  async clickInvoiceLink(): Promise<InvoicesPage> {
+    await this.page.getByTestId('nav-my-invoices').click();
+
+    return new InvoicesPage(this.page);
+  }
+
+  async goToInvoicesPage(): Promise<InvoicesPage> {
+    await this.clickUserNavMenu();
+
+    return this.clickInvoiceLink();
   }
 
   async clickUserNavMenu() {

@@ -18,6 +18,12 @@ export class HomePage extends BasePage {
     return this;
   }
 
+  async filterEcoProducts(): Promise<HomePage> {
+    await this.page.getByTestId('eco-friendly-filter').click();
+
+    return this;
+  }
+
   async clickFirstProduct(): Promise<ProductPage> {
     await this.page.getByTestId('product-name').first().click();
 
@@ -32,7 +38,7 @@ export class HomePage extends BasePage {
     return this;
   }
 
-  async clickRandomProduct1(): Promise<ProductPage> {
+  async clickRandomProductDeprecated(): Promise<ProductPage> {
     const productCards = await this.page.locator("//*[@class='card']").all();
     let inStockCount: number[] = [];
 
@@ -84,8 +90,6 @@ export class HomePage extends BasePage {
   async selectRandomProduct(): Promise<ProductPage> {
     await this.clickRandomPage();
 
-    await this.clickRandomProduct();
-
-    return new ProductPage(this.page);
+    return this.clickRandomProduct();
   }
 }

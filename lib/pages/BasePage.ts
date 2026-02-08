@@ -6,4 +6,8 @@ export abstract class BasePage {
   constructor(page: Page) {
     this.page = page;
   }
+
+  getPage(): Page {
+    return this.page;
+  }
 }

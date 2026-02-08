@@ -18,7 +18,7 @@ export interface Product extends BaseProduct {
 
 export interface GetProductResponse extends BaseProduct {
   id: string;
-  is_eco_friendly: number;
+  is_eco_friendly: boolean;
   brand: GetBrand;
   category: Category;
   product_image: ProductImage;

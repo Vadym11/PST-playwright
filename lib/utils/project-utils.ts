@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import { ShoppingCartBillingPage } from '@pages/shoppingCart/ShoppingCartBillingPage';
 import { CreateUser } from '@models/api-user';
 import { PaymentMethods } from '@models/paymentMethods';
+import { ShoppingCartPaymentPage } from '@pages/shoppingCart/ShoppingCartPaymentPage';
 
 /**
  * Completes the checkout process and verifies billing details.
@@ -59,4 +60,6 @@ export async function completeCheckoutAndVerifyBilling(
   await expect(shoppingCartPaymentPage.getInvoiceMessage()).toContainText(
     `Thanks for your order! Your invoice number is INV-${currentYear}`,
   );
+
+  return new ShoppingCartPaymentPage(shoppingCartBillingPage.getPage());
 }
