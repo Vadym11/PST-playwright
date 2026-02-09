@@ -34,6 +34,8 @@ export class FavoritesPage extends BasePage {
       return;
     }
 
-    throw new Error(`Product description for "${expectedProduct.name}" not found in favorites.`);
+    throw new Error(
+      `Product description for "${expectedProduct.name}" was not found in favorites.`,
+    );
   }
 }
