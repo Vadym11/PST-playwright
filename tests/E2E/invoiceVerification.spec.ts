@@ -37,9 +37,10 @@ test.describe('Verify invoice details', () => {
       );
 
       const invoiceMessage = await shoppingCartPaymentPage.getInvoiceMessage().textContent();
+      const invoiceNumberMatch = invoiceMessage?.match(/INV-[A-Za-z0-9-]+/);
+      expect(invoiceNumberMatch).not.toBeNull();
 
-      const invoiceNumber =
-        invoiceMessage?.split('invoice number is ')[1].replaceAll('.', '') || '';
+      const invoiceNumber = invoiceNumberMatch![0];
 
       const invoicesPage = await shoppingCartPaymentPage.header.goToInvoicesPage();
 

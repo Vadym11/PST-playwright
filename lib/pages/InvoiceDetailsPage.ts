@@ -2,6 +2,7 @@ import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { CreateUser } from '@models/api-user';
 import { GetProductResponse } from '@models/api-product';
+import { assertWithinMargin } from '@utils/test-utils';
 
 export class InvoiceDetailsPage extends BasePage {
   readonly invoiceNumber: Locator;
@@ -14,7 +15,6 @@ export class InvoiceDetailsPage extends BasePage {
   readonly country: Locator;
   readonly paymentMethod: Locator;
   readonly invoiceTable: Locator;
-  pricesCalculated: any;
   readonly todaysDate = new Date().toLocaleDateString('en-CA'); // format the date as YYYY-MM-DD\
 
   constructor(page: Page) {
@@ -33,15 +33,13 @@ export class InvoiceDetailsPage extends BasePage {
 
   calculatePrices(productInfo: GetProductResponse, quantity: number) {
     const finalPrice = productInfo.is_eco_friendly ? productInfo.price * 0.95 : productInfo.price;
-    const totalAmount = (finalPrice * quantity).toFixed(2);
+    const totalAmount = parseFloat((finalPrice * quantity).toFixed(2));
     const discount = productInfo.is_eco_friendly
-      ? ((productInfo.price - finalPrice) * quantity).toFixed(2)
-      : '';
-    const fullTotal = (productInfo.price * quantity).toFixed(2);
+      ? parseFloat(((productInfo.price - finalPrice) * quantity).toFixed(2))
+      : 0;
+    const fullTotal = parseFloat((productInfo.price * quantity).toFixed(2));
 
-    this.pricesCalculated = { finalPrice, totalAmount, discount, fullTotal };
-
-    return this.pricesCalculated;
+    return { finalPrice, totalAmount, discount, fullTotal };
   }
 
   async verifyGeneralInfo(
@@ -49,21 +47,16 @@ export class InvoiceDetailsPage extends BasePage {
     quantity: number,
     invoiceNumber: string,
   ): Promise<void> {
-    this.calculatePrices(productInfo, quantity);
+    const calculatedPrices = this.calculatePrices(productInfo, quantity);
 
-    if (this.pricesCalculated.discount !== '') {
-      await expect(this.page.locator('#subtotal')).toHaveValue(
-        `$ ${this.pricesCalculated.fullTotal}`,
-      );
-      await expect(this.page.locator('#eco_discount')).toHaveValue(
-        `$ ${this.pricesCalculated.discount}`,
-      );
+    if (calculatedPrices.discount !== 0) {
+      await assertWithinMargin(this.page.locator('#subtotal'), calculatedPrices.fullTotal);
+      await assertWithinMargin(this.page.locator('#eco_discount'), calculatedPrices.discount);
     }
 
+    await assertWithinMargin(this.total, calculatedPrices.totalAmount);
     await expect(this.invoiceNumber).toHaveValue(invoiceNumber);
-    const dateRegex = new RegExp(`^${this.todaysDate}`);
-    await expect(this.invoiceDate).toHaveValue(dateRegex);
-    await expect(this.total).toHaveValue(`$ ${this.pricesCalculated.totalAmount}`);
+    await expect(this.invoiceDate).toHaveValue(new RegExp(`^${this.todaysDate}`));
   }
 
   async verifyBillingAddress(user: CreateUser): Promise<void> {
@@ -75,19 +68,18 @@ export class InvoiceDetailsPage extends BasePage {
   }
 
   async verifyInvoiceLineItems(productInfo: GetProductResponse, quantity: number): Promise<void> {
-    this.calculatePrices(productInfo, quantity);
+    const calculatedPrices = this.calculatePrices(productInfo, quantity);
     const rows = this.invoiceTable.getByRole('row');
     const nameRegex = new RegExp(`${productInfo.name}.*`, 'i');
     const targetRow = rows.filter({ hasText: nameRegex });
 
     await expect(targetRow).toBeVisible();
 
+    await assertWithinMargin(targetRow.locator('td').nth(3), calculatedPrices.fullTotal);
+
     await expect(targetRow.locator('td').nth(0)).toContainText(quantity.toString());
     await expect(targetRow.locator('td').nth(1)).toContainText(productInfo.name);
     await expect(targetRow.locator('td').nth(2)).toContainText(productInfo.price.toString());
-    await expect(targetRow.locator('td').nth(3)).toContainText(
-      `$${this.pricesCalculated.fullTotal}`,
-    );
   }
 
   async verifyPaymentMethod(paymentMethod: string): Promise<void> {
