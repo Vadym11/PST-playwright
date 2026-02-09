@@ -10,7 +10,7 @@ test.describe('Verify invoice details', () => {
   let quantity: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test('Existing user - logged in', async ({ page, authenticatedUserData, productApi }) => {
+  test('Existing user: logged in', async ({ page, authenticatedUserData, productApi }) => {
     quantity = faker.datatype.number({ min: 1, max: 10 });
 
     const homePage = await new HomePage(page).goTo();

@@ -3,8 +3,6 @@ import { CreateUser } from '@models/api-user';
 import { BasePage } from '@pages/BasePage';
 import { expect, Locator, Page } from '@playwright/test';
 import { assertWithinMargin } from '@utils/test-utils';
-import { assert } from 'console';
-
 export class InvoicesPage extends BasePage {
   private readonly invoicesTable: Locator;
 
@@ -18,7 +16,7 @@ export class InvoicesPage extends BasePage {
     invoiceDate: string;
     amount: string;
     detailsBtn: Locator;
-    targetRow: Locator;
+    amountLocator: Locator;
   }> {
     const rows = this.invoicesTable.getByRole('row');
     const targetRow = rows.filter({ hasText: invoiceNumber });
@@ -28,7 +26,7 @@ export class InvoicesPage extends BasePage {
       invoiceDate: (await targetRow.locator('td').nth(2).textContent()) || '',
       amount: (await targetRow.locator('td').nth(3).textContent()) || '',
       detailsBtn: targetRow.locator('a', { hasText: 'Details' }),
-      targetRow, // Add targetRow to the return type
+      amountLocator: targetRow.locator('td').nth(3),
     };
   }
 
@@ -47,7 +45,7 @@ export class InvoicesPage extends BasePage {
 
     expect(invoiceInfo.billingAddress).toBe(user.address.street);
     expect(invoiceInfo.invoiceDate).toContain(expectedInvoiceDate);
-    const actualTotalAmountLocator = invoiceInfo.targetRow.locator('td').nth(3);
-    assertWithinMargin(actualTotalAmountLocator, parseFloat(expectedTotalAmount));
+    const actualTotalAmountLocator = invoiceInfo.amountLocator;
+    await assertWithinMargin(actualTotalAmountLocator, parseFloat(expectedTotalAmount));
   }
 }

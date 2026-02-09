@@ -14,7 +14,7 @@ export async function completeCheckoutAndVerifyBilling(
   shoppingCartBillingPage: ShoppingCartBillingPage,
   newUser: CreateUser,
   paymentMethod: PaymentMethods,
-) {
+): Promise<ShoppingCartPaymentPage> {
   const currentYear = new Date().getFullYear();
   const billingDetailsFields = shoppingCartBillingPage.getBillingAddresInputFields();
 
@@ -61,5 +61,5 @@ export async function completeCheckoutAndVerifyBilling(
     `Thanks for your order! Your invoice number is INV-${currentYear}`,
   );
 
-  return new ShoppingCartPaymentPage(shoppingCartBillingPage.getPage());
+  return shoppingCartPaymentPage;
 }
