@@ -36,7 +36,9 @@ test.describe('Verify invoice details', () => {
     );
 
     const invoiceMessage = await shoppingCartPaymentPage.getInvoiceMessage().textContent();
-    const invoiceNumberMatch = invoiceMessage?.match(/INV-[A-Za-z0-9-]+/);
+    expect(invoiceMessage).not.toBeNull();
+
+    const invoiceNumberMatch = invoiceMessage!.match(/INV-[A-Za-z0-9-]+/);
     expect(invoiceNumberMatch).not.toBeNull();
 
     const invoiceNumber = invoiceNumberMatch![0];
