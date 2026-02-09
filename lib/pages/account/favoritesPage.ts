@@ -13,35 +13,25 @@ export class FavoritesPage extends BasePage {
     this.header = new HeaderCommon(page);
   }
 
-  async getProductCardsInFavorites(): Promise<Locator[]> {
+  async getProductCardsInFavorites(): Promise<Locator> {
     const productCards = this.page.locator('//*[contains(@class, "card-body")]');
 
-    return productCards.all();
+    return productCards;
   }
 
   async verifyProductInFavorites(expectedProduct: GetProductResponse): Promise<void> {
-    await this.page.waitForLoadState('networkidle'); // Ensure the page has fully loaded
-
     const favorites = await this.getProductCardsInFavorites();
+    const targetRow = favorites.filter({ hasText: expectedProduct.name });
+    await expect(targetRow).toHaveCount(1);
 
-    for (const favorite of favorites) {
-      const productName = await favorite.getByTestId('product-name').textContent();
+    const productDescription = await targetRow.getByTestId('product-description').textContent();
 
-      if (productName?.trim() === expectedProduct.name.trim()) {
-        const productDescription = await favorite.getByTestId('product-description').textContent();
+    if (productDescription !== null) {
+      const productDescriptionShort = productDescription.replace('...', '').trim();
 
-        if (!productDescription || !productDescription.trim()) {
-          throw new Error(
-            `Product description for "${expectedProduct.name}" is empty or could not be read from favorites.`,
-          );
-        }
-        // describe the product description in the same way as it is done on the frontend (remove ellipsis and trim)
-        const productDescriptionShort = productDescription.replace('...', '').trim();
+      expect(expectedProduct.description).toContain(productDescriptionShort);
 
-        expect(expectedProduct.description).toContain(productDescriptionShort);
-
-        return; // Product found, exit the function
-      }
+      return;
     }
 
     throw new Error(`Product with name "${expectedProduct.name}" not found in favorites.`);
