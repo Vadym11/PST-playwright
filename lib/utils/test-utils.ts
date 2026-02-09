@@ -3,7 +3,7 @@ import axios from 'axios';
 import fs from 'fs';
 import connection from '@utils/mysqldb';
 import config from '@playwright.config';
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, expect, Locator } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from '@utils/apiHandler';
 import {
@@ -392,3 +392,15 @@ export const userDataFile = () => {
 };
 
 export const userDataFilePath = userDataFile();
+
+export const assertWithinMargin = async (locator: Locator, expected: number) => {
+  const isInput = await locator.evaluate((el) => el.tagName === 'INPUT');
+  const rawVal = isInput ? await locator.inputValue() : await locator.textContent();
+
+  const cleanVal = rawVal?.replace(/[^0-9.]/g, '') || '0';
+  const actual = parseFloat(cleanVal);
+
+  const message = `Expected value to be within 0.01 of ${expected}, but got ${actual}`;
+  expect(actual, message).toBeGreaterThanOrEqual(expected - 0.01);
+  expect(actual, message).toBeLessThanOrEqual(expected + 0.01);
+};
