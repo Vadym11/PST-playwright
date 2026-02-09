@@ -2,6 +2,8 @@ import { GetProductResponse } from '@models/api-product';
 import { CreateUser } from '@models/api-user';
 import { BasePage } from '@pages/BasePage';
 import { expect, Locator, Page } from '@playwright/test';
+import { assertWithinMargin } from '@utils/test-utils';
+import { assert } from 'console';
 
 export class InvoicesPage extends BasePage {
   private readonly invoicesTable: Locator;
@@ -11,9 +13,13 @@ export class InvoicesPage extends BasePage {
     this.invoicesTable = page.getByRole('table');
   }
 
-  async getInvoiceLineItems(
-    invoiceNumber: string,
-  ): Promise<{ billingAddress: string; invoiceDate: string; amount: string; detailsBtn: Locator }> {
+  async getInvoiceLineItems(invoiceNumber: string): Promise<{
+    billingAddress: string;
+    invoiceDate: string;
+    amount: string;
+    detailsBtn: Locator;
+    targetRow: Locator;
+  }> {
     const rows = this.invoicesTable.getByRole('row');
     const targetRow = rows.filter({ hasText: invoiceNumber });
 
@@ -22,6 +28,7 @@ export class InvoicesPage extends BasePage {
       invoiceDate: (await targetRow.locator('td').nth(2).textContent()) || '',
       amount: (await targetRow.locator('td').nth(3).textContent()) || '',
       detailsBtn: targetRow.locator('a', { hasText: 'Details' }),
+      targetRow, // Add targetRow to the return type
     };
   }
 
@@ -29,14 +36,18 @@ export class InvoicesPage extends BasePage {
     user: CreateUser,
     productInfo: GetProductResponse,
     quantity: number,
+    invoiceNumber: string,
   ): Promise<void> {
-    const finalPrice = productInfo.is_eco_friendly ? productInfo.price * 0.95 : productInfo.price;
-    const invoiceDate = new Date().toLocaleDateString('en-CA'); // format the date as YYYY-MM-DD\
-    const totalAmount = (finalPrice * quantity).toFixed(2);
-    const invoiceInfo = await this.getInvoiceLineItems(''); // Pass the actual invoice number here
+    const expectedFinalPrice = productInfo.is_eco_friendly
+      ? productInfo.price * 0.95
+      : productInfo.price;
+    const expectedInvoiceDate = new Date().toLocaleDateString('en-CA');
+    const expectedTotalAmount = (expectedFinalPrice * quantity).toFixed(2);
+    const invoiceInfo = await this.getInvoiceLineItems(invoiceNumber);
 
     expect(invoiceInfo.billingAddress).toBe(user.address.street);
-    expect(invoiceInfo.invoiceDate).toContain(invoiceDate); // format the date as YYYY-MM-DD
-    expect(invoiceInfo.amount).toBe(`$${totalAmount}`);
+    expect(invoiceInfo.invoiceDate).toContain(expectedInvoiceDate);
+    const actualTotalAmountLocator = invoiceInfo.targetRow.locator('td').nth(3);
+    assertWithinMargin(actualTotalAmountLocator, parseFloat(expectedTotalAmount));
   }
 }

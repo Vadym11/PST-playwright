@@ -3,7 +3,7 @@ import { ShoppingCartMainPage } from '@pages/shoppingCart/ShoppingCartMainPage';
 import { HomePage } from '@pages/HomePage';
 import { ProfilePage } from '@pages/account/profilePage';
 import { FavoritesPage } from '@pages/account/favoritesPage';
-import { InvoicesPage } from './account/invoicesPage';
+import { InvoicesPage } from '@pages/account/invoicesPage';
 
 export class HeaderCommon {
   private readonly page: Page;

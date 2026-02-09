@@ -15,7 +15,7 @@ export class InvoiceDetailsPage extends BasePage {
   readonly country: Locator;
   readonly paymentMethod: Locator;
   readonly invoiceTable: Locator;
-  readonly todaysDate = new Date().toLocaleDateString('en-CA'); // format the date as YYYY-MM-DD\
+  readonly todaysDate = new Date().toLocaleDateString('en-CA');
 
   constructor(page: Page) {
     super(page);
@@ -70,8 +70,7 @@ export class InvoiceDetailsPage extends BasePage {
   async verifyInvoiceLineItems(productInfo: GetProductResponse, quantity: number): Promise<void> {
     const calculatedPrices = this.calculatePrices(productInfo, quantity);
     const rows = this.invoiceTable.getByRole('row');
-    const nameRegex = new RegExp(`${productInfo.name}.*`, 'i');
-    const targetRow = rows.filter({ hasText: nameRegex });
+    const targetRow = rows.filter({ hasText: productInfo.name });
 
     await expect(targetRow).toBeVisible();
 
