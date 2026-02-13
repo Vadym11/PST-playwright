@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
+import path from 'path';
 
 process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${process.env.BASE_URL}`);
@@ -12,7 +13,7 @@ export default defineConfig({
   testDir: './tests',
   /* This will apply Storage State globally.
   Alternatively, it could be applied for a specific project (e.g. Chromium):  */
-  // globalSetup: './global.setup.ts/',
+  // globalSetup: './global.setup.ts',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -25,8 +26,9 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    actionTimeout: 15000,
     /*This is used in case of Global State Storage (globalSetup) */
-    // storageState: 'playwright/.auth/userGlobal.json',
+    // storageState: './playwright/.auth/userState.json',
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://pst-web.toolshop.svc.cluster.local',
     baseURL: process.env.BASE_URL,
@@ -40,13 +42,19 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    // this separate setup and teardown blocks for browserstack platforms
+    // since tests on different platforms are executed in parallel, we want to avoid
+    // multiple setups running at the same time and overriding the same auth file
+    { name: 'setup', testMatch: /.*\.setup\.ts/, teardown: 'teardown' }, // setup and teardown for non browserstack tests
+    { name: 'setup1', testMatch: /.*\.setup1\.ts/ },
+    { name: 'teardown', testMatch: /.*\.teardown\.ts/ },
+    { name: 'teardown1', testMatch: /.*\.teardown1\.ts/ },
     {
       name: 'chromium',
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: './playwright/.auth/userState.json',
+        storageState: path.resolve(process.cwd(), 'playwright/.auth/userState.json'),
         // uncomment lines below to use fullscreen chrome window
         // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default
         // launchOptions: {

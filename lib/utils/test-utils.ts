@@ -16,13 +16,20 @@ import { Product } from '@models/api-product';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { jwtDecode } from 'jwt-decode';
+import { StorageState } from '@models/storage-state';
 
 // Recreate __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function getBaseURL(): string {
+  return config.use?.baseURL || '';
+}
+
+export const baseURL = getBaseURL();
+
 export const getAPIBaseUrl = () => {
-  const baseURL = config.use?.baseURL || '';
   if (baseURL.includes('practicesoftwaretesting.com')) {
     return baseURL.replace('://', '://api.');
   }
@@ -378,17 +385,17 @@ export async function generateAndRegisterUsers(
 }
 
 export const authFile = () => {
-  const authFile = '../../playwright/.auth/userState.json';
+  const authFile = 'playwright/.auth/userState.json';
 
-  return path.join(__dirname, authFile);
+  return path.resolve(process.cwd(), authFile);
 };
 
 export const authFilePath = authFile();
 
 export const userDataFile = () => {
-  const userDataFile = '../../playwright/.auth/userData.json';
+  const userDataFile = 'playwright/.auth/userData.json';
 
-  return path.join(__dirname, userDataFile);
+  return path.resolve(process.cwd(), userDataFile);
 };
 
 export const userDataFilePath = userDataFile();
@@ -404,3 +411,76 @@ export const assertWithinMargin = async (locator: Locator, expected: number) => 
   expect(actual, message).toBeGreaterThanOrEqual(expected - 0.01);
   expect(actual, message).toBeLessThanOrEqual(expected + 0.01);
 };
+
+export function checkTokenExpiry(token: string) {
+  const decoded = jwtDecode(token);
+  const currentTimePlusBuffer = Date.now() / 1000 + 60;
+  const isExpired = decoded.exp ? decoded.exp < currentTimePlusBuffer : true;
+
+  console.log(isExpired ? 'Expired' : 'Valid');
+  return isExpired;
+}
+
+export function getCurrentToken(): string {
+  const baseURL = (config.use?.baseURL || '').replace(/\/$/, '');
+  try {
+    const data = readStorageStateFile();
+
+    // 1. Find the correct origin (e.g., your local dev URL)
+    const targetOrigin = data?.origins?.find((o) => o.origin === baseURL);
+
+    // 2. Find the entry where the name is specifically 'auth-token'
+    const tokenEntry = targetOrigin?.localStorage?.find((item) => item.name === 'auth-token');
+
+    return tokenEntry?.value || '';
+  } catch (error) {
+    throw new Error(`Failed to read token from storage state file: ${error}`);
+  }
+}
+
+export function readStorageStateFile(): StorageState {
+  try {
+    const data = fs.readFileSync(authFilePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    throw new Error(`Failed to read storage state file: ${error}`);
+  }
+}
+
+export function replaceTokenAndWriteToStateFile(
+  newToken: string,
+  state: StorageState,
+  authFilePath: string,
+): void {
+  // const authFilePath = path.resolve(__dirname, 'playwright/.auth/userState.json');
+
+  // Load the existing state
+  // const state: StorageState = readStorageStateFile();
+
+  // If token is in LocalStorage:
+  const targetOrigin = state.origins.find((o) => o.origin === baseURL);
+  const tokenEntry = targetOrigin?.localStorage.find((item) => item.name === 'auth-token');
+  if (tokenEntry) tokenEntry.value = newToken;
+
+  // Save it back
+  fs.writeFileSync(authFilePath, JSON.stringify(state, null, 2));
+}
+
+export function prefillStorageStateFile(token: string, path: string): void {
+  const state: StorageState = {
+    cookies: [],
+    origins: [
+      {
+        origin: baseURL,
+        localStorage: [
+          {
+            name: 'auth-token',
+            value: token,
+          },
+        ],
+      },
+    ],
+  };
+
+  fs.writeFileSync(path, JSON.stringify(state, null, 2));
+}

@@ -9,30 +9,28 @@ test.describe('Checkout flow: cash', () => {
   let count: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test.describe(() => {
-    test('Existing user - logged in', async ({ page, authenticatedUserData }) => {
-      count = faker.datatype.number({ min: 1, max: 10 });
+  test('Existing user - logged in', async ({ page, authenticatedUserData }) => {
+    count = faker.datatype.number({ min: 1, max: 10 });
 
-      const homePage = await new HomePage(page).goTo();
+    const homePage = await new HomePage(page).goTo();
 
-      const productPage = await homePage.selectRandomProduct();
+    const productPage = await homePage.selectRandomProduct();
 
-      await productPage.clickAddToCartAndAssertPopUps(count);
+    await productPage.clickAddToCartAndAssertPopUps(count);
 
-      await expect(productPage.getCartQuantity()).toHaveText(`${count}`);
+    await expect(productPage.getCartQuantity()).toHaveText(`${count}`);
 
-      const shoppingCartMainPage = await productPage.header.clickCartIcon();
+    const shoppingCartMainPage = await productPage.header.clickCartIcon();
 
-      const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
+    const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
-      const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
+    const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-      await completeCheckoutAndVerifyBilling(
-        shoppingCartBillingPage,
-        authenticatedUserData,
-        paymentMethod,
-      );
-    });
+    await completeCheckoutAndVerifyBilling(
+      shoppingCartBillingPage,
+      authenticatedUserData,
+      paymentMethod,
+    );
   });
 
   test.describe(() => {

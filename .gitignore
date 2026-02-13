@@ -28,3 +28,8 @@ tests/auth/.authFile
 .cmd
 
 fix-casing.sh
+
+# BrowserStack SDK
+# browserstack.yml
+local.log
+log/

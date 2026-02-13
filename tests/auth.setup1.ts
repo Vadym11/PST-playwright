@@ -6,14 +6,10 @@ import { HomePage } from '@pages/HomePage';
 import fs from 'fs';
 import { prefillStorageStateFile, registerRandomUser } from '@utils/test-utils';
 
-const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
-const userFile = path.join(process.cwd(), 'playwright/.auth/userData.json');
+const authFile = path.join(process.cwd(), 'playwright/.auth/userState1.json');
+const userFile = path.join(process.cwd(), 'playwright/.auth/userData1.json');
 
 setup.use({ headless: true });
-
-/*
- * this is the UI setup. To save time, we are using API to get token and save authenticated state
- */
 
 // setup('Authenticate', async ({ page, apiHandler }) => {
 //   // 1. Create and register a random user
@@ -36,8 +32,7 @@ setup.use({ headless: true });
 // });
 
 /**
- * API setup to get token and save authenticated state,
- * which will be used in UI tests to speed up the setup by skipping UI login
+ * API setup to get token and save authenticated state, which will be used in UI tests
  */
 setup('Authenticate', async ({ apiHandler, userApi }) => {
   // 1. Create and register a random user
