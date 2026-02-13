@@ -1,8 +1,5 @@
 import { test as setup } from '@fixtures/apiFixtures';
-import { expect } from '@playwright/test';
 import path from 'path';
-import { LoginPage } from '@pages/LoginPage';
-import { HomePage } from '@pages/HomePage';
 import fs from 'fs';
 import { prefillStorageStateFile, registerRandomUser } from '@utils/test-utils';
 
@@ -39,9 +36,9 @@ setup.use({ headless: true });
  * API setup to get token and save authenticated state,
  * which will be used in UI tests to speed up the setup by skipping UI login
  */
-setup('Authenticate', async ({ apiHandler, userApi }) => {
+setup('Authenticate', async ({ workerApiHandler, userApi }) => {
   // 1. Create and register a random user
-  const user = await registerRandomUser(apiHandler);
+  const user = await registerRandomUser(workerApiHandler);
 
   // 2. Save User Data (email/password) to its own JSON file
   fs.writeFileSync(userFile, JSON.stringify(user, null, 4));

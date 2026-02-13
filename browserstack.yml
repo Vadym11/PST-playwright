@@ -14,7 +14,7 @@ accessKey: ${BROWSERSTACK_ACCESS_KEY}
 # Note: Avoid using special characters like |, ;, >, <, ", ?, %, /, \, newlines, carriage returns, or tabs in project names
 projectName: BrowserStack PST Playwright 
 # Set `buildName` as the name of the job / testsuite being run
-buildName: PST build 
+buildName: PST Playwright 
 # `buildIdentifier` is a unique id to differentiate every execution that gets appended to
 # buildName. Choose your buildIdentifier format from the available expressions:
 # ${BUILD_NUMBER} (Default): Generates an incremental counter with every execution
@@ -41,6 +41,7 @@ platforms:
     browser_version: latest
     idleTimeout: 120  # 5 mins (default 90s)
     playwrightConfigOptions:
+      name: windows
       setup: 
       - name: 'setup'
         testMatch: auth.setup.ts
@@ -55,15 +56,16 @@ platforms:
     os_version: Sequoia
     browserName: chrome
     browser_version: latest
-    idleTimeout: 120  # 5 mins (default 90s)
+    idleTimeout: 120  # 2 mins (default 90s)
     playwrightConfigOptions:
+      name: osx
       setup: 
       - name: 'setup1'
-        testMatch: auth.setup1.ts
+        testMatch: auth.setup.ts
         teardown: 'teardown1'
       teardown: 
       - name: 'teardown1'
-        testMatch: auth.teardown1.ts
+        testMatch: auth.teardown.ts
       use:
         storageState: "playwright/.auth/userState.json"
     

@@ -1,17 +1,13 @@
-import { test as setup } from '@fixtures/apiFixtures';
+import { test as teardown } from '@fixtures/apiFixtures';
 import path from 'path';
-import { replaceTokenAndWriteToStateFile } from '@utils/test-utils';
-import { StorageState } from '@models/storage-state';
+import { readStorageStateFile, replaceTokenAndWriteToStateFile } from '@utils/test-utils';
 
 const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
 
-setup.use({ headless: true });
+teardown.use({ headless: true });
 
-setup('Teardown', async () => {
-  const emptyState: StorageState = {
-    cookies: [],
-    origins: [],
-  };
+teardown('Teardown - invalidate token', async () => {
+  const currentStateStorage = readStorageStateFile();
 
-  replaceTokenAndWriteToStateFile('', emptyState, authFile);
+  replaceTokenAndWriteToStateFile('', currentStateStorage, authFile);
 });

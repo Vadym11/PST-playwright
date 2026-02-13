@@ -15,13 +15,8 @@ import {
 import { Product } from '@models/api-product';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { jwtDecode } from 'jwt-decode';
 import { StorageState } from '@models/storage-state';
-
-// Recreate __dirname for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 function getBaseURL(): string {
   return config.use?.baseURL || '';
@@ -452,11 +447,6 @@ export function replaceTokenAndWriteToStateFile(
   state: StorageState,
   authFilePath: string,
 ): void {
-  // const authFilePath = path.resolve(__dirname, 'playwright/.auth/userState.json');
-
-  // Load the existing state
-  // const state: StorageState = readStorageStateFile();
-
   // If token is in LocalStorage:
   const targetOrigin = state.origins.find((o) => o.origin === baseURL);
   const tokenEntry = targetOrigin?.localStorage.find((item) => item.name === 'auth-token');

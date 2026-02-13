@@ -9,7 +9,11 @@ test.describe('Checkout flow: cash', () => {
   let count: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test('Existing user - logged in', async ({ page, authenticatedUserData }) => {
+  test('Existing user - logged in', async ({
+    page,
+    authenticatedUserData: authenticatedUserFixture,
+  }) => {
+    const userData = authenticatedUserFixture;
     count = faker.datatype.number({ min: 1, max: 10 });
 
     const homePage = await new HomePage(page).goTo();
@@ -26,11 +30,7 @@ test.describe('Checkout flow: cash', () => {
 
     const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-    await completeCheckoutAndVerifyBilling(
-      shoppingCartBillingPage,
-      authenticatedUserData,
-      paymentMethod,
-    );
+    await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
   });
 
   test.describe(() => {
@@ -38,6 +38,7 @@ test.describe('Checkout flow: cash', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
 
     test('Existing user - logged out', async ({ page, authenticatedUserData }) => {
+      const userData = authenticatedUserData;
       count = faker.datatype.number({ min: 1, max: 10 });
 
       const homePage = await new HomePage(page).goTo();
@@ -52,18 +53,11 @@ test.describe('Checkout flow: cash', () => {
 
       const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
-      await shoppingCartLoginPage.loginExistingUser(
-        authenticatedUserData.email,
-        authenticatedUserData.password,
-      );
+      await shoppingCartLoginPage.loginExistingUser(userData.email, userData.password);
 
       const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
-      await completeCheckoutAndVerifyBilling(
-        shoppingCartBillingPage,
-        authenticatedUserData,
-        paymentMethod,
-      );
+      await completeCheckoutAndVerifyBilling(shoppingCartBillingPage, userData, paymentMethod);
     });
   });
 });

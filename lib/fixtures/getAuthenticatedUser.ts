@@ -16,18 +16,29 @@ type NewUserLoggedInFixture = {
 };
 
 const test = baseTest.extend<NewUserLoggedInFixture>({
-  authenticatedUserData: async ({ userApi }, use) => {
+  authenticatedUserData: async ({ userApi, page }, use) => {
     const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
     const userData = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
 
     const currentToken = getCurrentToken();
+
     if (!currentToken) {
       throw new Error('No token found in storage state file');
     }
+
     if (checkTokenExpiry(currentToken)) {
       console.log('Token is about to expire, refreshing token...');
       const loginResponse = await userApi.refreshToken(currentToken);
       const freshToken = loginResponse.access_token;
+
+      await page.goto(process.env.BASE_URL!);
+
+      await page.evaluate(
+        ([newToken]) => {
+          localStorage.setItem('value', newToken);
+        },
+        [freshToken],
+      );
 
       const state: StorageState = readStorageStateFile();
 
