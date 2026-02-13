@@ -8,7 +8,7 @@ const userFile = path.join(process.cwd(), 'playwright/.auth/userData.json');
 
 setup.use({ headless: true });
 
-/*
+/**
  * this is the UI setup. To save time, we are using API to get token and save authenticated state
  */
 
