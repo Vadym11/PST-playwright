@@ -5,7 +5,7 @@ import path from 'path';
 process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${process.env.BASE_URL}`);
 
-/**
+/*
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -46,9 +46,7 @@ export default defineConfig({
     // since tests on different platforms are executed in parallel, we want to avoid
     // multiple setups running at the same time and overriding the same auth file
     { name: 'setup', testMatch: /.*\.setup\.ts/, teardown: 'teardown' }, // setup and teardown for non browserstack tests
-    { name: 'setup1', testMatch: /.*\.setup1\.ts/ },
     { name: 'teardown', testMatch: /.*\.teardown\.ts/ },
-    { name: 'teardown1', testMatch: /.*\.teardown1\.ts/ },
     {
       name: 'chromium',
       dependencies: ['setup'],

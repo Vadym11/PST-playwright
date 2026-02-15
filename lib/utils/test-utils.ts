@@ -64,7 +64,8 @@ export function getRandomArrayElement(array: any[]) {
  * @returns A User object with random data.
  */
 export function generateRandomUserData(): CreateUser {
-  const userData = JSON.parse(fs.readFileSync('../data-factory/registerUserData.json', 'utf8'));
+  const dataFilePath = path.join(process.cwd(), './lib/data-factory/registerUserData.json');
+  const userData = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
   const randomNumber = getRandomIntInclusive(0, 9999);
 
   const FIRST_NAME = getRandomArrayElement(userData.firstNames);

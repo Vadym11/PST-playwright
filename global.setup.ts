@@ -5,10 +5,9 @@ import { HomePage } from './lib/pages/HomePage';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import { generateRandomUserData } from './lib/utils/test-utils';
+import { authFilePath, userDataFilePath } from './lib/utils/test-utils';
 dotenv.config({ debug: true });
 
-const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
-const userFile = path.join(process.cwd(), 'playwright/.auth/userData.json');
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8080/';
 
 /*config: FullConfig is optinal argument that allows to access the full structure of the configuration.*/
@@ -42,12 +41,12 @@ async function globalSetup(config: FullConfig) {
 
   await expect(myAccountPage.myAccountTitle).toHaveText('My account');
 
-  await page.context().storageState({ path: authFile });
+  await page.context().storageState({ path: authFilePath });
 
   await browser.close();
 
   // 2. Save User Data (email/password) to its own JSON file
-  fs.writeFileSync(userFile, JSON.stringify(newRegisteredUser, null, 4));
+  fs.writeFileSync(userDataFilePath, JSON.stringify(newRegisteredUser, null, 4));
   console.log('Authentication finished sucessfully!');
 }
 
