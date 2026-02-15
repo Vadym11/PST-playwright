@@ -16,7 +16,7 @@ type NewUserLoggedInFixture = {
 };
 
 const test = baseTest.extend<NewUserLoggedInFixture>({
-  authenticatedUserData: async ({ userApi, page }, use) => {
+  authenticatedUserData: async ({ userApi, context, page }, use) => {
     const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
     const userData = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
 
@@ -31,14 +31,15 @@ const test = baseTest.extend<NewUserLoggedInFixture>({
       const loginResponse = await userApi.refreshToken(currentToken);
       const freshToken = loginResponse.access_token;
 
+      // Navigate to the domain first so the browser context has an origin
       await page.goto(process.env.BASE_URL!);
 
-      await page.evaluate(
-        ([newToken]) => {
-          localStorage.setItem('value', newToken);
-        },
-        [freshToken],
-      );
+      await context.addInitScript((token) => {
+        window.localStorage.setItem('auth-token', token);
+      }, freshToken);
+
+      await page.reload({ waitUntil: 'networkidle' });
+      console.log('Token injected and page reloaded');
 
       const state: StorageState = readStorageStateFile();
 
