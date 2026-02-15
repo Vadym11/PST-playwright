@@ -16,7 +16,7 @@ test.describe('User account tests', () => {
   test('Verify favorite products', async ({ page, productApi }) => {
     const homePage = await new HomePage(page).goTo();
 
-    const productPage = await homePage.clickRandomProduct();
+    const productPage = await homePage.selectRandomProduct();
     const productInfo = await productPage.getCurrentProductInfoById(productApi);
     await productPage.clickAddToFavorites();
     await expect(productPage.getAddedToFavoritesPopUp()).toBeVisible();

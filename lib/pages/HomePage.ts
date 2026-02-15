@@ -60,6 +60,7 @@ export class HomePage extends BasePage {
   }
 
   async clickRandomProduct(): Promise<ProductPage> {
+    await this.page.waitForLoadState('networkidle');
     // 1. Define the base locator for all cards
     const allCards = this.page.locator('.card');
 
