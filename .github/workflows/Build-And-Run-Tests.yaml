@@ -3,8 +3,12 @@ name: PlayWright Tests
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'k8s/pst-playwright.yaml'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'k8s/pst-playwright.yaml'
 
 jobs:
   playwright-tests:
