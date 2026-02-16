@@ -33,6 +33,11 @@ export class HomePage extends BasePage {
   async clickRandomPage(): Promise<HomePage> {
     const randomPage = faker.datatype.number({ min: 1, max: 5 }).toString();
 
+    if (randomPage === '1') {
+      await this.page.reload();
+      return this;
+    }
+
     await this.page.getByRole('button', { name: randomPage }).click();
 
     return this;

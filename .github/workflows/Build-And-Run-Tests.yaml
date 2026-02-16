@@ -31,6 +31,8 @@ jobs:
         id: changes
         uses: dorny/paths-filter@v3
         with:
+          # compares PR branch against the target (main)
+          base: ${{ github.event.pull_request.base.ref || github.event.before }}
           filters: |
             playwright:
               - 'tests/**'
