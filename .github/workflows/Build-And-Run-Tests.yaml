@@ -3,12 +3,12 @@ name: PlayWright Tests
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'k8s/pst-playwright.yaml'
+    # paths-ignore:
+    #   - 'k8s/pst-playwright.yaml'
   pull_request:
     branches: [main]
-    paths-ignore:
-      - 'k8s/pst-playwright.yaml'
+    # paths-ignore:
+    #   - 'k8s/pst-playwright.yaml'
 
 jobs:
   playwright-tests:
@@ -54,20 +54,15 @@ jobs:
 
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
-        if: steps.changes.outputs.playwright == 'true'
+        if: steps.changes.outputs.playwright == 'true' || contains(github.event.pull_request.labels.*.name, 'force-build')
         id: build
         run: |
-          IMAGE_TAG=$(date +%s)
-          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          IMAGE_URI="${{ env.REGISTRY }}/playwright-k8s:$IMAGE_TAG"
+          # 1. Define the URI with the static 'latest' tag
+          IMAGE_URI="${{ env.REGISTRY }}/playwright-k8s:latest"
           
-          echo "Building $IMAGE_URI"
+          # 2. Build and Push (this overwrites the existing :latest in the registry)
           docker build -t $IMAGE_URI -f _docker/Dockerfile.playwright .
           docker push $IMAGE_URI
-          
-          # Update the manifest file in-place so the next step deploys the NEW image
-          sed -i "s|playwright-k8s:.*|playwright-k8s:$IMAGE_TAG|g" k8s/pst-playwright.yaml
-          echo "Updated k8s/pst-playwright.yaml with tag $IMAGE_TAG"
 
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
@@ -167,6 +162,9 @@ jobs:
           if [ "${{ job.status }}" == "failure" ]; then sleep 60; fi
           kubectl delete namespace "$K8S_NAMESPACE" --wait=false
 
+      # skipping this since we are now using the 'latest' tag strategy for the image, 
+      # which means we don't need to update the manifest with a new tag on every change - 
+      # it will always point to 'latest'
       - name: Commit and Push Manifest Change
         # Only run this if a new image was actually built
         if: steps.changes.outputs.playwright == 'true'
