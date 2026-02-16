@@ -1,10 +1,12 @@
 import { test as setup } from '@fixtures/apiFixtures';
 import path from 'path';
 import fs from 'fs';
-import { prefillStorageStateFile, registerRandomUser } from '@utils/test-utils';
-
-const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
-const userFile = path.join(process.cwd(), 'playwright/.auth/userData.json');
+import {
+  prefillStorageStateFile,
+  registerRandomUser,
+  authFilePath,
+  userDataFilePath,
+} from '@utils/test-utils';
 
 setup.use({ headless: true });
 
@@ -41,12 +43,18 @@ setup('Register and authenticate user', async ({ workerApiHandler, userApi }) =>
   const user = await registerRandomUser(workerApiHandler);
 
   // 2. Save User Data (email/password) to its own JSON file
-  fs.writeFileSync(userFile, JSON.stringify(user, null, 4));
+  const dir = path.dirname(userDataFilePath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  fs.writeFileSync(userDataFilePath, JSON.stringify(user, null, 4));
 
   // 3. Perform API Login
   const loginResponse = await userApi.login(user.email, user.password);
 
   // 4. Save Session State (Cookies/LocalStorage) with the token from API login
   const token = loginResponse.access_token;
-  prefillStorageStateFile(token, authFile);
+  prefillStorageStateFile(token, authFilePath);
 });

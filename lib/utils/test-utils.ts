@@ -457,7 +457,7 @@ export function replaceTokenAndWriteToStateFile(
   fs.writeFileSync(authFilePath, JSON.stringify(state, null, 2));
 }
 
-export function prefillStorageStateFile(token: string, path: string): void {
+export function prefillStorageStateFile(token: string, filePath: string): void {
   const state: StorageState = {
     cookies: [],
     origins: [
@@ -473,5 +473,11 @@ export function prefillStorageStateFile(token: string, path: string): void {
     ],
   };
 
-  fs.writeFileSync(path, JSON.stringify(state, null, 2));
+  const dir = path.dirname(filePath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(state, null, 2));
 }

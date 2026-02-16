@@ -105,11 +105,6 @@ jobs:
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
 
-      - name: Prepare DB
-        run: |
-          kubectl run db-waiter --rm -i -n "$K8S_NAMESPACE" --image=busybox --restart=Never -- sh -c 'until nc -z -w3 pst-db 3306; do echo "Waiting for DB..."; sleep 3; done'
-          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- sh -c 'php artisan migrate:fresh --seed --force'
-
       - name: Prepare DB (permissions + migrate + seed)
         run: |
           set -e
