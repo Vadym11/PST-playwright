@@ -51,6 +51,7 @@ jobs:
         id: build
         run: |
           IMAGE_TAG=$(date +%s)
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
           IMAGE_URI="${{ env.REGISTRY }}/playwright-k8s:$IMAGE_TAG"
           
           echo "Building $IMAGE_URI"
@@ -60,14 +61,6 @@ jobs:
           # Update the manifest file in-place so the next step deploys the NEW image
           sed -i "s|playwright-k8s:.*|playwright-k8s:$IMAGE_TAG|g" k8s/pst-playwright.yaml
           echo "Updated k8s/pst-playwright.yaml with tag $IMAGE_TAG"
-
-      - name: Commit and Push Manifest Change
-        # Only run this if a new image was actually built
-        if: steps.changes.outputs.playwright == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update playwright image to ${{ steps.build.outputs.tag }}"
-          file_pattern: 'k8s/pst-playwright.yaml'
 
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
@@ -166,3 +159,11 @@ jobs:
         run: |
           if [ "${{ job.status }}" == "failure" ]; then sleep 60; fi
           kubectl delete namespace "$K8S_NAMESPACE" --wait=false
+
+      - name: Commit and Push Manifest Change
+        # Only run this if a new image was actually built
+        if: steps.changes.outputs.playwright == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update playwright image to ${{ steps.build.outputs.tag }}"
+          file_pattern: 'k8s/pst-playwright.yaml'
