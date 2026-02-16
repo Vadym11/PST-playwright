@@ -36,7 +36,7 @@ setup.use({ headless: true });
  * API setup to get token and save authenticated state,
  * which will be used in UI tests to speed up the setup by skipping UI login
  */
-setup('Authenticate', async ({ workerApiHandler, userApi }) => {
+setup('Register and authenticate user', async ({ workerApiHandler, userApi }) => {
   // 1. Create and register a random user
   const user = await registerRandomUser(workerApiHandler);
 
