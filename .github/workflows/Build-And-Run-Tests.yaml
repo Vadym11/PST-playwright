@@ -103,6 +103,7 @@ jobs:
           kubectl rollout status deployment/pst-db  -n "$K8S_NAMESPACE" --timeout=120s || true
           kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
           kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
+          kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
 
       - name: Prepare DB
         run: |
@@ -115,11 +116,26 @@ jobs:
 
       - name: Wait for Test Completion
         run: |
+          # 1. Get the pod name
           POD_NAME=$(kubectl get pods -n "$K8S_NAMESPACE" -l job-name=pst-playwright-tests -o jsonpath='{.items[0].metadata.name}')
+          
+          # 2. Wait for the file to appear
+          echo "Waiting for tests_finished.txt..."
           timeout 600s sh -c "until kubectl exec -n $K8S_NAMESPACE $POD_NAME -- ls /tests/tests_finished.txt; do sleep 5; done"
+
+          # 3. READ the exit code from the file
           TEST_EXIT_CODE=$(kubectl exec -n "$K8S_NAMESPACE" "$POD_NAME" -- cat /tests/tests_finished.txt)
+          echo "Playwright exited with code: $TEST_EXIT_CODE"
+
+          # 3.1 Print logs for debugging
+          echo "Fetching Playwright test pod logs for debugging..."
           kubectl logs -n "$K8S_NAMESPACE" "$POD_NAME"
-          if [ "$TEST_EXIT_CODE" -ne "0" ]; then exit 1; fi
+
+          # 4. Fail the GitHub step if the code is not 0
+          if [ "$TEST_EXIT_CODE" -ne "0" ]; then
+            echo "Tests failed! Exiting pipeline with error."
+            exit 1
+          fi
       
       - name: Copy and Upload Artifacts
         if: always()
@@ -140,5 +156,5 @@ jobs:
       - name: Delete namespace
         if: always()
         run: |
-          if [ "${{ job.status }}" == "failure" ]; then sleep 300; fi
+          if [ "${{ job.status }}" == "failure" ]; then sleep 60; fi
           kubectl delete namespace "$K8S_NAMESPACE" --wait=false
