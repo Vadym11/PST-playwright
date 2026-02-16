@@ -10,6 +10,11 @@ jobs:
   playwright-tests:
     runs-on: ubuntu-latest
 
+    # this allows the workflow writing permissons to update the k8s manifest file in the repo and push it back,
+    # which is needed to trigger a new deployment with the updated image
+    permissions:
+      contents: write
+
     env:
       K8S_NAMESPACE: toolshop-ci-${{ github.run_id }}
       REGISTRY: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/toolshop
