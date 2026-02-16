@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           fetch-depth: 0 # Required for accurate diffing if needed
 
       # NEW: Check if Playwright-related files changed to decide if we build a new image
