@@ -1,0 +1,174 @@
+name: PlayWright Tests
+
+on:
+  push:
+    branches: [main]
+    # paths-ignore:
+    #   - 'k8s/pst-playwright.yaml'
+  pull_request:
+    branches: [main]
+    # paths-ignore:
+    #   - 'k8s/pst-playwright.yaml'
+
+jobs:
+  playwright-tests:
+    runs-on: ubuntu-latest
+
+    # this allows the workflow writing permissons to update the k8s manifest file in the repo and push it back,
+    # which is needed to trigger a new deployment with the updated image
+    permissions:
+      contents: write
+
+    env:
+      K8S_NAMESPACE: toolshop-ci-${{ github.run_id }}
+      REGISTRY: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/toolshop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0 # Required for accurate diffing if needed
+
+      # NEW: Check if Playwright-related files changed to decide if we build a new image
+      - name: Check for changes in Playwright files
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          # compares PR branch against the target (main)
+          base: ${{ github.event.pull_request.base.ref || github.event.before }}
+          filters: |
+            playwright:
+              - 'tests/**'
+              - 'lib/**'
+              - 'entrypoint.js'
+              - '_docker/Dockerfile.playwright'
+
+      - name: Set up gcloud auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      # NEW: Build and Push logic from your shell script
+      - name: Build and Push Playwright Image
+        if: steps.changes.outputs.playwright == 'true' || contains(github.event.pull_request.labels.*.name, 'force-build')
+        id: build
+        run: |
+          # 1. Define the URI with the static 'latest' tag
+          IMAGE_URI="${{ env.REGISTRY }}/playwright-k8s:latest"
+          
+          # 2. Build and Push (this overwrites the existing :latest in the registry)
+          docker build -t $IMAGE_URI -f _docker/Dockerfile.playwright .
+          docker push $IMAGE_URI
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}
+          location: ${{ secrets.GKE_LOCATION }}
+
+      - name: Create namespace
+        run: kubectl create namespace "$K8S_NAMESPACE"
+
+      - name: Create slack web hook secret
+        run: |
+          kubectl create secret generic pst-test-secret \
+            -n "$K8S_NAMESPACE" \
+            --from-literal=SLACK_WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}" \
+            --from-literal=EMAIL="${{ secrets.EMAIL }}" \
+            --from-literal=PASSWORD_="${{ secrets.PASSWORD_ }}"
+
+      - name: Apply DB secrets
+        run: kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-db-secret.yaml
+
+      - name: Deploy Toolshop app
+        run: |
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-db.yaml
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-api.yaml
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-apiweb.yaml
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-web.yaml
+          kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-cron.yaml
+
+      - name: Wait for deployments to be ready
+        run: |
+          kubectl rollout status deployment/pst-db  -n "$K8S_NAMESPACE" --timeout=120s || true
+          kubectl rollout status deployment/pst-api -n "$K8S_NAMESPACE" --timeout=180s
+          kubectl rollout status deployment/pst-web -n "$K8S_NAMESPACE" --timeout=180s
+          kubectl rollout status deployment/pst-apiweb -n "$K8S_NAMESPACE" --timeout=180s
+
+      - name: Wait for DB to be reachable
+        run: |
+          set -e
+          # Wait until MySQL on pst-db:3306 accepts TCP connections
+          kubectl run db-waiter --rm -i -n "$K8S_NAMESPACE" --image=busybox --restart=Never -- \
+            sh -c 'until nc -z -w3 pst-db 3306; do echo "Waiting for DB..."; sleep 3; done'
+
+      - name: Prepare DB (permissions + migrate + seed)
+        run: |
+          set -e
+          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
+            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed --force --no-interaction'
+
+      # This will now use the updated k8s/pst-playwright.yaml modified by the 'sed' step above
+      - name: Apply Playwright test job
+        run: kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-playwright.yaml
+
+      - name: Wait for Test Completion
+        run: |
+          # 1. Get the pod name
+          POD_NAME=$(kubectl get pods -n "$K8S_NAMESPACE" -l job-name=pst-playwright-tests -o jsonpath='{.items[0].metadata.name}')
+          
+          # 2. Wait for the file to appear
+          echo "Waiting for tests_finished.txt..."
+          timeout 600s sh -c "until kubectl exec -n $K8S_NAMESPACE $POD_NAME -- ls /tests/tests_finished.txt; do sleep 5; done"
+
+          # 3. READ the exit code from the file
+          TEST_EXIT_CODE=$(kubectl exec -n "$K8S_NAMESPACE" "$POD_NAME" -- cat /tests/tests_finished.txt)
+          echo "Playwright exited with code: $TEST_EXIT_CODE"
+
+          # 3.1 Print logs for debugging
+          echo "Fetching Playwright test pod logs for debugging..."
+          kubectl logs -n "$K8S_NAMESPACE" "$POD_NAME"
+
+          # 4. Fail the GitHub step if the code is not 0
+          if [ "$TEST_EXIT_CODE" -ne "0" ]; then
+            echo "Tests failed! Exiting pipeline with error."
+            exit 1
+          fi
+      
+      - name: Copy and Upload Artifacts
+        if: always()
+        run: |
+          POD_NAME=$(kubectl get pods -l job-name=pst-playwright-tests -n "$K8S_NAMESPACE" -o jsonpath='{.items[0].metadata.name}')
+          if [ -n "$POD_NAME" ]; then
+            mkdir -p ./playwright-report
+            kubectl cp -n "$K8S_NAMESPACE" "$POD_NAME:/tests/playwright-report" ./playwright-report || true
+          fi
+
+      - name: Upload Artifacts to GitHub
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results
+          path: playwright-report/
+
+      - name: Delete namespace
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "failure" ]; then sleep 60; fi
+          kubectl delete namespace "$K8S_NAMESPACE" --wait=false
+
+      # skipping this since we are now using the 'latest' tag strategy for the image, 
+      # which means we don't need to update the manifest with a new tag on every change - 
+      # it will always point to 'latest'
+      - name: Commit and Push Manifest Change
+        # Only run this if a new image was actually built
+        if: steps.changes.outputs.playwright == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update playwright image to ${{ steps.build.outputs.tag }}"
+          file_pattern: 'k8s/pst-playwright.yaml'
