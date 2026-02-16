@@ -42,7 +42,7 @@ setup('Register and authenticate user', async ({ workerApiHandler, userApi }) =>
   // 1. Create and register a random user
   const user = await registerRandomUser(workerApiHandler);
 
-  // 2. Save User Data (email/password) to its own JSON file
+  // 2. Save All User Data (email/password) to its own JSON file
   const dir = path.dirname(userDataFilePath);
 
   if (!fs.existsSync(dir)) {
