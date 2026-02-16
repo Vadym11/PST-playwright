@@ -110,6 +110,12 @@ jobs:
           kubectl run db-waiter --rm -i -n "$K8S_NAMESPACE" --image=busybox --restart=Never -- sh -c 'until nc -z -w3 pst-db 3306; do echo "Waiting for DB..."; sleep 3; done'
           kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- sh -c 'php artisan migrate:fresh --seed --force'
 
+      - name: Prepare DB (permissions + migrate + seed)
+        run: |
+          set -e
+          kubectl exec -n "$K8S_NAMESPACE" deploy/pst-api -- \
+            sh -c 'chmod -R 777 storage bootstrap/cache && php artisan migrate:fresh --seed --force --no-interaction'
+
       # This will now use the updated k8s/pst-playwright.yaml modified by the 'sed' step above
       - name: Apply Playwright test job
         run: kubectl apply -n "$K8S_NAMESPACE" -f k8s/pst-playwright.yaml
