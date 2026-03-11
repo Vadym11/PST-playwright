@@ -94,9 +94,7 @@ export class RegisterPage extends BasePage {
   }
 
   async selectCountry(country: string): Promise<this> {
-    await this.country.click();
-    await this.page.keyboard.type(country);
-    await this.page.keyboard.press('Enter');
+    await this.country.selectOption({ label: country });
 
     return this;
   }
