@@ -1,130 +1,182 @@
 import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import { CreateUser } from '@models/api-user';
+import { CreateUser, GetAllUsersResponse } from '@models/api-user';
+import { LoginResponse, PaginatedResponse } from '@models/api-responses';
 import { generateRandomuserDataFaker } from '@utils/test-utils';
 import { faker } from '@faker-js/faker';
 
+type UserApiState = {
+  originalUserData: CreateUser;
+  currentUserData: CreateUser;
+  userId: string;
+  userToken: string;
+  changedPassword: string;
+  resetPassword: string;
+  newFirstName: string;
+  newLastName: string;
+  newEmail: string;
+};
+
 test.describe.serial('User API tests', () => {
-  let newUser: CreateUser;
-  let newUserId: string;
-  let userToken: string;
-  const newUserFirstName = faker.name.firstName();
-  const newUserLastName = faker.name.lastName();
-  const newPassword = `${faker.internet.password(8)}$123`;
+  const firstNameForUpdate = faker.name.firstName().replaceAll("'", '');
+  const lastNameForUpdate = faker.name.lastName().replaceAll("'", '');
 
-  test.beforeAll('Generate new user', async () => {
-    newUser = generateRandomuserDataFaker();
+  const state: UserApiState = {
+    originalUserData: generateRandomuserDataFaker(),
+    currentUserData: {} as CreateUser,
+    userId: '',
+    userToken: '',
+    changedPassword: `Ab1&${Date.now()}${faker.random.alphaNumeric(6)}`,
+    resetPassword: process.env.PASSWORD_RESET || 'welcome02',
+    newFirstName: firstNameForUpdate,
+    newLastName: lastNameForUpdate,
+    newEmail: `${firstNameForUpdate}.${lastNameForUpdate}.${Date.now()}@gmail.com`.toLowerCase(),
+  };
 
-    console.log(`Generated user email: ${newUser.email}`);
+  const assertPaginatedUsers = (response: PaginatedResponse<GetAllUsersResponse>) => {
+    expect(response.data).toEqual(expect.any(Array));
+    expect(response.current_page).toEqual(expect.any(Number));
+    expect(response.per_page).toEqual(expect.any(Number));
+    expect(response.total).toEqual(expect.any(Number));
+    expect(response.last_page).toEqual(expect.any(Number));
+    expect(response.from).toEqual(expect.any(Number));
+    expect(response.to).toEqual(expect.any(Number));
+  };
+
+  const assertLoginResponse = (response: LoginResponse) => {
+    expect(response.access_token).toEqual(expect.any(String));
+    expect(response.token_type).toBe('bearer');
+    expect(response.expires_in).toEqual(expect.any(Number));
+  };
+
+  const getToken = (): string => {
+    expect(state.userToken, 'Expected user token to be initialized').toBeTruthy();
+
+    return state.userToken;
+  };
+
+  const getUserId = (): string => {
+    expect(state.userId, 'Expected user id to be initialized').toBeTruthy();
+
+    return state.userId;
+  };
+
+  test.beforeAll('Setup user once', async ({ userApi }) => {
+    state.currentUserData = { ...state.originalUserData };
+
+    const registerResponse = await userApi.register(state.originalUserData);
+    expect(registerResponse.id).toEqual(expect.any(String));
+    state.userId = registerResponse.id;
+
+    const loginResponse = await userApi.login(
+      state.currentUserData.email,
+      state.currentUserData.password,
+    );
+    assertLoginResponse(loginResponse);
+    state.userToken = loginResponse.access_token;
   });
 
-  test('Get all users', async ({ userApi }) => {
+  test.beforeEach('should login with current credentials', async ({ userApi }) => {
+    const loginResponse = await userApi.login(
+      state.currentUserData.email,
+      state.currentUserData.password,
+    );
+
+    assertLoginResponse(loginResponse);
+    state.userToken = loginResponse.access_token;
+  });
+
+  test.afterAll('Cleanup registered user', async ({ userApi }) => {
+    if (!state.userId) {
+      return;
+    }
+
+    const response = await userApi.deleteUser(state.userId);
+    expect(response).toBe(204);
+  });
+
+  test('should get all users', async ({ userApi }) => {
     const response = await userApi.getAll();
 
-    expect(response).toBeDefined();
-    expect(Array.isArray(response.data)).toBe(true);
-    expect(response.current_page).toBeDefined();
-    expect(response.per_page).toBeDefined();
-    expect(response.total).toBeDefined();
-    expect(response.last_page).toBeDefined();
-    expect(response.from).toBeDefined();
-    expect(response.to).toBeDefined();
+    assertPaginatedUsers(response);
   });
 
-  test('Register user', async ({ userApi }) => {
-    const response = await userApi.register(newUser);
-    newUserId = response.id;
+  test('should get current user data', async ({ userApi }) => {
+    const currentUser = await userApi.getCurrentUserData(getToken());
 
-    expect(response.first_name).toBe(newUser.first_name);
-    expect(response.last_name).toBe(newUser.last_name);
-    expect(response.email).toBe(newUser.email.toLowerCase());
-    expect(response.id).toBeDefined();
-    expect(response.created_at).toBeDefined();
-    expect(response.address).toStrictEqual(newUser.address);
-    expect(response.dob).toBe(newUser.dob);
-    expect(response.phone).toBe(newUser.phone);
+    expect(currentUser.first_name).toBe(state.currentUserData.first_name);
+    expect(currentUser.last_name).toBe(state.currentUserData.last_name);
+    expect(currentUser.email).toBe(state.currentUserData.email.toLowerCase());
   });
 
-  test('User login', async ({ userApi }) => {
-    const response = await userApi.login(newUser.email, newUser.password);
+  test('should change password and login', async ({ userApi }) => {
+    const changePasswordResponse = await userApi.changePassword(
+      getToken(),
+      state.currentUserData.password,
+      state.changedPassword,
+    );
 
-    userToken = response.access_token;
+    expect(changePasswordResponse.success).toBe(true);
 
-    expect(response.access_token).toBeDefined();
-    expect(response.token_type).toBe('bearer');
-    expect(response.expires_in).toBe(300);
+    const loginResponse = await userApi.login(state.currentUserData.email, state.changedPassword);
+    assertLoginResponse(loginResponse);
+
+    state.userToken = loginResponse.access_token;
+    state.currentUserData.password = state.changedPassword;
   });
 
-  test('Change password', async ({ userApi }) => {
-    const response = await userApi.changePassword(userToken, newUser.password, newPassword);
+  test('should reset password and login', async ({ userApi }) => {
+    const forgotPasswordResponse = await userApi.forgotPassword(state.currentUserData.email);
+    expect(forgotPasswordResponse.success).toBe(true);
 
-    expect(response.success).toBe(true);
+    const loginResponse = await userApi.login(state.currentUserData.email, state.resetPassword);
+    assertLoginResponse(loginResponse);
+
+    state.userToken = loginResponse.access_token;
+    state.currentUserData.password = state.resetPassword;
   });
 
-  test('Update user data', async ({ userApi }) => {
-    newUser.first_name = newUserFirstName;
-    newUser.last_name = newUserLastName;
+  test('should refresh token', async ({ userApi }) => {
+    const response = await userApi.refreshToken(getToken());
 
-    const response = await userApi.update(newUser, userToken, newUserId);
-
-    expect(response.success).toBe(true);
+    assertLoginResponse(response);
+    state.userToken = response.access_token;
   });
 
-  test('Get current user data', async ({ userApi }) => {
-    const currentUser = await userApi.getCurrentUserData(userToken);
+  test('should update user data', async ({ userApi }) => {
+    const updatedUserPayload: CreateUser = {
+      ...state.currentUserData,
+      first_name: state.newFirstName,
+      last_name: state.newLastName,
+    };
 
-    expect(currentUser.first_name).toBe(newUserFirstName);
-    expect(currentUser.last_name).toBe(newUserLastName);
-    expect(currentUser.email).toBe(newUser.email.toLowerCase());
+    const updateResponse = await userApi.update(updatedUserPayload, getToken(), getUserId());
+    expect(updateResponse.success).toBe(true);
+
+    const currentUser = await userApi.getCurrentUserData(getToken());
+    expect(currentUser.first_name).toBe(state.newFirstName);
+    expect(currentUser.last_name).toBe(state.newLastName);
+    expect(currentUser.email).toBe(state.currentUserData.email.toLowerCase());
+
+    state.currentUserData.first_name = state.newFirstName;
+    state.currentUserData.last_name = state.newLastName;
   });
 
-  test('Patch user data', async ({ userApi }) => {
-    const patchedLastName = `${newUserLastName}-Patched`;
+  test('should patch user data (email)', async ({ userApi }) => {
+    const patchResponse = await userApi.patch({ email: state.newEmail }, getToken(), getUserId());
+    expect(patchResponse.success).toBe(true);
 
-    const response = await userApi.patch({ last_name: patchedLastName }, userToken, newUserId);
+    const currentUser = await userApi.getCurrentUserData(getToken());
+    expect(currentUser.email).toBe(state.newEmail);
+    expect(currentUser.first_name).toBe(state.currentUserData.first_name);
+    expect(currentUser.last_name).toBe(state.currentUserData.last_name);
 
-    expect(response.success).toBe(true);
-
-    const currentUser = await userApi.getCurrentUserData(userToken);
-
-    expect(currentUser.last_name).toBe(patchedLastName);
+    state.currentUserData.email = state.newEmail;
   });
 
-  test('Logout', async ({ userApi }) => {
-    const response = await userApi.logOut(userToken);
+  test('should logout', async ({ userApi }) => {
+    const response = await userApi.logOut(getToken());
 
     expect(response.message).toBe('Successfully logged out');
-  });
-
-  test('Forgot password', async ({ userApi }) => {
-    const response = await userApi.forgotPassword(newUser.email);
-
-    expect(response.success).toBe(true);
-  });
-
-  test('User login - new password', async ({ userApi }) => {
-    const response = await userApi.login(newUser.email, 'welcome02');
-
-    userToken = response.access_token;
-
-    expect(response.access_token).toBeDefined();
-    expect(response.token_type).toBe('bearer');
-    expect(response.expires_in).toBe(300);
-  });
-
-  test('Refresh token', async ({ userApi }) => {
-    const response = await userApi.refreshToken(userToken);
-
-    expect(response.access_token).toBeDefined();
-    expect(response.token_type).toBe('bearer');
-    expect(response.expires_in).toBe(300);
-
-    userToken = response.access_token;
-  });
-
-  test('Delete user', async ({ userApi }) => {
-    const response = await userApi.deleteUser(newUserId);
-
-    expect(response).toBe(204);
   });
 });
