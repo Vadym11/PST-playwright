@@ -31,3 +31,10 @@ export interface Category {
   slug: string;
   sub_categories: string[];
 }
+
+export type ProductApiState = {
+  createdProductId: string;
+  productData: Product;
+  updatedPrice: number;
+  patchedDescription: string;
+};

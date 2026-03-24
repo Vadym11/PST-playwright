@@ -1,88 +1,115 @@
 import { test } from '@fixtures/apiFixtures';
 import { expect } from '@playwright/test';
-import type { Product } from '@models/api-product';
+import type { GetProductResponse, Product, ProductApiState } from '@models/api-product';
+import type { PaginatedResponse } from '@models/api-responses';
 import { generateRandomProductData } from '@utils/test-utils';
 
 test.describe.serial('Product API Tests', () => {
-  let createdProductID: string;
-  let newProductData: Product;
-  const newPrice = 199.99;
+  const state: ProductApiState = {
+    createdProductId: '',
+    productData: {} as Product,
+    updatedPrice: 199.99,
+    patchedDescription: 'Patched description',
+  };
+
+  const getProductId = (): string => {
+    expect(state.createdProductId, 'Expected product id to be initialized').toBeTruthy();
+
+    return state.createdProductId;
+  };
+
+  const assertPaginatedProducts = (products: PaginatedResponse<GetProductResponse>) => {
+    expect(products.data).toEqual(expect.any(Array));
+    expect(products.current_page).toEqual(expect.any(Number));
+    expect(products.per_page).toEqual(expect.any(Number));
+    expect(products.total).toEqual(expect.any(Number));
+    expect(products.last_page).toEqual(expect.any(Number));
+  };
+
+  const assertProductMatchesPayload = (product: GetProductResponse, payload: Product) => {
+    expect(product.id).toEqual(expect.any(String));
+    expect(product.name).toBe(payload.name);
+    expect(product.description).toBe(payload.description);
+    expect(product.price).toBe(payload.price);
+  };
+
+  test.beforeAll('Setup product once', async ({ workerApiHandler, productApi }) => {
+    state.productData = await generateRandomProductData(workerApiHandler);
+    const createdProduct = await productApi.create(state.productData);
+
+    assertProductMatchesPayload(createdProduct, state.productData);
+    state.createdProductId = createdProduct.id;
+  });
+
+  test.afterAll('Cleanup product', async ({ productApi }) => {
+    if (!state.createdProductId) {
+      return;
+    }
+
+    const deleteStatus = await productApi.deleteById(state.createdProductId);
+    expect(deleteStatus).toBe(204);
+  });
 
   test('Get All Products', async ({ productApi }) => {
     const products = await productApi.getAll();
 
-    expect(products).toBeDefined();
-    expect(Array.isArray(products.data)).toBe(true);
-  });
-
-  test('Create Product', async ({ workerApiHandler, productApi }) => {
-    newProductData = await generateRandomProductData(workerApiHandler);
-
-    const createdProduct = await productApi.create(newProductData);
-
-    createdProductID = createdProduct.id;
-
-    expect(createdProduct).toBeDefined();
-    expect(createdProduct.name).toBe(newProductData.name);
-    expect(createdProduct.description).toBe(newProductData.description);
-    expect(createdProduct.price).toBe(newProductData.price);
+    assertPaginatedProducts(products);
   });
 
   test('Get Product by ID', async ({ productApi }) => {
-    const product = await productApi.getById(createdProductID);
+    const product = await productApi.getById(getProductId());
 
-    expect(product).toBeDefined();
-    expect(product.id).toBe(createdProductID);
-    expect(product.name).toBe(newProductData.name);
-    expect(product.description).toBe(newProductData.description);
-    expect(product.price).toBe(newProductData.price);
+    assertProductMatchesPayload(product, state.productData);
+    expect(product.id).toBe(state.createdProductId);
   });
 
   test('Get Related Products by ID', async ({ productApi }) => {
-    const relatedProducts = await productApi.getRelatedProductsById(createdProductID);
+    const relatedProducts = await productApi.getRelatedProductsById(getProductId());
 
-    expect(relatedProducts).toBeDefined();
-    expect(Array.isArray(relatedProducts)).toBe(true);
+    expect(relatedProducts).toEqual(expect.any(Array));
   });
 
   test('Update Product Price', async ({ productApi }) => {
-    newProductData.price = newPrice;
+    const updatedProductPayload: Product = { ...state.productData, price: state.updatedPrice };
 
-    const response = await productApi.update(newProductData, createdProductID);
+    const response = await productApi.update(updatedProductPayload, getProductId());
 
     expect(response.success).toBe(true);
+
+    const currentProduct = await productApi.getById(getProductId());
+    expect(currentProduct.price).toBe(state.updatedPrice);
+
+    state.productData.price = state.updatedPrice;
   });
 
   test('Patch Product (update description)', async ({ productApi }) => {
-    newProductData.description = 'Patched description';
-
     const response = await productApi.patch(
-      { description: newProductData.description },
-      createdProductID,
+      { description: state.patchedDescription },
+      getProductId(),
     );
 
     expect(response.success).toBe(true);
+
+    const currentProduct = await productApi.getById(getProductId());
+    expect(currentProduct.description).toBe(state.patchedDescription);
+
+    state.productData.description = state.patchedDescription;
   });
 
   test('Search Product by Name', async ({ productApi }) => {
-    const searchResults = await productApi.searchByName(newProductData.name);
+    const searchResults = await productApi.searchByName(state.productData.name);
 
-    expect(searchResults).toBeDefined();
-    expect(Array.isArray(searchResults.data)).toBe(true);
+    assertPaginatedProducts(searchResults);
 
-    const foundProduct = searchResults.data.find((product) => product.id === createdProductID);
+    const foundProduct = searchResults.data.find(
+      (product) => product.id === state.createdProductId,
+    );
 
     expect(foundProduct).toBeDefined();
 
     if (foundProduct) {
-      expect(foundProduct.description).toBe(newProductData.description);
-      expect(foundProduct.price).toBe(newPrice);
+      expect(foundProduct.description).toBe(state.productData.description);
+      expect(foundProduct.price).toBe(state.productData.price);
     }
-  });
-
-  test('Delete Product by ID', async ({ productApi }) => {
-    const deleteStatus = await productApi.deleteById(createdProductID);
-
-    expect(deleteStatus).toBe(204);
   });
 });
