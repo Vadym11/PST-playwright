@@ -11,11 +11,14 @@ type ApiFixtures = {
   adminToken: string;
   getAllUsers: GetAllUsersResponse[];
   apiHandler: APIHandler;
+  testUserApi: UserAPI;
+  createdUser: CreateUser & { id: string };
 };
 
 type WorkerAPIFixtures = {
   workerApiHandler: APIHandler;
   productApi: ProductAPI;
+  adminUserApi: UserAPI;
   userApi: UserAPI;
   newUserRegistered: CreateUser & { id: string };
   baseAPIUrl: string;
@@ -42,10 +45,10 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
   },
 
   newUserRegistered: [
-    async ({ userApi }, use) => {
+    async ({ adminUserApi }, use) => {
       const user: CreateUser = generateRandomuserDataFaker();
 
-      const registeredUser = await userApi.register(user);
+      const registeredUser = await adminUserApi.register(user);
 
       console.log(`User with email ${registeredUser.email} has been registered via API Fixture.`);
 
@@ -53,6 +56,19 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
     },
     { scope: 'worker' },
   ],
+
+  createdUser: async ({ testUserApi }, use) => {
+    const user: CreateUser = generateRandomuserDataFaker();
+    const registeredUser = await testUserApi.register(user);
+
+    await use({ ...user, id: registeredUser.id });
+
+    try {
+      await testUserApi.deleteUser(registeredUser.id);
+    } catch (error) {
+      console.warn(`Cleanup failed for user ${registeredUser.id}:`, error);
+    }
+  },
 
   apiHandler: async ({ request }, use) => {
     // This 'request' is fresh for every test
@@ -83,10 +99,23 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
     { scope: 'worker' },
   ],
 
-  userApi: [
+  adminUserApi: [
     async ({ workerApiHandler }, use) => {
       const api = new UserAPI(workerApiHandler);
       await use(api);
+    },
+    { scope: 'worker' },
+  ],
+
+  testUserApi: async ({ apiHandler }, use) => {
+    const api = new UserAPI(apiHandler);
+    await use(api);
+  },
+
+  // Backward-compatible alias. Prefer `adminUserApi` for explicit intent.
+  userApi: [
+    async ({ adminUserApi }, use) => {
+      await use(adminUserApi);
     },
     { scope: 'worker' },
   ],

@@ -27,7 +27,7 @@ export class APIHandler {
 
     this.adminToken = body.access_token;
 
-    console.log('APIHandler: Admin authenticated successfully.');
+    console.log('APIHandler: authenticated successfully.');
   }
 
   async post<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {

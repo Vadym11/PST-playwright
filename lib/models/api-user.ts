@@ -47,3 +47,15 @@ export interface GetCurrentUserResponse extends BaseUser {
   totp_enabled: boolean;
   created_at: string;
 }
+
+export type UserApiState = {
+  originalUserData: CreateUser;
+  currentUserData: CreateUser;
+  userId: string;
+  userToken: string;
+  changedPassword: string;
+  resetPassword: string;
+  newFirstName: string;
+  newLastName: string;
+  newEmail: string;
+};
