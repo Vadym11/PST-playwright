@@ -1,10 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
-import os from 'os';
 
 process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${process.env.BASE_URL}`);
-console.log(`Number of CPU cores: ${os.cpus().length}`);
 
 /*
  * See https://playwright.dev/docs/test-configuration.
