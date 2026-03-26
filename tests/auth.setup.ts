@@ -40,6 +40,7 @@ setup.use({ headless: true });
  */
 setup('Register and authenticate user', async ({ workerApiHandler, adminUserApi }) => {
   // 1. Create and register a random user
+  console.log('Registering a new user via API for chromium project globalauthentication setup...');
   const user = await registerRandomUser(workerApiHandler);
 
   // 2. Save All User Data (email/password) to its own JSON file

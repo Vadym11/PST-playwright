@@ -17,13 +17,13 @@ export class APIHandler {
     const response = await this.request.post(`${apiBaseURL}/users/login`, {
       data: { email: this.adminEmail, password: this.adminPassword },
     });
-    const body = await response.json();
 
     if (!response.ok()) {
       throw new Error(
         `APIHandler Authentication Failed: ${response.status()} ${await response.text()}`,
       );
     }
+    const body = await response.json();
 
     this.adminToken = body.access_token;
 

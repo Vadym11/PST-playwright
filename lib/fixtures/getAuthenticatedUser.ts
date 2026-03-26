@@ -1,53 +1,45 @@
 import { CreateUser } from '@models/api-user';
 import { test as baseTest } from '@fixtures/apiFixtures';
-import fs from 'fs';
 import {
-  userDataFilePath,
-  checkTokenExpiry,
-  getCurrentToken,
-  readStorageStateFile,
-  replaceTokenAndWriteToStateFile,
+  deleteFile,
+  prefillStorageStateFile,
+  registerRandomUser,
+  writeFile,
 } from '@utils/test-utils';
-import { StorageState } from '@models/storage-state';
-import path from 'path';
 
-type NewUserLoggedInFixture = {
-  authenticatedUserData: CreateUser;
+type NewUserWorkerFixtures = {
+  workerUserSession: { storageStatePath: string; userData: CreateUser };
 };
 
-const test = baseTest.extend<NewUserLoggedInFixture>({
-  authenticatedUserData: async ({ adminUserApi, context, page }, use) => {
-    const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
-    const userData = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
+// first argument is for test scope fixtures, second - for worker scope fixtures
+const test = baseTest.extend<object, NewUserWorkerFixtures>({
+  workerUserSession: [
+    async ({ workerApiHandler, userApi }, use) => {
+      const workerId = test.info().parallelIndex;
+      const user = await registerRandomUser(workerApiHandler);
+      const loginResponse = await userApi.login(user.email, user.password);
+      const token = loginResponse.access_token;
 
-    const currentToken = getCurrentToken();
+      const dir = 'playwright/.auth';
+      const statePath = `${dir}/user-${workerId}.json`;
+      const userDataPath = `${dir}/user-data-${workerId}.json`;
 
-    if (!currentToken) {
-      throw new Error('No token found in storage state file');
-    }
+      await prefillStorageStateFile(token, statePath);
 
-    if (checkTokenExpiry(currentToken)) {
-      console.log('Token is about to expire, refreshing token...');
-      const loginResponse = await adminUserApi.refreshToken(currentToken);
-      const freshToken = loginResponse.access_token;
+      await writeFile(userDataPath, user);
 
-      // Navigate to the domain first so the browser context has an origin
-      await page.goto(process.env.BASE_URL!);
+      await use({ storageStatePath: statePath, userData: user });
 
-      await context.addInitScript((token) => {
-        window.localStorage.setItem('auth-token', token);
-      }, freshToken);
+      // Teardown: Clean up storage state and user data files after the worker finishes
+      await deleteFile(statePath);
+      await deleteFile(userDataPath);
+    },
+    { scope: 'worker' },
+  ],
 
-      await page.reload({ waitUntil: 'networkidle' });
-      console.log('Token injected and page reloaded');
-
-      const state: StorageState = readStorageStateFile();
-
-      replaceTokenAndWriteToStateFile(freshToken, state, authFile);
-      console.log('Token refreshed and storage state file updated');
-    }
-
-    await use(userData);
+  // This is test scope (default) and can now safely depend on a worker fixture
+  storageState: async ({ workerUserSession }, use) => {
+    await use(workerUserSession.storageStatePath);
   },
 });
 

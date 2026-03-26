@@ -1,5 +1,11 @@
 import { test as base } from '@playwright/test';
-import { generateRandomuserDataFaker, getAPIBaseUrl } from '@utils/test-utils';
+import {
+  authFilePath,
+  generateRandomuserDataFaker,
+  getAPIBaseUrl,
+  prefillStorageStateFile,
+  registerRandomUser,
+} from '@utils/test-utils';
 import { APIHandler } from '@utils/apiHandler';
 import { PaginatedResponse } from '@models/api-responses';
 import { CreateUser, GetAllUsersResponse } from '@models/api-user';
@@ -22,6 +28,7 @@ type WorkerAPIFixtures = {
   userApi: UserAPI;
   newUserRegistered: CreateUser & { id: string };
   baseAPIUrl: string;
+  workerStorageState: string;
 };
 
 const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
