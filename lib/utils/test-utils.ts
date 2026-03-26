@@ -457,7 +457,7 @@ export function replaceTokenAndWriteToStateFile(
   fs.writeFileSync(authFilePath, JSON.stringify(state, null, 2));
 }
 
-export function prefillStorageStateFile(token: string, filePath: string): void {
+export async function prefillStorageStateFile(token: string, filePath: string): Promise<void> {
   const state: StorageState = {
     cookies: [],
     origins: [
@@ -473,11 +473,22 @@ export function prefillStorageStateFile(token: string, filePath: string): void {
     ],
   };
 
-  const dir = path.dirname(filePath);
+  await writeFile(filePath, state);
+}
 
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+export async function writeFile(filePath: string, data: unknown): Promise<void> {
+  try {
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    throw new Error(`Failed to write file at ${filePath}`, { cause: error });
   }
+}
 
-  fs.writeFileSync(filePath, JSON.stringify(state, null, 2));
+export async function deleteFile(filePath: string): Promise<void> {
+  try {
+    await fs.promises.rm(filePath);
+  } catch (error) {
+    throw new Error(`Failed to delete file at ${filePath}`, { cause: error });
+  }
 }

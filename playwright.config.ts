@@ -1,6 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
-import path from 'path';
 
 process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
 console.log(`Base URL set to: ${process.env.BASE_URL}`);
@@ -15,7 +14,7 @@ export default defineConfig({
   Alternatively, it could be applied for a specific project (e.g. Chromium):  */
   // globalSetup: './global.setup.ts',
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -45,14 +44,14 @@ export default defineConfig({
     // this separate setup and teardown blocks for browserstack platforms
     // since tests on different platforms are executed in parallel, we want to avoid
     // multiple setups running at the same time and overriding the same auth file
-    { name: 'setup', testMatch: /.*\.setup\.ts/, teardown: 'teardown' }, // setup and teardown for non browserstack tests
-    { name: 'teardown', testMatch: /.*\.teardown\.ts/ },
+    // { name: 'setup', testMatch: /.*\.setup\.ts/, teardown: 'teardown' }, // setup and teardown for non browserstack tests
+    // { name: 'teardown', testMatch: /.*\.teardown\.ts/ },
     {
       name: 'chromium',
-      dependencies: ['setup'],
+      // dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.resolve(process.cwd(), 'playwright/.auth/userState.json'),
+        // storageState: path.resolve(process.cwd(), 'playwright/.auth/userState.json'),
         // uncomment lines below to use fullscreen chrome window
         // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default
         // launchOptions: {

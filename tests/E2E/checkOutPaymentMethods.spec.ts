@@ -14,7 +14,7 @@ test.describe('Checkout flow', () => {
   ];
 
   paymentMethods.forEach((paymentMethod) => {
-    test(`Use ${paymentMethod}`, async ({ page, authenticatedUserData }) => {
+    test(`Use ${paymentMethod}`, async ({ page, workerUserSession: workerSession }) => {
       const homePage = await new HomePage(page).goTo();
 
       const productPage = await homePage.selectRandomProduct();
@@ -28,11 +28,12 @@ test.describe('Checkout flow', () => {
 
       const shoppingCartLoginPage = await shoppingCartMainPage.clickProceedToCheckout();
 
+      // if user is not authenticated, they will be asked to login, otherwise - go directly to billing page
       const shoppingCartBillingPage = await shoppingCartLoginPage.clickProceedToCheckout();
 
       await completeCheckoutAndVerifyBilling(
         shoppingCartBillingPage,
-        authenticatedUserData,
+        workerSession.userData,
         paymentMethod,
       );
     });
