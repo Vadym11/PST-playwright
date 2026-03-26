@@ -28,6 +28,8 @@ spec:
             # Point tests to the in-cluster Service for your web app
             - name: BASE_URL
               value: "http://pst-web:80"
+            - name: CI
+              value: "true"
             - name: MYSQL_HOST
               value: pst-db
             - name: MYSQL_PORT
