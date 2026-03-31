@@ -24,9 +24,11 @@ export class UserAPI {
   }
 
   async update(userData: CreateUser, userToken: string, userId: string): Promise<SuccessResponse> {
-    const response = await this.apiHandler.update<SuccessResponse>(`/users/${userId}`, userData, {
-      Authorization: `Bearer ${userToken}`,
-    });
+    const response = await this.apiHandler.update<SuccessResponse>(
+      `/users/${userId}`,
+      userData,
+      userToken,
+    );
 
     return response;
   }
@@ -36,9 +38,11 @@ export class UserAPI {
     userToken: string,
     userId: string,
   ): Promise<SuccessResponse> {
-    const response = await this.apiHandler.patch<SuccessResponse>(`/users/${userId}`, userData, {
-      Authorization: `Bearer ${userToken}`,
-    });
+    const response = await this.apiHandler.patch<SuccessResponse>(
+      `/users/${userId}`,
+      userData,
+      userToken,
+    );
 
     return response;
   }
@@ -51,35 +55,34 @@ export class UserAPI {
     return responseBody;
   }
 
+  async getToken(email: string, password: string): Promise<string> {
+    const loginResponse = await this.login(email, password);
+
+    return loginResponse.access_token;
+  }
+
   async logOut(token: string): Promise<LogOutResponse> {
-    const responseBody = await this.apiHandler.get<LogOutResponse>(
-      '/users/logout',
-      {},
-      { Authorization: `Bearer ${token}` },
-    );
+    const responseBody = await this.apiHandler.get<LogOutResponse>('/users/logout', token);
 
     return responseBody;
   }
 
-  async getCurrentUserData(token: string): Promise<GetCurrentUserResponse> {
-    const responseBody = await this.apiHandler.get<GetCurrentUserResponse>(
-      '/users/me',
-      {},
-      { Authorization: `Bearer ${token}` },
-    );
+  async getCurrentUserData(userToken: string): Promise<GetCurrentUserResponse> {
+    const responseBody = await this.apiHandler.get<GetCurrentUserResponse>('/users/me', userToken);
 
     return responseBody;
   }
 
-  async deleteUser(userID: string): Promise<number> {
-    const responseStatus = await this.apiHandler.delete<number>(`/users/${userID}`);
+  async deleteUser(userID: string, adminToken: string): Promise<number> {
+    const responseStatus = await this.apiHandler.delete<number>(`/users/${userID}`, adminToken);
 
     return responseStatus;
   }
 
-  async getUserByEmail(email: string): Promise<GetAllUsersResponse> {
+  async getUserByEmail(email: string, token: string): Promise<GetAllUsersResponse> {
     const response = await this.apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(
       `/users/search`,
+      token,
       {
         q: email,
       },
@@ -92,8 +95,8 @@ export class UserAPI {
     return response.data[0];
   }
 
-  async getUserIdByEmail(email: string): Promise<string> {
-    const user = await this.getUserByEmail(email);
+  async getUserIdByEmail(email: string, token: string): Promise<string> {
+    const user = await this.getUserByEmail(email, token);
 
     return user.id;
   }
@@ -104,9 +107,6 @@ export class UserAPI {
     const responseBody = await this.apiHandler.post<SuccessResponse>(
       '/users/forgot-password',
       data,
-      {
-        Authorization: '',
-      },
     );
 
     return responseBody;
@@ -126,29 +126,23 @@ export class UserAPI {
     const responseBody = await this.apiHandler.post<SuccessResponse>(
       '/users/change-password',
       data,
-      {
-        Authorization: `Bearer ${token}`,
-      },
+      token,
     );
 
     return responseBody;
   }
 
-  async getAll(): Promise<PaginatedResponse<GetAllUsersResponse>> {
-    const responseBody =
-      await this.apiHandler.get<PaginatedResponse<GetAllUsersResponse>>('/users');
+  async getAll(token: string): Promise<PaginatedResponse<GetAllUsersResponse>> {
+    const responseBody = await this.apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(
+      '/users',
+      token,
+    );
 
     return responseBody;
   }
 
   async refreshToken(currentToken: string): Promise<LoginResponse> {
-    const responseBody = await this.apiHandler.get<LoginResponse>(
-      '/users/refresh',
-      {},
-      {
-        Authorization: `Bearer ${currentToken}`,
-      },
-    );
+    const responseBody = await this.apiHandler.get<LoginResponse>('/users/refresh', currentToken);
 
     return responseBody;
   }
