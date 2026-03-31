@@ -35,8 +35,8 @@ export default defineConfig({
     testIdAttribute: 'data-test',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    screenshot: 'on',
-    video: 'on',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
@@ -54,9 +54,15 @@ export default defineConfig({
         // storageState: path.resolve(process.cwd(), 'playwright/.auth/userState.json'),
         // uncomment lines below to use fullscreen chrome window
         // viewport: process.env.CI ? { width: 1920, height: 1080 } : null, // Override the device default
-        // launchOptions: {
-        //   args: ['--start-maximized']
-        // }
+        launchOptions: {
+          args: [
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--memory-pressure-off',
+          ],
+        },
       },
     },
     // uncomment browser below to enable them
