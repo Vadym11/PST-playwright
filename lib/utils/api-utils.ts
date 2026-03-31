@@ -40,9 +40,7 @@ export async function loginUserAPI(
 ): Promise<LoginResponse> {
   const data = { email, password };
 
-  const responseBody = await apiHandler.post<LoginResponse>('/users/login', data, {
-    Authorization: '',
-  });
+  const responseBody = await apiHandler.post<LoginResponse>('/users/login', data);
 
   return responseBody;
 }
@@ -51,11 +49,7 @@ export async function getCurrentUserData(
   apiHandler: APIHandler,
   token: string,
 ): Promise<GetCurrentUserResponse> {
-  const responseBody = await apiHandler.get<GetCurrentUserResponse>(
-    '/users/me',
-    {},
-    { Authorization: `Bearer ${token}` },
-  );
+  const responseBody = await apiHandler.get<GetCurrentUserResponse>('/users/me', token);
 
   return responseBody;
 }
@@ -64,17 +58,17 @@ export async function logOutUserAPI(
   apiHandler: APIHandler,
   token: string,
 ): Promise<LogOutResponse> {
-  const responseBody = await apiHandler.get<LogOutResponse>(
-    '/users/logout',
-    {},
-    { Authorization: `Bearer ${token}` },
-  );
+  const responseBody = await apiHandler.get<LogOutResponse>('/users/logout', token);
 
   return responseBody;
 }
 
-export async function deleteUserAPI(apiHandler: APIHandler, userID: string): Promise<number> {
-  const responseStatus = await apiHandler.delete<number>(`/users/${userID}`);
+export async function deleteUserAPI(
+  apiHandler: APIHandler,
+  userID: string,
+  adminToken: string,
+): Promise<number> {
+  const responseStatus = await apiHandler.delete<number>(`/users/${userID}`, adminToken);
 
   return responseStatus;
 }
@@ -91,10 +85,13 @@ export async function getUserByIdAPI(
 export async function getUserByEmailAPI(
   apiHandler: APIHandler,
   email: string,
+  token?: string,
 ): Promise<GetAllUsersResponse> {
-  const response = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(`/users/search`, {
-    q: email,
-  });
+  const response = await apiHandler.get<PaginatedResponse<GetAllUsersResponse>>(
+    `/users/search`,
+    token,
+    { q: email },
+  );
 
   if (!response.data || response.data.length === 0) {
     throw new Error(`API Error: No user found for email: ${email}`);
@@ -115,9 +112,7 @@ export async function forgotPasswordAPI(
 ): Promise<SuccessResponse> {
   const data = { email };
 
-  const responseBody = await apiHandler.post<SuccessResponse>('/users/forgot-password', data, {
-    Authorization: '',
-  });
+  const responseBody = await apiHandler.post<SuccessResponse>('/users/forgot-password', data);
 
   return responseBody;
 }
@@ -151,8 +146,9 @@ export async function getProductByIdAPI(
 export async function deleteProductByIdAPI(
   apiHandler: APIHandler,
   productID: string,
+  adminToken: string,
 ): Promise<number> {
-  const responseStatus = await apiHandler.delete<number>(`/products/${productID}`);
+  const responseStatus = await apiHandler.delete<number>(`/products/${productID}`, adminToken);
 
   return responseStatus;
 }
@@ -169,8 +165,12 @@ export async function getBrandByIdAPI(apiHandler: APIHandler, brandID: string): 
   return responseBody;
 }
 
-export async function deleteBrandByIdAPI(apiHandler: APIHandler, brandID: string): Promise<number> {
-  const responseStatus = await apiHandler.delete<number>(`/brands/${brandID}`);
+export async function deleteBrandByIdAPI(
+  apiHandler: APIHandler,
+  brandID: string,
+  adminToken: string,
+): Promise<number> {
+  const responseStatus = await apiHandler.delete<number>(`/brands/${brandID}`, adminToken);
 
   return responseStatus;
 }

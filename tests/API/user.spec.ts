@@ -22,8 +22,8 @@ test.describe.serial('User API tests', () => {
     console.log(`Generated user email: ${newUser.email}`);
   });
 
-  test('Register user', async ({ workerApiHandler }) => {
-    const response = await registerUserAPI(workerApiHandler, newUser);
+  test('Register user', async ({ apiHandler }) => {
+    const response = await registerUserAPI(apiHandler, newUser);
     newUserId = response.id;
 
     expect(response.first_name).toBe(newUser.first_name);
@@ -36,8 +36,8 @@ test.describe.serial('User API tests', () => {
     expect(response.phone).toBe(newUser.phone);
   });
 
-  test('User login', async ({ workerApiHandler }) => {
-    const response = await loginUserAPI(workerApiHandler, newUser.email, newUser.password);
+  test('User login', async ({ apiHandler }) => {
+    const response = await loginUserAPI(apiHandler, newUser.email, newUser.password);
 
     userToken = response.access_token;
 
@@ -46,28 +46,28 @@ test.describe.serial('User API tests', () => {
     expect(response.expires_in).toBe(300);
   });
 
-  test('Get current user data', async ({ workerApiHandler }) => {
-    const currentUser = await getCurrentUserData(workerApiHandler, userToken);
+  test('Get current user data', async ({ apiHandler }) => {
+    const currentUser = await getCurrentUserData(apiHandler, userToken);
 
     expect(currentUser.first_name).toBe(newUser.first_name);
     expect(currentUser.last_name).toBe(newUser.last_name);
     expect(currentUser.email).toBe(newUser.email.toLowerCase());
   });
 
-  test('Logout', async ({ workerApiHandler }) => {
-    const response = await logOutUserAPI(workerApiHandler, userToken);
+  test('Logout', async ({ apiHandler }) => {
+    const response = await logOutUserAPI(apiHandler, userToken);
 
     expect(response.message).toBe('Successfully logged out');
   });
 
-  test('Forgot password', async ({ workerApiHandler }) => {
-    const response = await forgotPasswordAPI(workerApiHandler, newUser.email);
+  test('Forgot password', async ({ apiHandler }) => {
+    const response = await forgotPasswordAPI(apiHandler, newUser.email);
 
     expect(response.success).toBe(true);
   });
 
-  test('User login - new password', async ({ workerApiHandler }) => {
-    const response = await loginUserAPI(workerApiHandler, newUser.email, 'welcome02');
+  test('User login - new password', async ({ apiHandler }) => {
+    const response = await loginUserAPI(apiHandler, newUser.email, 'welcome02');
 
     userToken = response.access_token;
 
@@ -76,8 +76,8 @@ test.describe.serial('User API tests', () => {
     expect(response.expires_in).toBe(300);
   });
 
-  test('Delete user', async ({ workerApiHandler }) => {
-    const response = await deleteUserAPI(workerApiHandler, newUserId);
+  test('Delete user', async ({ apiHandler, adminToken }) => {
+    const response = await deleteUserAPI(apiHandler, newUserId, adminToken);
 
     expect(response).toBe(204);
   });

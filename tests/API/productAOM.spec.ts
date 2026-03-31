@@ -33,20 +33,20 @@ test.describe.serial('Product API Tests', () => {
     expect(product.price).toBe(payload.price);
   };
 
-  test.beforeAll('Setup product once', async ({ workerApiHandler, productApi }) => {
-    state.productData = await generateRandomProductData(workerApiHandler);
+  test.beforeAll('Setup product once', async ({ apiHandler, productApi }) => {
+    state.productData = await generateRandomProductData(apiHandler);
     const createdProduct = await productApi.create(state.productData);
 
     assertProductMatchesPayload(createdProduct, state.productData);
     state.createdProductId = createdProduct.id;
   });
 
-  test.afterAll('Cleanup product', async ({ productApi }) => {
+  test.afterAll('Cleanup product', async ({ productApi, adminToken }) => {
     if (!state.createdProductId) {
       return;
     }
 
-    const deleteStatus = await productApi.deleteById(state.createdProductId);
+    const deleteStatus = await productApi.deleteById(state.createdProductId, adminToken);
     expect(deleteStatus).toBe(204);
   });
 

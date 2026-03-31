@@ -54,17 +54,21 @@ export class ProductAPI {
     return responseBody;
   }
 
-  async searchByName(productName: string): Promise<PaginatedResponse<GetProductResponse>> {
+  async searchByName(
+    productName: string,
+    token?: string,
+  ): Promise<PaginatedResponse<GetProductResponse>> {
     const params = { q: productName };
     const responseBody = await this.apiHandler.get<PaginatedResponse<GetProductResponse>>(
       `/products/search`,
+      token,
       params,
     );
 
     return responseBody;
   }
 
-  async deleteById(productID: string): Promise<number> {
-    return await this.apiHandler.delete<number>(`/products/${productID}`);
+  async deleteById(productID: string, token: string): Promise<number> {
+    return await this.apiHandler.delete<number>(`/products/${productID}`, token);
   }
 }

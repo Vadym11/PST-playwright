@@ -49,23 +49,14 @@ test.describe.serial('User API tests', () => {
     return state.userId;
   };
 
-  test.beforeAll('Setup user once', async ({ adminUserApi, testUserApi }) => {
+  test.beforeAll('Setup user once', async ({ userApi }) => {
     state.currentUserData = { ...state.originalUserData };
 
-    const registerResponse = await adminUserApi.register(state.originalUserData);
+    const registerResponse = await userApi.register(state.originalUserData);
     expect(registerResponse.id).toEqual(expect.any(String));
     state.userId = registerResponse.id;
 
-    const loginResponse = await testUserApi.login(
-      state.currentUserData.email,
-      state.currentUserData.password,
-    );
-    assertLoginResponse(loginResponse);
-    state.userToken = loginResponse.access_token;
-  });
-
-  test.beforeEach('should login with current credentials', async ({ testUserApi }) => {
-    const loginResponse = await testUserApi.login(
+    const loginResponse = await userApi.login(
       state.currentUserData.email,
       state.currentUserData.password,
     );
@@ -74,31 +65,41 @@ test.describe.serial('User API tests', () => {
     state.userToken = loginResponse.access_token;
   });
 
-  test.afterAll('Cleanup registered user', async ({ adminUserApi }) => {
+  // test.beforeEach('should login with current credentials', async ({ testUserApi }) => {
+  //   const loginResponse = await testUserApi.login(
+  //     state.currentUserData.email,
+  //     state.currentUserData.password,
+  //   );
+
+  //   assertLoginResponse(loginResponse);
+  //   state.userToken = loginResponse.access_token;
+  // });
+
+  test.afterAll('Cleanup registered user', async ({ userApi, adminToken }) => {
     if (!state.userId) {
       return;
     }
 
-    const response = await adminUserApi.deleteUser(state.userId);
+    const response = await userApi.deleteUser(state.userId, adminToken);
     expect(response).toBe(204);
   });
 
-  test('should get all users', async ({ adminUserApi }) => {
-    const response = await adminUserApi.getAll();
+  test('should get all users', async ({ userApi, adminToken }) => {
+    const response = await userApi.getAll(adminToken);
 
     assertPaginatedUsers(response);
   });
 
-  test('should get current user data', async ({ testUserApi }) => {
-    const currentUser = await testUserApi.getCurrentUserData(getToken());
+  test('should get current user data', async ({ userApi }) => {
+    const currentUser = await userApi.getCurrentUserData(getToken());
 
     expect(currentUser.first_name).toBe(state.currentUserData.first_name);
     expect(currentUser.last_name).toBe(state.currentUserData.last_name);
     expect(currentUser.email).toBe(state.currentUserData.email.toLowerCase());
   });
 
-  test('should change password and login', async ({ testUserApi }) => {
-    const changePasswordResponse = await testUserApi.changePassword(
+  test('should change password and login', async ({ userApi }) => {
+    const changePasswordResponse = await userApi.changePassword(
       getToken(),
       state.currentUserData.password,
       state.changedPassword,
@@ -106,45 +107,42 @@ test.describe.serial('User API tests', () => {
 
     expect(changePasswordResponse.success).toBe(true);
 
-    const loginResponse = await testUserApi.login(
-      state.currentUserData.email,
-      state.changedPassword,
-    );
+    const loginResponse = await userApi.login(state.currentUserData.email, state.changedPassword);
     assertLoginResponse(loginResponse);
 
     state.userToken = loginResponse.access_token;
     state.currentUserData.password = state.changedPassword;
   });
 
-  test('should reset password and login', async ({ testUserApi }) => {
-    const forgotPasswordResponse = await testUserApi.forgotPassword(state.currentUserData.email);
+  test('should reset password and login', async ({ userApi }) => {
+    const forgotPasswordResponse = await userApi.forgotPassword(state.currentUserData.email);
     expect(forgotPasswordResponse.success).toBe(true);
 
-    const loginResponse = await testUserApi.login(state.currentUserData.email, state.resetPassword);
+    const loginResponse = await userApi.login(state.currentUserData.email, state.resetPassword);
     assertLoginResponse(loginResponse);
 
     state.userToken = loginResponse.access_token;
     state.currentUserData.password = state.resetPassword;
   });
 
-  test('should refresh token', async ({ testUserApi }) => {
-    const response = await testUserApi.refreshToken(getToken());
+  test('should refresh token', async ({ userApi }) => {
+    const response = await userApi.refreshToken(getToken());
 
     assertLoginResponse(response);
     state.userToken = response.access_token;
   });
 
-  test('should update user data', async ({ testUserApi }) => {
+  test('should update user data', async ({ userApi }) => {
     const updatedUserPayload: CreateUser = {
       ...state.currentUserData,
       first_name: state.newFirstName,
       last_name: state.newLastName,
     };
 
-    const updateResponse = await testUserApi.update(updatedUserPayload, getToken(), getUserId());
+    const updateResponse = await userApi.update(updatedUserPayload, getToken(), getUserId());
     expect(updateResponse.success).toBe(true);
 
-    const currentUser = await testUserApi.getCurrentUserData(getToken());
+    const currentUser = await userApi.getCurrentUserData(getToken());
     expect(currentUser.first_name).toBe(state.newFirstName);
     expect(currentUser.last_name).toBe(state.newLastName);
     expect(currentUser.email).toBe(state.currentUserData.email.toLowerCase());
@@ -153,15 +151,11 @@ test.describe.serial('User API tests', () => {
     state.currentUserData.last_name = state.newLastName;
   });
 
-  test('should patch user data (email)', async ({ testUserApi }) => {
-    const patchResponse = await testUserApi.patch(
-      { email: state.newEmail },
-      getToken(),
-      getUserId(),
-    );
+  test('should patch user data (email)', async ({ userApi }) => {
+    const patchResponse = await userApi.patch({ email: state.newEmail }, getToken(), getUserId());
     expect(patchResponse.success).toBe(true);
 
-    const currentUser = await testUserApi.getCurrentUserData(getToken());
+    const currentUser = await userApi.getCurrentUserData(getToken());
     expect(currentUser.email).toBe(state.newEmail);
     expect(currentUser.first_name).toBe(state.currentUserData.first_name);
     expect(currentUser.last_name).toBe(state.currentUserData.last_name);
@@ -169,8 +163,8 @@ test.describe.serial('User API tests', () => {
     state.currentUserData.email = state.newEmail;
   });
 
-  test('should logout', async ({ testUserApi }) => {
-    const response = await testUserApi.logOut(getToken());
+  test('should logout', async ({ userApi }) => {
+    const response = await userApi.logOut(getToken());
 
     expect(response.message).toBe('Successfully logged out');
   });

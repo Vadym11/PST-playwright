@@ -12,17 +12,17 @@ test.describe.serial('Product API Tests', () => {
   let createdProductID: string;
   let newProductData: Product;
 
-  test('Get All Products', async ({ workerApiHandler }) => {
-    const products = await getAllProductsAPI(workerApiHandler);
+  test('Get All Products', async ({ apiHandler }) => {
+    const products = await getAllProductsAPI(apiHandler);
 
     test.expect(products).toBeDefined();
     test.expect(Array.isArray(products.data)).toBe(true);
   });
 
-  test('Create Product', async ({ workerApiHandler }) => {
-    newProductData = await generateRandomProductData(workerApiHandler);
+  test('Create Product', async ({ apiHandler }) => {
+    newProductData = await generateRandomProductData(apiHandler);
 
-    const createdProduct = await createProductAPI(workerApiHandler, newProductData);
+    const createdProduct = await createProductAPI(apiHandler, newProductData);
 
     createdProductID = createdProduct.id;
 
@@ -32,8 +32,8 @@ test.describe.serial('Product API Tests', () => {
     test.expect(createdProduct.price).toBe(newProductData.price);
   });
 
-  test('Get Product by ID', async ({ workerApiHandler }) => {
-    const product = await getProductByIdAPI(workerApiHandler, createdProductID);
+  test('Get Product by ID', async ({ apiHandler }) => {
+    const product = await getProductByIdAPI(apiHandler, createdProductID);
 
     test.expect(product).toBeDefined();
     test.expect(product.id).toBe(createdProductID);
@@ -42,8 +42,8 @@ test.describe.serial('Product API Tests', () => {
     test.expect(product.price).toBe(newProductData.price);
   });
 
-  test('Delete Product by ID', async ({ workerApiHandler }) => {
-    const deleteStatus = await deleteProductByIdAPI(workerApiHandler, createdProductID);
+  test('Delete Product by ID', async ({ apiHandler, adminToken }) => {
+    const deleteStatus = await deleteProductByIdAPI(apiHandler, createdProductID, adminToken);
 
     test.expect(deleteStatus).toBe(204);
   });

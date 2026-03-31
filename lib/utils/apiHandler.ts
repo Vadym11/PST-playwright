@@ -13,7 +13,7 @@ export class APIHandler {
     this.adminPassword = process.env.PASSWORD_!;
   }
 
-  async authenticate() {
+  async authenticateAsAdmin() {
     const response = await this.request.post(`${apiBaseURL}/users/login`, {
       data: { email: this.adminEmail, password: this.adminPassword },
     });
@@ -27,15 +27,17 @@ export class APIHandler {
 
     this.adminToken = body.access_token;
 
-    console.log('APIHandler: authenticated successfully.');
+    console.log('APIHandler: Admin authenticated successfully.');
+
+    return body.access_token;
   }
 
-  async post<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
+  async post<T>(endpoint: string, data: object, token?: string, headers: object = {}): Promise<T> {
     const response = await this.request.post(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.adminToken}`,
+        Authorization: `Bearer ${token}`,
         ...headers,
       },
     });
@@ -48,12 +50,17 @@ export class APIHandler {
     return (await response.json()) as T;
   }
 
-  async update<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
+  async update<T>(
+    endpoint: string,
+    data: object,
+    token?: string,
+    headers: object = {},
+  ): Promise<T> {
     const response = await this.request.put(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.adminToken}`,
+        Authorization: `Bearer ${token}`,
         ...headers,
       },
     });
@@ -66,12 +73,12 @@ export class APIHandler {
     return (await response.json()) as T;
   }
 
-  async patch<T>(endpoint: string, data: object, headers: object = {}): Promise<T> {
+  async patch<T>(endpoint: string, data: object, token?: string, headers: object = {}): Promise<T> {
     const response = await this.request.patch(`${apiBaseURL}${endpoint}`, {
       data: data,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.adminToken}`,
+        Authorization: `Bearer ${token}`,
         ...headers,
       },
     });
@@ -84,13 +91,12 @@ export class APIHandler {
     return (await response.json()) as T;
   }
 
-  async get<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
+  async get<T>(endpoint: string, token?: string, params: object = {}): Promise<T> {
     const response = await this.request.get(`${apiBaseURL}${endpoint}`, {
       params: { ...params },
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.adminToken}`,
-        ...headers,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -102,12 +108,17 @@ export class APIHandler {
     return response.json() as T;
   }
 
-  async delete<T>(endpoint: string, params: object = {}, headers: object = {}): Promise<T> {
+  async delete<T>(
+    endpoint: string,
+    token: string,
+    params: object = {},
+    headers: object = {},
+  ): Promise<T> {
     const response = await this.request.delete(`${apiBaseURL}${endpoint}`, {
       params: { ...params },
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.adminToken}`,
+        Authorization: `Bearer ${token}`,
         ...headers,
       },
     });
@@ -126,7 +137,7 @@ export class APIHandler {
 
   async getToken(): Promise<string> {
     if (!this.adminToken) {
-      await this.authenticate();
+      await this.authenticateAsAdmin();
     }
 
     return this.adminToken!;
