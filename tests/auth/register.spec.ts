@@ -4,13 +4,8 @@ import { HomePage } from '@pages/HomePage';
 import { LoginPage } from '@pages/LoginPage';
 import { generateRandomuserDataFaker } from '@utils/test-utils';
 import { CreateUser } from '@models/api-user';
-import { deleteUserAPI, getUserByEmailAPI, getUserIdByEmailAPI } from '@utils/api-utils';
 
-// test.use({ storageState: path.join(__dirname, '.authFile/userLocal.json') });
 test.describe.serial('Registration feature', () => {
-  // use empty storage state to ensure the user is logged out
-  test.use({ storageState: { cookies: [], origins: [] } });
-
   let newUserData: CreateUser;
 
   test.beforeAll('Generate new user data', async () => {
@@ -19,19 +14,11 @@ test.describe.serial('Registration feature', () => {
   });
 
   test.afterAll('Delete registered user', async ({ userApi, adminToken }) => {
-    // const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
     const newUserId = await userApi.getUserIdByEmail(newUserData.email, adminToken);
 
-    // const response = await deleteUserAPI(apiHandler, newUserId);
     const response = await userApi.deleteUser(newUserId, adminToken);
 
-    // if (response !== 204) {
-    //   console.warn(
-    //     `Cleanup Warning: Failed to delete user ${newUserData.email}. Manual cleanup may be required.`,
-    //   );
-    // } else {
-    //   console.log(`User with email ${newUserData.email} has been deleted.`);
-    // }
+    expect(response).toBe(204);
   });
 
   test('Register new user: happy path', async ({ page, userApi, adminToken }) => {
@@ -52,7 +39,6 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      // const newUser = await getUserByEmailAPI(apiHandler, newUserData.email);
       const newUser = await userApi.getUserByEmail(newUserData.email, adminToken);
 
       expect(newUser.first_name).toBe(newUserData.first_name);

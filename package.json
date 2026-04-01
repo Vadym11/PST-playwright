@@ -9,7 +9,9 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --ext .ts --fix",
     "format:check": "prettier --check .",
-    "postinstall": "npm update browserstack-node-sdk"
+    "postinstall": "npm update browserstack-node-sdk",
+    "test:all": "npx playwright test",
+    "report": "npx playwright show-report"
   },
   "lint-staged": {
     "*.ts": [

@@ -311,10 +311,14 @@ export async function deleteUserByIdAPIDeprecated(
   // expect(response.status()).toBe(204);
 }
 
-export async function deleteUserByIdAPI(apiHandler: APIHandler, userID: string): Promise<any> {
+export async function deleteUserByIdAPI(
+  apiHandler: APIHandler,
+  userID: string,
+  token: string,
+): Promise<any> {
   const apiURL = `${apiBaseURL}/users/${userID}`;
 
-  return await apiHandler.delete(apiURL);
+  return await apiHandler.delete(apiURL, token);
 }
 
 /** Deletes a user and related data from the database by user ID.

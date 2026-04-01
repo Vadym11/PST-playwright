@@ -14,7 +14,7 @@ test.describe('Checkout flow', () => {
   ];
 
   paymentMethods.forEach((paymentMethod) => {
-    test(`Use ${paymentMethod}`, async ({ page, workerUserSession: workerSession }) => {
+    test(`Use ${paymentMethod}`, async ({ page, userState }) => {
       const homePage = await new HomePage(page).goTo();
 
       const productPage = await homePage.selectRandomProduct();
@@ -33,7 +33,7 @@ test.describe('Checkout flow', () => {
 
       await completeCheckoutAndVerifyBilling(
         shoppingCartBillingPage,
-        workerSession.userData,
+        userState.userData,
         paymentMethod,
       );
     });

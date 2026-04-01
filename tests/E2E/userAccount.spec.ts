@@ -3,11 +3,8 @@ import { HomePage } from '@pages/HomePage';
 import { expect } from '@playwright/test';
 
 test.describe('User account tests', () => {
-  test('Verify that user profile data is correct', async ({
-    page,
-    workerUserSession: workerSession,
-  }) => {
-    const user = workerSession.userData;
+  test('Verify that user profile data is correct', async ({ page, userState }) => {
+    const user = userState.userData;
 
     const homePage = await new HomePage(page).goTo();
 
