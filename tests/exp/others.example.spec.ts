@@ -2,7 +2,6 @@ import { expect } from '@playwright/test';
 import { test } from './fixtures.example';
 import { apiBaseURL } from '@utils/test-utils';
 import { HomePage } from '@pages/HomePage';
-import { LoginPage } from '@pages/LoginPage';
 
 test.afterEach(({}, testInfo) => {
   console.log(`Test duration: ${testInfo.duration} ms`);

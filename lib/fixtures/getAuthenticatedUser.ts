@@ -14,10 +14,10 @@ type NewUserWorkerFixtures = {
 // first argument is for test scope fixtures, second - for worker scope fixtures
 const test = baseTest.extend<object, NewUserWorkerFixtures>({
   workerUserSession: [
-    async ({ workerApiHandler, userApi }, use) => {
+    async ({ apiHandlerWorker, userApiWorker }, use) => {
       const workerId = test.info().parallelIndex;
-      const user = await registerRandomUser(workerApiHandler);
-      const loginResponse = await userApi.login(user.email, user.password);
+      const user = await registerRandomUser(apiHandlerWorker);
+      const loginResponse = await userApiWorker.login(user.email, user.password);
       const token = loginResponse.access_token;
 
       const dir = 'playwright/.auth';

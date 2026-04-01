@@ -18,21 +18,23 @@ test.describe.serial('Registration feature', () => {
     console.log(`User with email ${newUserData.email} has been generated.`);
   });
 
-  test.afterAll('Delete registered user', async ({ apiHandler }) => {
-    const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
+  test.afterAll('Delete registered user', async ({ userApi, adminToken }) => {
+    // const newUserId = await getUserIdByEmailAPI(apiHandler, newUserData.email);
+    const newUserId = await userApi.getUserIdByEmail(newUserData.email, adminToken);
 
-    const response = await deleteUserAPI(apiHandler, newUserId);
+    // const response = await deleteUserAPI(apiHandler, newUserId);
+    const response = await userApi.deleteUser(newUserId, adminToken);
 
-    if (response !== 204) {
-      console.warn(
-        `Cleanup Warning: Failed to delete user ${newUserData.email}. Manual cleanup may be required.`,
-      );
-    } else {
-      console.log(`User with email ${newUserData.email} has been deleted.`);
-    }
+    // if (response !== 204) {
+    //   console.warn(
+    //     `Cleanup Warning: Failed to delete user ${newUserData.email}. Manual cleanup may be required.`,
+    //   );
+    // } else {
+    //   console.log(`User with email ${newUserData.email} has been deleted.`);
+    // }
   });
 
-  test('Register new user: happy path', async ({ page, apiHandler }) => {
+  test('Register new user: happy path', async ({ page, userApi, adminToken }) => {
     await test.step('Register new user', async () => {
       const homePage = await new HomePage(page).goTo();
 
@@ -50,7 +52,8 @@ test.describe.serial('Registration feature', () => {
     });
 
     await test.step('Verify user has been registered', async () => {
-      const newUser = await getUserByEmailAPI(apiHandler, newUserData.email);
+      // const newUser = await getUserByEmailAPI(apiHandler, newUserData.email);
+      const newUser = await userApi.getUserByEmail(newUserData.email, adminToken);
 
       expect(newUser.first_name).toBe(newUserData.first_name);
       expect(newUser.last_name).toBe(newUserData.last_name);
