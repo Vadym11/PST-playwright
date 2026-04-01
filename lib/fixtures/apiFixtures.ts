@@ -1,9 +1,8 @@
 import { test as base } from '@playwright/test';
-import { getAPIBaseUrl } from '@utils/test-utils';
+import { apiBaseURL } from '@utils/test-utils';
 import { APIHandler } from '@utils/apiHandler';
 import { ProductAPI } from '@api-models/product';
 import { UserAPI } from '@api-models/user';
-const apiBaseURL = getAPIBaseUrl();
 
 type ApiFixtures = {
   apiHandler: APIHandler;
@@ -58,9 +57,7 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
 
   baseAPIUrl: [
     async ({}, use) => {
-      const baseAPIUrl = getAPIBaseUrl();
-
-      await use(baseAPIUrl);
+      await use(apiBaseURL!);
     },
     { scope: 'worker' },
   ],
