@@ -1,48 +1,137 @@
-import { test } from '@fixtures/apiFixtures';
-import { HomePage } from '@pages/HomePage';
+import { test } from '@fixtures/getAuthenticatedUser';
 import { LoginPage } from '@pages/LoginPage';
 import { expect } from '@playwright/test';
-import { generateRandomuserDataFaker } from '@utils/test-utils';
 
 test.describe('Login Feature', () => {
-  const newUserRegistered = generateRandomuserDataFaker();
+  // use empty storage state to ensure the user is unauthenticated at the start of each test
+  // test.use({ storageState: { cookies: [], origins: [] } });
 
-  test.beforeAll('Create and register new user', async ({ apiHandler, userApi, adminToken }) => {
-    const registerResponse = await userApi.register(newUserRegistered);
-    expect(registerResponse.id).toEqual(expect.any(String));
-    // This step is needed to ensure that we have a registered user to test login functionality with.
-    // The user is created and registered using API calls for efficiency and reliability.
-    console.log(
-      `User with email ${newUserRegistered.email} has been created and registered for login tests.`,
-    );
-  });
+  test(
+    'TC-AUTH-001 - happy path',
+    { tag: ['@smoke', '@auth', '@ui'] },
+    async ({ page, workerUserSession }) => {
+      const loginPage = new LoginPage(page);
 
-  // use empty storage state to ensure the user is logged out
-  test.use({ storageState: { cookies: [], origins: [] } });
+      await loginPage.open();
 
-  test('Login - happy path', async ({ page }) => {
-    const homePage = await new HomePage(page).goTo();
+      const myAccountPage = await loginPage.loginSuccess(
+        workerUserSession.email,
+        workerUserSession.password,
+      );
 
-    await homePage.header.clickSignInLink();
+      await expect(page).toHaveURL('/account');
+      await expect(myAccountPage.myAccountTitle).toHaveText('My account');
+    },
+  );
 
-    const myAccountPage = await new LoginPage(page).loginSuccess(
-      newUserRegistered.email,
-      newUserRegistered.password,
-    );
+  test('TC-AUTH-002-1 - Incorrect Email Format', async ({ page, workerUserSession }) => {
+    const loginPage = new LoginPage(page);
 
-    await expect(myAccountPage.myAccountTitle).toHaveText('My account');
-  });
+    await loginPage.open();
 
-  test('Login - incorrect email format', async ({ page }) => {
-    const homePage = await new HomePage(page).goTo();
-
-    await homePage.header.clickSignInLink();
-
-    const loginPage = await new LoginPage(page).loginFail(
-      `${newUserRegistered.first_name}.@gmail.com`,
-      newUserRegistered.password,
+    await loginPage.loginFail(
+      `${workerUserSession.first_name}.@gmail.com`,
+      workerUserSession.password,
     );
 
     await expect(loginPage.invalidEmailFormatMsg).toHaveText('Email format is invalid');
   });
+
+  test('TC-AUTH-002 - Incorrect Password', async ({ page, workerUserSession }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.open();
+
+    await loginPage.loginFail(workerUserSession.email, 'incorrectPassword123');
+
+    await expect(loginPage.invalidPasswordMsg).toHaveText('Invalid email or password');
+  });
+
+  test('TC-AUTH-003 - Non-Existent Email', async ({ page, workerUserSession }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.open();
+
+    await loginPage.loginFail('notauser@example.com', workerUserSession.password);
+
+    await expect(loginPage.invalidPasswordMsg).toHaveText('Invalid email or password');
+  });
+
+  test('TC-AUTH-004 - Empty Fields', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.open();
+
+    await loginPage.clickLoginButton();
+
+    await expect(loginPage.emailRequiredMsg).toHaveText('Email is required');
+    await expect(loginPage.passwordRequiredMsg).toHaveText('Password is required');
+  });
+
+  test(
+    'TC-AUTH-005 - Successful Logout',
+    { tag: ['@smoke', '@auth', '@ui'] },
+    async ({ page, workerUserSession }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.open();
+
+      const myAccountPage = await loginPage.loginSuccess(
+        workerUserSession.email,
+        workerUserSession.password,
+      );
+
+      await myAccountPage.myAccountTitle.waitFor();
+
+      await myAccountPage.clickSignOut();
+
+      await expect(loginPage.loginHeader).toHaveText('Login');
+    },
+  );
+
+  test('TC-AUTH-008 - Admin Cannot Access Admin Panel Without Login', async ({ page }) => {
+    await page.goto('/admin/dashboard');
+
+    const loginPage = new LoginPage(page);
+
+    await expect(page).toHaveURL('/auth/login');
+
+    await expect(loginPage.loginHeader).toHaveText('Login');
+  });
+
+  test('TC-AUTH-009 - Customer Cannot Access Admin Panel', async ({ page, workerUserSession }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.open();
+
+    const myAccountPage = await loginPage.loginSuccess(
+      workerUserSession.email,
+      workerUserSession.password,
+    );
+
+    await myAccountPage.myAccountTitle.waitFor();
+    // Attempt to access admin panel
+    await page.goto('/admin/dashboard');
+
+    // Verify that access is denied and user is redirected to login page
+    await expect(page).toHaveURL('/auth/login');
+    await expect(loginPage.loginHeader).toHaveText('Login');
+  });
+
+  test(
+    'TC-AUTH-010 - Admin Successful Login',
+    { tag: ['@smoke', '@auth', '@ui'] },
+    async ({ page }) => {
+      const adminEmail = process.env.EMAIL!;
+      const adminPassword = process.env.PASSWORD_!;
+      const loginPage = new LoginPage(page);
+
+      await loginPage.open();
+
+      const adminAccountPage = await loginPage.loginSuccess(adminEmail, adminPassword);
+
+      await expect(page).toHaveURL('/admin/dashboard');
+      await expect(adminAccountPage.myAccountTitle).toHaveText('Sales over the years');
+    },
+  );
 });

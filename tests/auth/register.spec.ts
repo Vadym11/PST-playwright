@@ -21,7 +21,7 @@ test.describe.serial('Registration feature', () => {
     expect(response).toBe(204);
   });
 
-  test('Register new user: happy path', async ({ page, userApi, adminToken }) => {
+  test('TC-AUTH-006 - Register: new user - happy path', async ({ page, userApi, adminToken }) => {
     await test.step('Register new user', async () => {
       const homePage = await new HomePage(page).goTo();
 
@@ -47,7 +47,7 @@ test.describe.serial('Registration feature', () => {
     });
   });
 
-  test('Register new user: user exists', async ({ page }) => {
+  test('TC-AUTH-007 - Register: new user - user exists', async ({ page }) => {
     const homePage = await new HomePage(page).goTo();
 
     await homePage.header.clickSignInLink();

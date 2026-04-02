@@ -23,6 +23,6 @@ test.describe('User account tests', () => {
 
     const favoritesPage = await productPage.header.goToFavoritesPage();
 
-    await favoritesPage.verifyProductInFavorites(productInfo);
+    await favoritesPage.assertProductInFavorites(productInfo);
   });
 });

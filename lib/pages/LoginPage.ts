@@ -1,7 +1,7 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { MyAccountPage } from '@pages/MyAccountPage';
+import { MyAccountPage } from '@pages/UserAccountPage';
 import { RegisterPage } from '@pages/RegisterPage';
 
 export class LoginPage extends BasePage {
@@ -13,6 +13,9 @@ export class LoginPage extends BasePage {
   private readonly registerLink: Locator;
   private readonly forgotPasswordLink: Locator;
   public readonly invalidEmailFormatMsg: Locator;
+  public readonly invalidPasswordMsg: Locator;
+  public readonly emailRequiredMsg: Locator;
+  public readonly passwordRequiredMsg: Locator;
   public readonly loginHeader: Locator;
   public readonly header: HeaderCommon;
 
@@ -26,8 +29,17 @@ export class LoginPage extends BasePage {
     this.registerLink = page.getByRole('link', { name: 'Register your account' });
     this.forgotPasswordLink = page.getByRole('link', { name: 'Forgot your Password?' });
     this.invalidEmailFormatMsg = page.getByTestId('email-error');
+    this.invalidPasswordMsg = page.getByTestId('login-error');
+    this.emailRequiredMsg = page.getByTestId('email-error');
+    this.passwordRequiredMsg = page.getByTestId('password-error');
     this.loginHeader = page.getByRole('heading', { name: 'Login' });
     this.header = new HeaderCommon(page);
+  }
+
+  async open(): Promise<this> {
+    await this.page.goto('/auth/login');
+
+    return this;
   }
 
   async clickSignInWithGoogle(): Promise<void> {

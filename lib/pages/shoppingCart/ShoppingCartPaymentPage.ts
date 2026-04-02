@@ -51,7 +51,7 @@ export class ShoppingCartPaymentPage extends BasePage {
     const expDate = new Intl.DateTimeFormat('en-US', {
       month: '2-digit',
       year: 'numeric',
-    }).format(faker.date.future());
+    }).format(faker.date.future(2, new Date()));
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'credit-card' });
 

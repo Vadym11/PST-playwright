@@ -15,6 +15,7 @@ type WorkerAPIFixtures = {
   apiHandlerWorker: APIHandler;
   userApiWorker: UserAPI;
   baseAPIUrl: string;
+  adminTokenWorker: string;
 };
 
 const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
@@ -44,6 +45,13 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
       const handler = new APIHandler(request);
 
       await use(handler);
+    },
+    { scope: 'worker' },
+  ],
+
+  adminTokenWorker: [
+    async ({ apiHandlerWorker }, use) => {
+      await use(await apiHandlerWorker.authenticateAsAdmin());
     },
     { scope: 'worker' },
   ],
