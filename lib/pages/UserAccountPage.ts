@@ -1,7 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { ProfilePage } from '@pages/account/profilePage';
 
 export class MyAccountPage extends BasePage {
   readonly header: HeaderCommon;
@@ -25,11 +24,16 @@ export class MyAccountPage extends BasePage {
     await this.favoritesLink.click();
   }
 
-  async clickProfile(): Promise<ProfilePage> {
+  async clickProfileLink(): Promise<this> {
     await this.profileLink.click();
 
-    return new ProfilePage(this.page);
+    return this;
   }
+
+  async clickSignOut() {
+    await this.header.signOut();
+  }
+
   async clickInvoices() {
     await this.invoicesLink.click();
   }

@@ -1,8 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
 
+const getAPIBaseUrl = (baseURL: string) => {
+  if (baseURL.includes('practicesoftwaretesting.com')) {
+    return baseURL.replace('://', '://api.');
+  } else if (baseURL.includes('http://localhost:4200')) {
+    return 'http://localhost:8091';
+  } else {
+    return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
+  }
+};
+
 process.env.BASE_URL = process.env.BASE_URL || 'https://practicesoftwaretesting.com';
-console.log(`Base URL set to: ${process.env.BASE_URL}`);
+process.env.API_URL = process.env.API_URL || getAPIBaseUrl(process.env.BASE_URL);
+// console.log(`Base URL set to: ${process.env.BASE_URL}`);
+// console.log(`API URL set to: ${process.env.API_URL}`);
 
 /*
  * See https://playwright.dev/docs/test-configuration.
@@ -23,6 +35,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['list'], ['html', { open: 'never' }]],
+  /* Increase the default timeouts for expect assertions */
+  expect: {
+    timeout: 15000,
+  },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     actionTimeout: 15000,

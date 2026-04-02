@@ -10,11 +10,7 @@ test.describe('Verify invoice details', () => {
   let quantity: number;
   const paymentMethod = PaymentMethods.cashOnDelivery;
 
-  test('Existing user: logged in', async ({
-    page,
-    workerUserSession: workerSession,
-    productApi,
-  }) => {
+  test('Existing user: logged in', async ({ page, userState, productApi }) => {
     quantity = faker.datatype.number({ min: 1, max: 10 });
 
     const homePage = await new HomePage(page).goTo();
@@ -35,7 +31,7 @@ test.describe('Verify invoice details', () => {
 
     const shoppingCartPaymentPage = await completeCheckoutAndVerifyBilling(
       shoppingCartBillingPage,
-      workerSession.userData,
+      userState.userData,
       paymentMethod,
     );
 
@@ -52,7 +48,7 @@ test.describe('Verify invoice details', () => {
     const invoiceInfo = await invoicesPage.getInvoiceLineItems(invoiceNumber);
 
     await invoicesPage.verifyInvoiceLineItems(
-      workerSession.userData,
+      userState.userData,
       productInfo,
       quantity,
       invoiceNumber,
@@ -65,7 +61,7 @@ test.describe('Verify invoice details', () => {
     await invoiceDetailsPage.verifyInvoiceDetails(
       productInfo,
       invoiceNumber,
-      workerSession.userData,
+      userState.userData,
       quantity,
       paymentMethod,
     );

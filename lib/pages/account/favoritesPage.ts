@@ -19,7 +19,7 @@ export class FavoritesPage extends BasePage {
     return productCards;
   }
 
-  async verifyProductInFavorites(expectedProduct: GetProductResponse): Promise<void> {
+  async assertProductInFavorites(expectedProduct: GetProductResponse): Promise<void> {
     const favorites = await this.getProductCardsInFavorites();
     const targetRow = favorites.filter({ hasText: expectedProduct.name });
     await expect(targetRow).toHaveCount(1);

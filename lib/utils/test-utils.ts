@@ -18,20 +18,8 @@ import path from 'path';
 import { jwtDecode } from 'jwt-decode';
 import { StorageState } from '@models/storage-state';
 
-function getBaseURL(): string {
-  return config.use?.baseURL || '';
-}
-
-export const baseURL = getBaseURL();
-
-export const getAPIBaseUrl = () => {
-  if (baseURL.includes('practicesoftwaretesting.com')) {
-    return baseURL.replace('://', '://api.');
-  }
-  return baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`;
-};
-
-export const apiBaseURL = getAPIBaseUrl();
+export const baseURL = process.env.BASE_URL;
+export const apiBaseURL = process.env.API_URL;
 
 /**
  * Generates a random integer between min (inclusive) and max (inclusive).
@@ -311,10 +299,14 @@ export async function deleteUserByIdAPIDeprecated(
   // expect(response.status()).toBe(204);
 }
 
-export async function deleteUserByIdAPI(apiHandler: APIHandler, userID: string): Promise<any> {
+export async function deleteUserByIdAPI(
+  apiHandler: APIHandler,
+  userID: string,
+  token: string,
+): Promise<any> {
   const apiURL = `${apiBaseURL}/users/${userID}`;
 
-  return await apiHandler.delete(apiURL);
+  return await apiHandler.delete(apiURL, token);
 }
 
 /** Deletes a user and related data from the database by user ID.
@@ -449,7 +441,7 @@ export function replaceTokenAndWriteToStateFile(
   authFilePath: string,
 ): void {
   // If token is in LocalStorage:
-  const targetOrigin = state.origins.find((o) => o.origin === baseURL);
+  const targetOrigin = state.origins.find((o) => o.origin === baseURL!);
   const tokenEntry = targetOrigin?.localStorage.find((item) => item.name === 'auth-token');
   if (tokenEntry) tokenEntry.value = newToken;
 
@@ -462,7 +454,7 @@ export async function prefillStorageStateFile(token: string, filePath: string): 
     cookies: [],
     origins: [
       {
-        origin: baseURL,
+        origin: baseURL!,
         localStorage: [
           {
             name: 'auth-token',

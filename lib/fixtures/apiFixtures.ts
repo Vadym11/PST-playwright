@@ -1,9 +1,8 @@
 import { test as base } from '@playwright/test';
-import { getAPIBaseUrl } from '@utils/test-utils';
+import { apiBaseURL } from '@utils/test-utils';
 import { APIHandler } from '@utils/apiHandler';
 import { ProductAPI } from '@api-models/product';
 import { UserAPI } from '@api-models/user';
-const apiBaseURL = getAPIBaseUrl();
 
 type ApiFixtures = {
   apiHandler: APIHandler;
@@ -16,6 +15,7 @@ type WorkerAPIFixtures = {
   apiHandlerWorker: APIHandler;
   userApiWorker: UserAPI;
   baseAPIUrl: string;
+  adminTokenWorker: string;
 };
 
 const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
@@ -49,6 +49,13 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
     { scope: 'worker' },
   ],
 
+  adminTokenWorker: [
+    async ({ apiHandlerWorker }, use) => {
+      await use(await apiHandlerWorker.authenticateAsAdmin());
+    },
+    { scope: 'worker' },
+  ],
+
   userApiWorker: [
     async ({ apiHandlerWorker }, use) => {
       use(new UserAPI(apiHandlerWorker));
@@ -58,9 +65,7 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
 
   baseAPIUrl: [
     async ({}, use) => {
-      const baseAPIUrl = getAPIBaseUrl();
-
-      await use(baseAPIUrl);
+      await use(apiBaseURL!);
     },
     { scope: 'worker' },
   ],
