@@ -48,10 +48,13 @@ export class ShoppingCartPaymentPage extends BasePage {
   async selectCreditCardAndFillDetails(cardHolderName: string): Promise<this> {
     const creditCardNumber = faker.finance.creditCardNumber('####-####-####-####');
     const cvv = faker.finance.creditCardCVV();
-    const expDate = new Intl.DateTimeFormat('en-US', {
-      month: '2-digit',
-      year: 'numeric',
-    }).format(faker.date.future(2, new Date()));
+    const expDate = '12/2030';
+
+    /* sometimes generates current date and test fails */
+    // const expDate = new Intl.DateTimeFormat('en-US', {
+    //   month: '2-digit',
+    //   year: 'numeric',
+    // }).format(faker.date.future(2, new Date()));
 
     await this.choosePaymentMethodMenu.selectOption({ value: 'credit-card' });
 

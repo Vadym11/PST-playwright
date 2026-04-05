@@ -49,7 +49,6 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
 
   workerUserSession: [
     async ({ userApiWorker, adminTokenWorker }, use) => {
-      const workerId = `${test.info().title.replaceAll(' ', '-')}_${test.info().testId}`;
       const user = generateRandomuserDataFaker();
       const userId = (await userApiWorker.register(user)).id;
 
