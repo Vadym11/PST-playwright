@@ -64,6 +64,10 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
   // in tests that mutate user state, it is safer to use test scoped fixture
   // or use the worker scoped fixture that does not rely on storageState file,
   // but instead passes the user data directly to the tests
+  // since using worker scoped storageState creates a risk of collision
+  // in tests that mutate user state, it is safer to use test scoped fixture
+  // or use the worker scoped fixture that does not rely on storageState file,
+  // but instead passes the user data directly to the tests
   // This is test scope (default) and can now safely depend on a worker fixture
   // storageState: async ({ workerUserSession }, use) => {
   // await use(workerUserSession.storageStatePath);
