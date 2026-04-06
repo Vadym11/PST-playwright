@@ -1,9 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { ProfilePage } from '@pages/account/profilePage';
-
-export class MyAccountPage extends BasePage {
+export class AdminAccountPage extends BasePage {
   readonly header: HeaderCommon;
   readonly myAccountTitle: Locator;
   readonly favoritesLink: Locator;

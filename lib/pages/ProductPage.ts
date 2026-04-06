@@ -7,13 +7,26 @@ import { GetProductResponse } from '@models/api-product';
 export class ProductPage extends BasePage {
   private readonly addToCartButton: Locator;
   private readonly addToFavoritesButton: Locator;
+  private readonly productNameHeading: Locator;
+  private readonly unitPrice: Locator;
   readonly header: HeaderCommon;
 
   constructor(page: Page) {
     super(page);
     this.addToCartButton = page.getByTestId('add-to-cart');
     this.addToFavoritesButton = page.getByTestId('add-to-favorites');
+    this.productNameHeading = page.getByTestId('product-name').first();
+    this.unitPrice = page.getByTestId('unit-price');
     this.header = new HeaderCommon(page);
+  }
+
+  async assertDetailsLoaded(): Promise<this> {
+    await expect(this.page).toHaveURL(/\/product\//);
+    await expect(this.productNameHeading).toBeVisible();
+    await expect(this.unitPrice).toBeVisible();
+    await expect(this.addToCartButton).toBeVisible();
+
+    return this;
   }
 
   async clickAddToCart(count: number = 1): Promise<this> {

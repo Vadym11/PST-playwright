@@ -18,6 +18,7 @@ jobs:
     # which is needed to trigger a new deployment with the updated image
     permissions:
       contents: write
+      # id-token: write  # Required for Workload Identity Federation
 
     env:
       K8S_NAMESPACE: toolshop-ci-${{ github.run_id }}

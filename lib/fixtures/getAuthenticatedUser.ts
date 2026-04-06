@@ -49,7 +49,6 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
 
   workerUserSession: [
     async ({ userApiWorker, adminTokenWorker }, use) => {
-      const workerId = `${test.info().title.replaceAll(' ', '-')}_${test.info().testId}`;
       const user = generateRandomuserDataFaker();
       const userId = (await userApiWorker.register(user)).id;
 
@@ -61,6 +60,10 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     { scope: 'worker' },
   ],
 
+  // since using worker scoped storageState creates a risk of collision
+  // in tests that mutate user state, it is safer to use test scoped fixture
+  // or use the worker scoped fixture that does not rely on storageState file,
+  // but instead passes the user data directly to the tests
   // since using worker scoped storageState creates a risk of collision
   // in tests that mutate user state, it is safer to use test scoped fixture
   // or use the worker scoped fixture that does not rely on storageState file,
