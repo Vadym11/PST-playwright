@@ -1,4 +1,4 @@
-import { APIHandler } from '@utils/apiHandler';
+import { APIHandler } from '@utils/api-handler';
 import {
   LoginResponse,
   LogOutResponse,

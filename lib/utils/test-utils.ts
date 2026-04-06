@@ -1,11 +1,11 @@
 import { CreateUser } from '@models/api-user';
 import axios from 'axios';
 import fs from 'fs';
-import connection from '@utils/mysqldb';
+import connection from '@utils/mysql-db';
 import config from '@playwright.config';
 import { APIRequestContext, expect, Locator } from '@playwright/test';
 import { faker } from '@faker-js/faker';
-import { APIHandler } from '@utils/apiHandler';
+import { APIHandler } from '@utils/api-handler';
 import {
   getAllBrandsAPI,
   getAllCategoriesAPI,

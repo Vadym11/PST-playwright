@@ -1,4 +1,4 @@
-import { APIHandler } from '@utils/apiHandler';
+import { APIHandler } from '@utils/api-handler';
 import { GetProductResponse, Product } from '@models/api-product';
 import { PaginatedResponse, SuccessResponse } from '@models/api-responses';
 

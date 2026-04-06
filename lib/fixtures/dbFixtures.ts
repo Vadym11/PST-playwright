@@ -1,12 +1,12 @@
 import { test as base } from '@playwright/test';
-import connection from '@utils/mysqldb';
+import connection from '@utils/mysql-db';
 import { RowDataPacket } from 'mysql2';
 
-type dbFixtures = {
+type DbFixtures = {
   getNewUserId: string;
 };
 
-export const test = base.extend<dbFixtures>({
+export const test = base.extend<DbFixtures>({
   getNewUserId: async ({}, use) => {
     const [rows] = await connection.execute<RowDataPacket[]>(
       'SELECT * FROM users ORDER BY updated_at DESC LIMIT 1;',

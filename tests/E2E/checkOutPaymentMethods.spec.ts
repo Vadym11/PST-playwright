@@ -2,7 +2,7 @@ import { test } from '@fixtures/getAuthenticatedUser';
 import { expect } from '@playwright/test';
 import { HomePage } from '@pages/HomePage';
 import { completeCheckoutAndVerifyBilling } from '@utils/project-utils';
-import { PaymentMethods } from '@models/paymentMethods';
+import { PaymentMethods } from '@models/payment-methods';
 
 test.describe('Checkout flow', () => {
   const paymentMethods = [
