@@ -18,7 +18,7 @@ jobs:
     # which is needed to trigger a new deployment with the updated image
     permissions:
       contents: write
-      id-token: write  # Required for Workload Identity Federation
+      # id-token: write  # Required for Workload Identity Federation
 
     env:
       K8S_NAMESPACE: toolshop-ci-${{ github.run_id }}
@@ -48,20 +48,10 @@ jobs:
       - name: Set up gcloud auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth print-access-token | \
-            docker login -u oauth2accesstoken --password-stdin \
-            europe-west1-docker.pkg.dev
-
-      - name: Debug token identity
-        run: |
-          TOKEN=$(gcloud auth print-access-token)
-          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$TOKEN" > /tmp/tokeninfo.json
-          cat /tmp/tokeninfo.json
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
 
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
