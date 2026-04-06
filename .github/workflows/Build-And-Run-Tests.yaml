@@ -60,7 +60,8 @@ jobs:
       - name: Debug token identity
         run: |
           TOKEN=$(gcloud auth print-access-token)
-          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$TOKEN" | grep email
+          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$TOKEN" > /tmp/tokeninfo.json
+          cat /tmp/tokeninfo.json
 
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
