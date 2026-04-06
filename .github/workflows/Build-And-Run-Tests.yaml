@@ -57,6 +57,11 @@ jobs:
             docker login -u oauth2accesstoken --password-stdin \
             europe-west1-docker.pkg.dev
 
+      - name: Debug token identity
+        run: |
+          TOKEN=$(gcloud auth print-access-token)
+          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$TOKEN" | grep email
+
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
         if: steps.changes.outputs.playwright == 'true' || contains(github.event.pull_request.labels.*.name, 'force-build')
