@@ -45,10 +45,14 @@ export class ProductCataloguePage extends BasePage {
     return this;
   }
 
-  async filterByCategory(categoryName: string): Promise<this> {
-    const categoryCheckbox = this.page.getByRole('checkbox', {
+  async getCategoryCheckBoxLocator(categoryName: string): Promise<Locator> {
+    return this.page.getByRole('checkbox', {
       name: new RegExp(`^${escapeRegExp(categoryName)}$`, 'i'),
     });
+  }
+
+  async filterByCategory(categoryName: string): Promise<this> {
+    const categoryCheckbox = await this.getCategoryCheckBoxLocator(categoryName);
 
     await categoryCheckbox.check();
 
@@ -56,9 +60,7 @@ export class ProductCataloguePage extends BasePage {
   }
 
   async assertCategoryFilterActive(categoryName: string): Promise<this> {
-    const categoryCheckbox = this.page.getByRole('checkbox', {
-      name: new RegExp(`^${escapeRegExp(categoryName)}$`, 'i'),
-    });
+    const categoryCheckbox = await this.getCategoryCheckBoxLocator(categoryName);
 
     await expect(categoryCheckbox).toBeChecked();
 

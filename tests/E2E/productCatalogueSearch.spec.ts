@@ -17,6 +17,7 @@ test.describe('Product Catalogue & Search', () => {
     async ({ cataloguePage }) => {
       await cataloguePage.filterByCategory('Hand Tools');
       await cataloguePage.assertCategoryFilterActive('Hand Tools');
+
       await expect(cataloguePage.productNameItems.first()).toBeVisible();
     },
   );
@@ -51,6 +52,7 @@ test.describe('Product Catalogue & Search', () => {
       await cataloguePage.search('Hammer');
 
       const productNames = await cataloguePage.getProductNames();
+
       expect(productNames.length).toBeGreaterThan(0);
       expect(productNames.some((name) => /hammer/i.test(name))).toBeTruthy();
     },
@@ -85,6 +87,7 @@ test.describe('Product Catalogue & Search', () => {
       await cataloguePage.sortByPriceLowToHigh();
 
       const normalizedPrices = await cataloguePage.getNormalizedProductPrices();
+
       expect(normalizedPrices.length).toBeGreaterThan(1);
       expect(normalizedPrices).toEqual([...normalizedPrices].sort((a, b) => a - b));
     },
