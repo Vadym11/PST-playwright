@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
 import { apiBaseURL } from '@utils/test-utils';
-import { APIHandler } from '@utils/apiHandler';
+import { APIHandler } from '@utils/api-handler';
 import { ProductAPI } from '@api-models/product';
 import { UserAPI } from '@api-models/user';
 

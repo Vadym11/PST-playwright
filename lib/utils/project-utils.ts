@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { ShoppingCartBillingPage } from '@pages/shoppingCart/ShoppingCartBillingPage';
 import { CreateUser } from '@models/api-user';
-import { PaymentMethods } from '@models/paymentMethods';
+import { PaymentMethods } from '@models/payment-methods';
 import { ShoppingCartPaymentPage } from '@pages/shoppingCart/ShoppingCartPaymentPage';
 
 /**

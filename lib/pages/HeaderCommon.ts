@@ -1,9 +1,9 @@
 import { Locator, Page } from '@playwright/test';
 import { ShoppingCartMainPage } from '@pages/shoppingCart/ShoppingCartMainPage';
 import { HomePage } from '@pages/HomePage';
-import { ProfilePage } from '@pages/account/profilePage';
-import { FavoritesPage } from '@pages/account/favoritesPage';
-import { InvoicesPage } from '@pages/account/invoicesPage';
+import { ProfilePage } from '@pages/account/ProfilePage';
+import { FavoritesPage } from '@pages/account/FavoritesPage';
+import { InvoicesPage } from '@pages/account/InvoicesPage';
 
 export class HeaderCommon {
   private readonly page: Page;

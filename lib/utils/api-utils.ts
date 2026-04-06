@@ -1,4 +1,4 @@
-import { APIHandler } from '@utils/apiHandler';
+import { APIHandler } from '@utils/api-handler';
 import { GetCurrentUserResponse, GetAllUsersResponse } from '@models/api-user';
 import { CreateUser } from '@models/api-user';
 import { GetProductResponse, Product } from '@models/api-product';
