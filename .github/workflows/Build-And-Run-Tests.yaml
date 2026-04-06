@@ -51,14 +51,13 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
+      - name: Activate service account credentials
+        run: |
+          gcloud auth activate-service-account \
+            --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-
-      - name: Debug auth
-        run: |
-          gcloud auth list
-          gcloud config get-value project
-          echo "Registry: ${{ env.REGISTRY }}"
 
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
