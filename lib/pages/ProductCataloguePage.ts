@@ -87,7 +87,6 @@ export class ProductCataloguePage extends BasePage {
 
     await this.searchInput.fill(query);
     await this.searchButton.click();
-    await this.page.waitForLoadState('networkidle');
     if (firstProductBeforeSearch) {
       await expect
         .poll(async () => {
@@ -111,7 +110,6 @@ export class ProductCataloguePage extends BasePage {
     const firstPriceBeforeSorting = (await this.getNormalizedProductPrices())[0];
 
     await this.sortDropdown.selectOption({ label: 'Price (Low - High)' });
-    await this.page.waitForLoadState('networkidle');
     if (firstPriceBeforeSorting !== undefined) {
       await expect
         .poll(async () => {
@@ -133,10 +131,18 @@ export class ProductCataloguePage extends BasePage {
     return this;
   }
 
+  async assertCurrentPage(pageNumber: number): Promise<this> {
+    await expect(
+      this.page.getByRole('button', { name: new RegExp(`^${pageNumber}$|^Page-${pageNumber}$`) }),
+    ).toBeVisible();
+
+    return this;
+  }
+
   async getProductNames(): Promise<string[]> {
-    return this.productNameItems.evaluateAll((elements) =>
-      elements.map((element) => element.textContent?.trim() ?? '').filter(Boolean),
-    );
+    const names = await this.productNameItems.allTextContents();
+
+    return names.map((n) => n.trim()).filter(Boolean);
   }
 
   async getNormalizedProductPrices(): Promise<number[]> {
