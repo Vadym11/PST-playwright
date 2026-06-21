@@ -18,6 +18,10 @@ test.describe('API Interception Tests', () => {
     const productsResponsePromise = page.waitForResponse(
       (response) => response.url().includes('/products') && new URL(response.url()).search !== '', // has query params
     );
+    // this is another example of waiting for the response satisfying certain conditions
+    // const productsResponsePromise = page.waitForResponse(
+    //   response => response.url().includes('/products') && response.status() === 200
+    // );
 
     await page.goto('/');
 
