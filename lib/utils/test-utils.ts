@@ -484,3 +484,28 @@ export async function deleteFile(filePath: string): Promise<void> {
     throw new Error(`Failed to delete file at ${filePath}`, { cause: error });
   }
 }
+
+export function isValidInvoiceDate(dateStr: string): boolean {
+  // 1. Check the exact string structure format using a Regular Expression
+  const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+  if (!regex.test(dateStr)) return false;
+
+  // 2. Parse the individual string components
+  const [datePart, timePart] = dateStr.split(' ');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute, second] = timePart.split(':').map(Number);
+
+  // 3. Create a Date object (Note: Month index is 0-based in JS)
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  // 4. Verify components match to prevent automatic JS overflow rolling
+  // (e.g., prevents "2026-02-30" from rolling over into March)
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date.getHours() === hour &&
+    date.getMinutes() === minute &&
+    date.getSeconds() === second
+  );
+}

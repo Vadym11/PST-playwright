@@ -11,7 +11,8 @@ type TestScopedFixtures = {
 };
 
 type WorkerScopedFixtures = {
-  workerUserSession: CreateUser;
+  registeredUserDataWorker: CreateUser;
+  adminUserStateWorker: string;
 };
 
 // first argument is for test scope fixtures, second - for worker scope fixtures
@@ -47,7 +48,7 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     await use(userState.storageStatePath);
   },
 
-  workerUserSession: [
+  registeredUserDataWorker: [
     async ({ userApiWorker, adminTokenWorker }, use) => {
       const user = generateRandomuserDataFaker();
       const userId = (await userApiWorker.register(user)).id;
@@ -56,6 +57,19 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
 
       // Teardown: Delete the user created for the worker session
       await userApiWorker.deleteUser(userId, adminTokenWorker);
+    },
+    { scope: 'worker' },
+  ],
+
+  adminUserStateWorker: [
+    async ({ adminTokenWorker }, use) => {
+      const workerId = `${test.info().title.replaceAll(' ', '-')}_${test.info().testId}`;
+      const dir = 'playwright/.auth';
+      const adminStatePath = `${dir}/admin-state-${workerId}.json`;
+
+      await prefillStorageStateFile(adminTokenWorker, adminStatePath);
+
+      await use(adminStatePath);
     },
     { scope: 'worker' },
   ],
