@@ -16,7 +16,7 @@ type NewUserLoggedInFixture = {
 };
 
 const test = baseTest.extend<NewUserLoggedInFixture>({
-  authenticatedUserDataGlobal: async ({ adminUserApi, context, page }, use) => {
+  authenticatedUserDataGlobal: async ({ userApiWorker, context, page }, use) => {
     const authFile = path.join(process.cwd(), 'playwright/.auth/userState.json');
     const userData: CreateUser = JSON.parse(fs.readFileSync(userDataFilePath, 'utf-8'));
 
@@ -28,7 +28,7 @@ const test = baseTest.extend<NewUserLoggedInFixture>({
 
     if (checkTokenExpiry(currentToken)) {
       console.log('Token is about to expire, refreshing token...');
-      const loginResponse = await adminUserApi.refreshToken(currentToken);
+      const loginResponse = await userApiWorker.refreshToken(currentToken);
       const freshToken = loginResponse.access_token;
 
       // Navigate to the domain first so the browser context has an origin

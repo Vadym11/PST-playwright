@@ -3,8 +3,6 @@ import { AdminDashboardPage } from '@pages/admin/AdminDashboardPage';
 import { AdminProductsPage } from '@pages/admin/AdminProductsPage';
 
 test.describe('Admin Panel Tests', () => {
-  //   test.use({ storageState: async ({ adminUserStateWorker }, use) => use(adminUserStateWorker) });
-
   test(
     'TC-ADMIN-001 - Admin: Dashboard Loads Correctly',
     { tag: ['@admin', '@smoke'] },
