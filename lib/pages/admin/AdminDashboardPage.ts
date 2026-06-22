@@ -25,6 +25,12 @@ export class AdminDashboardPage extends BasePage {
     return this;
   }
 
+  async goToAdminProductsPage(): Promise<void> {
+    await this.header.clickUserNavMenu();
+
+    await this.page.getByRole('link', { name: 'Products' }).click();
+  }
+
   async assertSalesGraphTitle(): Promise<void> {
     await expect(this.salesTitle).toBeVisible();
   }
