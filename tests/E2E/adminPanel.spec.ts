@@ -1,12 +1,12 @@
-import { test } from '@fixtures/getAuthenticatedUser';
+import { test } from '@fixtures/adminStorageState';
 import { AdminDashboardPage } from '@pages/admin/AdminDashboardPage';
 import { AdminProductsPage } from '@pages/admin/AdminProductsPage';
 
 test.describe('Admin Panel Tests', () => {
-  test.use({ storageState: async ({ adminUserStateWorker }, use) => use(adminUserStateWorker) });
+  //   test.use({ storageState: async ({ adminUserStateWorker }, use) => use(adminUserStateWorker) });
 
   test(
-    'TC-AUTH-001 - Admin: Dashboard Loads Correctly',
+    'TC-ADMIN-001 - Admin: Dashboard Loads Correctly',
     { tag: ['@admin', '@smoke'] },
     async ({ page }) => {
       const adminDashboardPage = await new AdminDashboardPage(page).open();
@@ -16,7 +16,7 @@ test.describe('Admin Panel Tests', () => {
   );
 
   test(
-    'TC-AUTH-002 - Admin: View All Products',
+    'TC-ADMIN-002 - Admin: View All Products',
     { tag: ['@admin', '@products'] },
     async ({ page }) => {
       const adminProductsPage = await new AdminProductsPage(page).open();
