@@ -22,7 +22,7 @@ jobs:
 
     env:
       K8S_NAMESPACE: toolshop-ci-${{ github.run_id }}
-      REGISTRY: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/toolshop
+      REGISTRY: europe-west2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/toolshop
 
     steps:
       - name: Checkout
@@ -54,7 +54,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker europe-west2-docker.pkg.dev --quiet
 
       # NEW: Build and Push logic from your shell script
       - name: Build and Push Playwright Image
