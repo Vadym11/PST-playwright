@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: europe-west1-docker.pkg.dev/project-c08bd28e-4c9b-4e57-9da/toolshop/web-k8s:35bce3f
+          image: europe-west2-docker.pkg.dev/project-cbced8ca-7915-48e4-8b5/toolshop/web-k8s:35bce3f
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
