@@ -12,11 +12,15 @@ import {
   getAllImagesAPI,
   registerUserAPI,
 } from '@utils/api-utils';
-import { Product } from '@models/api-product';
+import { GetProductResponse, Product } from '@models/api-product';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { jwtDecode } from 'jwt-decode';
 import { StorageState } from '@models/storage-state';
+import { ProductDetails } from '@models/product-details';
+import { ProductImage } from '@models/product-image';
+import { Category } from '@models/categories';
+import { Brand } from '@models/brands';
 
 export const baseURL = process.env.BASE_URL;
 export const apiBaseURL = process.env.API_URL;
@@ -85,6 +89,52 @@ export function generateRandomUserData(): CreateUser {
   };
 }
 
+function randomEnumValue<T extends object>(enumObj: T): T[keyof T] {
+  const values = Object.values(enumObj) as T[keyof T][];
+  return values[Math.floor(Math.random() * values.length)];
+}
+
+// export function generateRandomProductDetails(): ProductDetails {
+//   const name = faker.commerce.productName();
+//   const description = faker.commerce.productDescription();
+//   const price = parseFloat(faker.commerce.price(10, 200, 2));
+//   const stock = getRandomIntInclusive(0, 100);
+//   const isLocationOffer = faker.helpers.arrayElement([true, false]);
+//   const isItemForRent = faker.helpers.arrayElement([true, false]);
+//   const co2Rating = faker.helpers.arrayElement(['None', 'A', 'B', 'C', 'D', 'E']);
+//   const brand = randomEnumValue(Brand);
+//   const category = randomEnumValue(Category);
+//   const image = randomEnumValue(ProductImage);
+
+//   return {
+//     name,
+//     description,
+//     stock,
+//     price,
+//     isLocationOffer,
+//     isItemForRent,
+//     co2Rating,
+//     brand,
+//     category,
+//     image
+//   };
+// }
+
+export function mapToProductDetails(product: Product): ProductDetails {
+  return {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    stock: product.stock,
+    isLocationOffer: product.is_location_offer === 1,
+    isItemForRent: product.is_rental === 1,
+    co2Rating: product.co2_rating,
+    brand: product.brand_id,
+    category: product.category_id,
+    image: product.product_image_id,
+  };
+}
+
 /** Generates random user data for registration using Faker library.
  * @returns A User object with random data.
  */
@@ -119,28 +169,30 @@ export function generateRandomuserDataFaker(): CreateUser {
 }
 
 export async function generateRandomProductData(apiHandler: APIHandler): Promise<Product> {
-  const NAME = faker.commerce.productName();
-  const DESCRIPTION = faker.commerce.productDescription();
-  const PRICE = parseFloat(faker.commerce.price(10, 200, 2));
-  const IS_LOCATION_OFFER = faker.helpers.arrayElement([0, 1]);
-  const IS_RENTAL = faker.helpers.arrayElement([0, 1]);
-  const CO2_RATING = faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']);
-  const CATEGORY_ID = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
-  const BRAND_ID = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
-  const PRODUCT_IMAGE_ID = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+  const name = faker.commerce.productName();
+  const description = faker.commerce.productDescription();
+  const price = parseFloat(faker.commerce.price(10, 200, 2));
+  const isLocationOffer = faker.helpers.arrayElement([0, 1]);
+  const isItemForRent = faker.helpers.arrayElement([0, 1]);
+  const co2Rating = faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']);
+  const categoryId = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
+  const brandId = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
+  const productImageId = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+  const stock = getRandomIntInclusive(0, 100);
 
-  console.log(`Generated Product Name: ${NAME}`);
+  console.log(`Generated Product Name: ${name}`);
 
   const product: Product = {
-    name: NAME,
-    description: DESCRIPTION,
-    price: PRICE,
-    is_location_offer: IS_LOCATION_OFFER,
-    is_rental: IS_RENTAL,
-    co2_rating: CO2_RATING,
-    category_id: CATEGORY_ID,
-    brand_id: BRAND_ID,
-    product_image_id: PRODUCT_IMAGE_ID,
+    name: name,
+    description: description,
+    price: price,
+    is_location_offer: isLocationOffer,
+    is_rental: isItemForRent,
+    co2_rating: co2Rating,
+    category_id: categoryId,
+    brand_id: brandId,
+    product_image_id: productImageId,
+    stock: stock,
   };
 
   return product;

@@ -1,6 +1,8 @@
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
 import { Locator, Page, expect } from '@playwright/test';
+import { AdminProductCreationPage } from './AdminProductCreationPage';
+import { ProductDetails } from '@models/product-details';
 
 export class AdminProductsPage extends BasePage {
   readonly header: HeaderCommon;
@@ -28,6 +30,31 @@ export class AdminProductsPage extends BasePage {
     await this.page.goto('/admin/products');
 
     return this;
+  }
+
+  async clickAddProductButton(): Promise<AdminProductCreationPage> {
+    await this.addProductButton.click();
+
+    return new AdminProductCreationPage(this.page);
+  }
+
+  async searchProduct(productName: string): Promise<void> {
+    await this.searchProductBar.fill(productName);
+    await this.searchProductButton.click();
+  }
+
+  async resetSearch(): Promise<void> {
+    await this.resetSearchButton.click();
+  }
+
+  async clickEditProduct(productName: string): Promise<AdminProductCreationPage> {
+    const productRow = this.productsTable.locator('tbody tr').filter({ hasText: productName });
+    await expect(productRow).toHaveCount(1);
+
+    const editButton = productRow.getByRole('link', { name: 'Edit' });
+    await editButton.click();
+
+    return new AdminProductCreationPage(this.page);
   }
 
   async assertPagination(): Promise<void> {
@@ -74,5 +101,16 @@ export class AdminProductsPage extends BasePage {
     await this.assertProductManagementBlock();
     await this.assertProductsTable();
     await this.assertPagination();
+  }
+
+  async assertSearchedProduct(product: ProductDetails): Promise<void> {
+    const rowLocators = this.productsTable.locator('tbody tr');
+    await expect(rowLocators).not.toHaveCount(0);
+    const searchedProductRow = rowLocators
+      .filter({ hasText: product.name })
+      .filter({ hasText: product.stock?.toString() ?? '' })
+      .filter({ hasText: `$${product.price.toFixed(2)}` });
+
+    await expect(searchedProductRow).toHaveCount(1);
   }
 }
