@@ -63,8 +63,6 @@ test.describe('Admin Panel Tests', () => {
       stock: faker.datatype.number({ min: 1, max: 100 }),
     };
 
-    console.log('Updated Product Details:', updatedDetails);
-
     await adminProductCreationPage.enterProductDetails(updatedDetails);
 
     await adminProductCreationPage.clickSaveButton();

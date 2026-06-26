@@ -41,7 +41,12 @@ export class AdminProductCreationPage extends BasePage {
     await this.nameInputField.fill(product.name);
     await this.descriptionInputField.clear();
     await this.descriptionInputField.fill(product.description);
+
+    // Stock field requires a delay - Angular's change detection from previous
+    // field interactions interferes with input at lower delays
     await this.stockInputField.clear();
+    await this.stockInputField.pressSequentially(product.stock.toString(), { delay: 500 });
+
     await this.stockInputField.fill(product.stock.toString());
     await this.priceInputField.clear();
     await this.priceInputField.fill(product.price.toString());
