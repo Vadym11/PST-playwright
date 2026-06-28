@@ -120,6 +120,11 @@ function randomEnumValue<T extends object>(enumObj: T): T[keyof T] {
 //   };
 // }
 
+/**
+ * Maps a Product object to a ProductDetails object.
+ * @param product The Product object to map.
+ * @returns The mapped ProductDetails object.
+ */
 export function mapToProductDetails(product: Product): ProductDetails {
   return {
     name: product.name,

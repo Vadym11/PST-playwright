@@ -5,6 +5,7 @@ import { Locator, Page, Response, expect } from '@playwright/test';
 
 export class AdminProductCreationPage extends BasePage {
   readonly header: HeaderCommon;
+  readonly productIdField: Locator;
   readonly nameInputField: Locator;
   readonly descriptionInputField: Locator;
   readonly stockInputField: Locator;
@@ -21,6 +22,7 @@ export class AdminProductCreationPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
+    this.productIdField = page.getByLabel('Id');
     this.nameInputField = page.getByLabel('Name');
     this.descriptionInputField = page.getByLabel('Description');
     this.stockInputField = page.getByLabel('Stock');
@@ -128,6 +130,32 @@ export class AdminProductCreationPage extends BasePage {
       .innerText();
 
     await expect(this.page.getByAltText(toolImageName)).toBeVisible();
+  }
+
+  async assertSearchedProductDetails(product: ProductDetails): Promise<void> {
+    await expect(this.productIdField).not.toBeEmpty();
+    await expect(this.nameInputField).toHaveValue(product.name);
+    await expect(this.descriptionInputField).toHaveValue(product.description);
+    if (product.stock !== null) {
+      await expect(this.stockInputField).toHaveValue(product.stock.toString());
+    } else {
+      await expect(this.stockInputField).toHaveValue('');
+    }
+    await expect(this.priceInputField).toHaveValue(product.price.toString());
+    if (product.isLocationOffer) {
+      await expect(this.locationOfferCheckBox).toBeChecked();
+    } else {
+      await expect(this.locationOfferCheckBox).not.toBeChecked();
+    }
+    if (product.isItemForRent) {
+      await expect(this.itemForRentCheckbox).toBeChecked();
+    } else {
+      await expect(this.itemForRentCheckbox).not.toBeChecked();
+    }
+    await expect(this.co2RatingDropDown).toHaveValue(product.co2Rating);
+    await expect(this.brandDropDown).toHaveValue(product.brand);
+    await expect(this.categoryDropDown).toHaveValue(product.category);
+    await expect(this.imageDropDown).toHaveValue(product.image);
   }
 
   // additional methods to handle API response assertions for product creation

@@ -44,17 +44,17 @@ test.describe('Admin Panel Tests', () => {
 
       await adminProductsPage.open();
       await adminProductsPage.searchProduct(productDetails.name);
-      await adminProductsPage.assertSearchedProduct(productDetails);
+      await adminProductsPage.assertSearchedProductRow(productDetails);
     },
   );
 
   test('TC-ADMIN-004 - Admin: Edit Product', async ({ page, apiHandler, productApi }) => {
     const productData = await generateRandomProductData(apiHandler);
-    const createdProduct = await productApi.create(productData);
+    await productApi.create(productData);
 
     const adminProductsPage = await new AdminProductsPage(page).open();
-    await adminProductsPage.searchProduct(createdProduct.name);
-    const adminProductCreationPage = await adminProductsPage.clickEditProduct(createdProduct.name);
+    await adminProductsPage.searchProduct(productData.name);
+    const adminProductCreationPage = await adminProductsPage.clickEditProduct(productData.name);
 
     const updatedDetails = {
       ...mapToProductDetails(productData),
@@ -71,6 +71,9 @@ test.describe('Admin Panel Tests', () => {
 
     await adminProductsPage.open();
     await adminProductsPage.searchProduct(updatedDetails.name);
-    await adminProductsPage.assertSearchedProduct(updatedDetails);
+    await adminProductsPage.assertSearchedProductRow(updatedDetails);
+
+    await adminProductsPage.clickEditProduct(updatedDetails.name);
+    await adminProductCreationPage.assertSearchedProductDetails(updatedDetails);
   });
 });

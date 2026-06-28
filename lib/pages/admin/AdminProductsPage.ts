@@ -103,7 +103,7 @@ export class AdminProductsPage extends BasePage {
     await this.assertPagination();
   }
 
-  async assertSearchedProduct(product: ProductDetails): Promise<void> {
+  async assertSearchedProductRow(product: ProductDetails): Promise<void> {
     const rowLocators = this.productsTable.locator('tbody tr');
     await expect(rowLocators).not.toHaveCount(0);
     const searchedProductRow = rowLocators
