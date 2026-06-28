@@ -178,7 +178,9 @@ export async function generateRandomProductData(apiHandler: APIHandler): Promise
   const categoryId = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
   const brandId = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
   const productImageId = faker.helpers.arrayElement(await getImageIDs(apiHandler));
-  const stock = getRandomIntInclusive(0, 100);
+  let stock: number | null = getRandomIntInclusive(0, 100);
+
+  if (isItemForRent === 1) stock = null;
 
   console.log(`Generated Product Name: ${name}`);
 

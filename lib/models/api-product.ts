@@ -8,7 +8,7 @@ export interface BaseProduct {
   is_location_offer: number;
   is_rental: number;
   co2_rating: string;
-  stock: number;
+  stock: number | null;
 }
 
 export interface Product extends BaseProduct {

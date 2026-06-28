@@ -1,7 +1,7 @@
 export interface ProductDetails {
   name: string;
   description: string;
-  stock: number;
+  stock: number | null;
   price: number;
   isLocationOffer: boolean;
   isItemForRent: boolean;

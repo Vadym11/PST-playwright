@@ -36,32 +36,61 @@ export class AdminProductCreationPage extends BasePage {
     this.backToProductsLink = page.getByRole('link', { name: 'Back' });
   }
 
-  async enterProductDetails(product: ProductDetails): Promise<this> {
-    await this.nameInputField.clear();
+  /**
+   * Enters product details into the creation form to create a new product,
+   * or the edit form for existing products if editMode is true.
+   * @param product
+   * @param editMode
+   * @returns
+   */
+  async enterProductDetails(product: ProductDetails, editMode = false): Promise<this> {
+    if (editMode) {
+      await expect(this.nameInputField).not.toBeEmpty();
+      await this.nameInputField.clear();
+      await expect(this.nameInputField).toBeEmpty();
+    }
     await this.nameInputField.fill(product.name);
-    await this.descriptionInputField.clear();
+
+    if (editMode) {
+      await expect(this.descriptionInputField).not.toBeEmpty();
+      await this.descriptionInputField.clear();
+      await expect(this.descriptionInputField).toBeEmpty();
+    }
     await this.descriptionInputField.fill(product.description);
 
-    // Stock field requires a delay - Angular's change detection from previous
-    // field interactions interferes with input at lower delays
-    await this.stockInputField.clear();
-    await this.stockInputField.pressSequentially(product.stock.toString(), { delay: 500 });
-
-    await this.stockInputField.fill(product.stock.toString());
-    await this.priceInputField.clear();
-    await this.priceInputField.fill(product.price.toString());
-
-    if (product.isLocationOffer) {
-      await this.locationOfferCheckBox.check();
+    if (editMode) {
+      if (!product.isItemForRent) {
+        await expect(this.stockInputField).not.toBeEmpty();
+        await this.stockInputField.clear();
+        await expect(this.stockInputField).toBeEmpty();
+      }
+    }
+    if (!product.isItemForRent && product.stock !== null) {
+      await this.stockInputField.fill(product.stock.toString());
     }
 
-    if (product.isItemForRent) {
+    if (editMode) {
+      await expect(this.priceInputField).not.toBeEmpty();
+      await this.priceInputField.clear();
+      await expect(this.priceInputField).toBeEmpty();
+    }
+    await this.priceInputField.fill(product.price.toString());
+
+    if (product.isLocationOffer && !(await this.locationOfferCheckBox.isChecked())) {
+      await this.locationOfferCheckBox.check();
+    } else if (!product.isLocationOffer && (await this.locationOfferCheckBox.isChecked())) {
+      await this.locationOfferCheckBox.uncheck();
+    }
+
+    if (product.isItemForRent && !(await this.itemForRentCheckbox.isChecked())) {
       await this.itemForRentCheckbox.check();
+    } else if (!product.isItemForRent && (await this.itemForRentCheckbox.isChecked())) {
+      await this.itemForRentCheckbox.uncheck();
     }
 
     // Select the CO2 rating only if it's not 'None' since it is
     // prepopulated with 'None' as the default option.
-    if (product.co2Rating !== 'None') {
+    if (product.co2Rating !== 'None' || editMode) {
       await this.co2RatingDropDown.selectOption(product.co2Rating);
     }
 

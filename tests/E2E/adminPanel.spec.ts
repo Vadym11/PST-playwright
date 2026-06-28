@@ -60,10 +60,10 @@ test.describe('Admin Panel Tests', () => {
       ...mapToProductDetails(productData),
       name: faker.commerce.productName(),
       price: parseFloat(faker.commerce.price(10, 200, 2)),
-      stock: faker.datatype.number({ min: 1, max: 100 }),
+      stock: productData.is_rental === 1 ? null : faker.datatype.number({ min: 1, max: 100 }),
     };
 
-    await adminProductCreationPage.enterProductDetails(updatedDetails);
+    await adminProductCreationPage.enterProductDetails(updatedDetails, true);
 
     await adminProductCreationPage.clickSaveButton();
 
