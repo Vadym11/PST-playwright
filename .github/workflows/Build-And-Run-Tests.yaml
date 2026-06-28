@@ -29,8 +29,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # less secure option, but allows for pushing back to the repo if needed
-          # doesn't require write permissions to be set in the workflow
+          # If pushing back to the repo is required, prefer GITHUB_TOKEN with explicit `permissions: contents: write`.
+          # Avoid PATs where possible; they are typically broader/long-lived and bypass workflow permission scoping.
           # token: ${{ secrets.GH_PAT }}
           fetch-depth: 0 # Required for accurate diffing if needed
 

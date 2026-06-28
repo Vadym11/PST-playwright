@@ -73,7 +73,7 @@ test.describe('Admin Panel Tests', () => {
     await adminProductsPage.searchProduct(updatedDetails.name);
     await adminProductsPage.assertSearchedProductRow(updatedDetails);
 
-    await adminProductsPage.clickEditProduct(updatedDetails.name);
-    await adminProductCreationPage.assertSearchedProductDetails(updatedDetails);
+    const updatedProductEditPage = await adminProductsPage.clickEditProduct(updatedDetails.name);
+    await updatedProductEditPage.assertSearchedProductDetails(updatedDetails);
   });
 });

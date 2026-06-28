@@ -114,8 +114,6 @@ export class AdminProductCreationPage extends BasePage {
   }
 
   async clickSaveButton(): Promise<void> {
-    this.toolImageName = await this.imageDropDown.inputValue();
-
     await this.saveButton.click();
   }
 
@@ -180,8 +178,8 @@ export class AdminProductCreationPage extends BasePage {
     expect(responseBody.description).toBe(product.description);
     expect(responseBody.stock).toBe(product.stock);
     expect(responseBody.price).toBe(product.price);
-    expect(responseBody.is_location_offer).toBe(product.isLocationOffer);
-    expect(responseBody.is_rental).toBe(product.isItemForRent);
+    expect(responseBody.is_location_offer).toBe(product.isLocationOffer ? 1 : 0);
+    expect(responseBody.is_rental).toBe(product.isItemForRent ? 1 : 0);
     expect(responseBody.co2_rating).toBe(product.co2Rating);
     expect(responseBody.brand.id).toBe(product.brand);
     expect(responseBody.category.id).toBe(product.category);

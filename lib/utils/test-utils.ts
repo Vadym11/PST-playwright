@@ -12,15 +12,12 @@ import {
   getAllImagesAPI,
   registerUserAPI,
 } from '@utils/api-utils';
-import { GetProductResponse, Product } from '@models/api-product';
+import { Product } from '@models/api-product';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { jwtDecode } from 'jwt-decode';
 import { StorageState } from '@models/storage-state';
 import { ProductDetails } from '@models/product-details';
-import { ProductImage } from '@models/product-image';
-import { Category } from '@models/categories';
-import { Brand } from '@models/brands';
 
 export const baseURL = process.env.BASE_URL;
 export const apiBaseURL = process.env.API_URL;
@@ -89,36 +86,15 @@ export function generateRandomUserData(): CreateUser {
   };
 }
 
+/**
+ * Helper method to get a random value from an enum.
+ * @param enumObj
+ * @returns random value from the enum
+ */
 function randomEnumValue<T extends object>(enumObj: T): T[keyof T] {
   const values = Object.values(enumObj) as T[keyof T][];
   return values[Math.floor(Math.random() * values.length)];
 }
-
-// export function generateRandomProductDetails(): ProductDetails {
-//   const name = faker.commerce.productName();
-//   const description = faker.commerce.productDescription();
-//   const price = parseFloat(faker.commerce.price(10, 200, 2));
-//   const stock = getRandomIntInclusive(0, 100);
-//   const isLocationOffer = faker.helpers.arrayElement([true, false]);
-//   const isItemForRent = faker.helpers.arrayElement([true, false]);
-//   const co2Rating = faker.helpers.arrayElement(['None', 'A', 'B', 'C', 'D', 'E']);
-//   const brand = randomEnumValue(Brand);
-//   const category = randomEnumValue(Category);
-//   const image = randomEnumValue(ProductImage);
-
-//   return {
-//     name,
-//     description,
-//     stock,
-//     price,
-//     isLocationOffer,
-//     isItemForRent,
-//     co2Rating,
-//     brand,
-//     category,
-//     image
-//   };
-// }
 
 /**
  * Maps a Product object to a ProductDetails object.
