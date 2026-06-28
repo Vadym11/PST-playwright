@@ -18,7 +18,6 @@ export class AdminProductCreationPage extends BasePage {
   readonly imageDropDown: Locator;
   readonly saveButton: Locator;
   readonly backToProductsLink: Locator;
-  toolImageName: string = '';
 
   constructor(page: Page) {
     super(page);
@@ -103,25 +102,26 @@ export class AdminProductCreationPage extends BasePage {
     return this;
   }
 
-  async editProductNameAndStock(productName: string, stock: number): Promise<this> {
-    await this.nameInputField.click({ clickCount: 3 });
-    await this.nameInputField.pressSequentially(productName);
-    console.log(await this.nameInputField.inputValue());
-    await this.stockInputField.click({ clickCount: 3 });
-    await this.stockInputField.pressSequentially(stock.toString());
-
-    return this;
-  }
-
+  /**
+   * Clicks the Save button to submit the product creation or edit form.
+   */
   async clickSaveButton(): Promise<void> {
     await this.saveButton.click();
   }
 
+  /**
+   * Asserts that the "Product saved!" success message is visible after saving.
+   */
   async assertProductSavedMessage(): Promise<void> {
     const successMessage = this.page.getByText('Product saved!');
     await expect(successMessage).toBeVisible();
   }
 
+  /**
+   * Asserts that the product image corresponding to the selected image option
+   * is visible on the page after saving.
+   * @param product - Product whose image option is checked
+   */
   async assertProductImage(product: ProductDetails): Promise<void> {
     const toolImageName = await this.imageDropDown
       .locator(`option[value="${product.image}"]`)
@@ -130,6 +130,11 @@ export class AdminProductCreationPage extends BasePage {
     await expect(this.page.getByAltText(toolImageName)).toBeVisible();
   }
 
+  /**
+   * Asserts that all form fields match the expected product details.
+   * Used to verify that a saved or searched product is correctly displayed in the form.
+   * @param product - Expected product details to compare against the form values
+   */
   async assertSearchedProductDetails(product: ProductDetails): Promise<void> {
     await expect(this.productIdField).not.toBeEmpty();
     await expect(this.nameInputField).toHaveValue(product.name);
@@ -150,13 +155,20 @@ export class AdminProductCreationPage extends BasePage {
     } else {
       await expect(this.itemForRentCheckbox).not.toBeChecked();
     }
-    await expect(this.co2RatingDropDown).toHaveValue(product.co2Rating);
+    await expect(this.co2RatingDropDown).toHaveValue(
+      product.co2Rating === 'None' ? '' : product.co2Rating,
+    );
     await expect(this.brandDropDown).toHaveValue(product.brand);
     await expect(this.categoryDropDown).toHaveValue(product.category);
     await expect(this.imageDropDown).toHaveValue(product.image);
   }
 
-  // additional methods to handle API response assertions for product creation
+  /**
+   * Registers a response promise that resolves when the POST /api/products
+   * request returns a 201 Created status. Should be called before triggering
+   * the save action so the response is captured.
+   * @returns Promise that resolves with the API response for product creation
+   */
   async registerResponsePromise(): Promise<Response> {
     return this.page.waitForResponse((response) => {
       return (
@@ -167,7 +179,11 @@ export class AdminProductCreationPage extends BasePage {
     });
   }
 
-  // assert that the product details in the response match the expected product details
+  /**
+   * Asserts that the API response body for product creation matches the expected product details.
+   * @param createProductResponse - The captured POST /api/products response
+   * @param product - Expected product details to compare against the response body
+   */
   async assertProductDetailsInResponse(
     createProductResponse: Response,
     product: ProductDetails,
