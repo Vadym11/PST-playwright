@@ -11,7 +11,7 @@ type TestScopedFixtures = {
 };
 
 type WorkerScopedFixtures = {
-  workerUserSession: CreateUser;
+  registeredUserDataWorker: CreateUser;
 };
 
 // first argument is for test scope fixtures, second - for worker scope fixtures
@@ -47,7 +47,7 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     await use(userState.storageStatePath);
   },
 
-  workerUserSession: [
+  registeredUserDataWorker: [
     async ({ userApiWorker, adminTokenWorker }, use) => {
       const user = generateRandomuserDataFaker();
       const userId = (await userApiWorker.register(user)).id;

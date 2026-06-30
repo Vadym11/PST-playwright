@@ -33,3 +33,6 @@ fix-casing.sh
 # browserstack.yml
 local.log
 log/
+
+# Playwright MCP files
+.playwright-mcp

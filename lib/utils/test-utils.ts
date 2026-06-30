@@ -17,6 +17,7 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { jwtDecode } from 'jwt-decode';
 import { StorageState } from '@models/storage-state';
+import { ProductDetails } from '@models/product-details';
 
 export const baseURL = process.env.BASE_URL;
 export const apiBaseURL = process.env.API_URL;
@@ -85,6 +86,36 @@ export function generateRandomUserData(): CreateUser {
   };
 }
 
+/**
+ * Helper method to get a random value from an enum.
+ * @param enumObj
+ * @returns random value from the enum
+ */
+function randomEnumValue<T extends object>(enumObj: T): T[keyof T] {
+  const values = Object.values(enumObj) as T[keyof T][];
+  return values[Math.floor(Math.random() * values.length)];
+}
+
+/**
+ * Maps a Product object to a ProductDetails object.
+ * @param product The Product object to map.
+ * @returns The mapped ProductDetails object.
+ */
+export function mapToProductDetails(product: Product): ProductDetails {
+  return {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    stock: product.stock,
+    isLocationOffer: product.is_location_offer === 1,
+    isItemForRent: product.is_rental === 1,
+    co2Rating: product.co2_rating,
+    brand: product.brand_id,
+    category: product.category_id,
+    image: product.product_image_id,
+  };
+}
+
 /** Generates random user data for registration using Faker library.
  * @returns A User object with random data.
  */
@@ -119,28 +150,32 @@ export function generateRandomuserDataFaker(): CreateUser {
 }
 
 export async function generateRandomProductData(apiHandler: APIHandler): Promise<Product> {
-  const NAME = faker.commerce.productName();
-  const DESCRIPTION = faker.commerce.productDescription();
-  const PRICE = parseFloat(faker.commerce.price(10, 200, 2));
-  const IS_LOCATION_OFFER = faker.helpers.arrayElement([0, 1]);
-  const IS_RENTAL = faker.helpers.arrayElement([0, 1]);
-  const CO2_RATING = faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']);
-  const CATEGORY_ID = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
-  const BRAND_ID = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
-  const PRODUCT_IMAGE_ID = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+  const name = faker.commerce.productName();
+  const description = faker.commerce.productDescription();
+  const price = parseFloat(faker.commerce.price(10, 200, 2));
+  const isLocationOffer = faker.helpers.arrayElement([0, 1]);
+  const isItemForRent = faker.helpers.arrayElement([0, 1]);
+  const co2Rating = faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']);
+  const categoryId = faker.helpers.arrayElement(await getCategoryIDs(apiHandler));
+  const brandId = faker.helpers.arrayElement(await getBrandIDs(apiHandler));
+  const productImageId = faker.helpers.arrayElement(await getImageIDs(apiHandler));
+  let stock: number | null = getRandomIntInclusive(0, 100);
 
-  console.log(`Generated Product Name: ${NAME}`);
+  if (isItemForRent === 1) stock = null;
+
+  console.log(`Generated Product Name: ${name}`);
 
   const product: Product = {
-    name: NAME,
-    description: DESCRIPTION,
-    price: PRICE,
-    is_location_offer: IS_LOCATION_OFFER,
-    is_rental: IS_RENTAL,
-    co2_rating: CO2_RATING,
-    category_id: CATEGORY_ID,
-    brand_id: BRAND_ID,
-    product_image_id: PRODUCT_IMAGE_ID,
+    name: name,
+    description: description,
+    price: price,
+    is_location_offer: isLocationOffer,
+    is_rental: isItemForRent,
+    co2_rating: co2Rating,
+    category_id: categoryId,
+    brand_id: brandId,
+    product_image_id: productImageId,
+    stock: stock,
   };
 
   return product;
@@ -483,4 +518,29 @@ export async function deleteFile(filePath: string): Promise<void> {
   } catch (error) {
     throw new Error(`Failed to delete file at ${filePath}`, { cause: error });
   }
+}
+
+export function isValidInvoiceDate(dateStr: string): boolean {
+  // 1. Check the exact string structure format using a Regular Expression
+  const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+  if (!regex.test(dateStr)) return false;
+
+  // 2. Parse the individual string components
+  const [datePart, timePart] = dateStr.split(' ');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute, second] = timePart.split(':').map(Number);
+
+  // 3. Create a Date object (Note: Month index is 0-based in JS)
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  // 4. Verify components match to prevent automatic JS overflow rolling
+  // (e.g., prevents "2026-02-30" from rolling over into March)
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date.getHours() === hour &&
+    date.getMinutes() === minute &&
+    date.getSeconds() === second
+  );
 }

@@ -9,7 +9,7 @@ test.describe('Login Feature', () => {
   test(
     'TC-AUTH-001 - happy path',
     { tag: ['@smoke', '@auth', '@ui'] },
-    async ({ page, workerUserSession }) => {
+    async ({ page, registeredUserDataWorker: workerUserSession }) => {
       const loginPage = new LoginPage(page);
 
       await loginPage.open();
@@ -24,7 +24,10 @@ test.describe('Login Feature', () => {
     },
   );
 
-  test('TC-AUTH-002-1 - Incorrect Email Format', async ({ page, workerUserSession }) => {
+  test('TC-AUTH-002-1 - Incorrect Email Format', async ({
+    page,
+    registeredUserDataWorker: workerUserSession,
+  }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
@@ -37,7 +40,10 @@ test.describe('Login Feature', () => {
     await expect(loginPage.invalidEmailFormatMsg).toHaveText('Email format is invalid');
   });
 
-  test('TC-AUTH-002 - Incorrect Password', async ({ page, workerUserSession }) => {
+  test('TC-AUTH-002 - Incorrect Password', async ({
+    page,
+    registeredUserDataWorker: workerUserSession,
+  }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
@@ -47,7 +53,10 @@ test.describe('Login Feature', () => {
     await expect(loginPage.invalidPasswordMsg).toHaveText('Invalid email or password');
   });
 
-  test('TC-AUTH-003 - Non-Existent Email', async ({ page, workerUserSession }) => {
+  test('TC-AUTH-003 - Non-Existent Email', async ({
+    page,
+    registeredUserDataWorker: workerUserSession,
+  }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
@@ -71,7 +80,7 @@ test.describe('Login Feature', () => {
   test(
     'TC-AUTH-005 - Successful Logout',
     { tag: ['@smoke', '@auth', '@ui'] },
-    async ({ page, workerUserSession }) => {
+    async ({ page, registeredUserDataWorker: workerUserSession }) => {
       const loginPage = new LoginPage(page);
 
       await loginPage.open();
@@ -99,7 +108,10 @@ test.describe('Login Feature', () => {
     await expect(loginPage.loginHeader).toHaveText('Login');
   });
 
-  test('TC-AUTH-009 - Customer Cannot Access Admin Panel', async ({ page, workerUserSession }) => {
+  test('TC-AUTH-009 - Customer Cannot Access Admin Panel', async ({
+    page,
+    registeredUserDataWorker: workerUserSession,
+  }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();
