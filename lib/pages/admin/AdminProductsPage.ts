@@ -57,6 +57,20 @@ export class AdminProductsPage extends BasePage {
     return new AdminProductCreationPage(this.page);
   }
 
+  async clickDeleteProduct(productName: string): Promise<AdminProductsPage> {
+    const productRow = this.productsTable.locator('tbody tr').filter({ hasText: productName });
+    await expect(productRow).toHaveCount(1);
+
+    const deleteButton = productRow.getByRole('button', { name: 'Delete' });
+    await deleteButton.click();
+
+    return this;
+  }
+
+  async assertProductDeletedMessage(): Promise<void> {
+    await expect(this.page.getByRole('alert', { name: 'Product deleted.' }).last()).toBeVisible();
+  }
+
   async assertPagination(): Promise<void> {
     await expect(this.pagination).toBeVisible();
     // assert that the first page is active by checking the text of the active page item and its class
@@ -103,14 +117,31 @@ export class AdminProductsPage extends BasePage {
     await this.assertPagination();
   }
 
-  async assertSearchedProductRow(product: ProductDetails): Promise<void> {
+  private getSearchedRowLocator(product: ProductDetails): Locator {
     const rowLocators = this.productsTable.locator('tbody tr');
-    await expect(rowLocators).not.toHaveCount(0);
     const searchedProductRow = rowLocators
       .filter({ hasText: product.name })
       .filter({ hasText: product.stock?.toString() ?? '' })
       .filter({ hasText: `$${product.price.toFixed(2)}` });
 
+    return searchedProductRow;
+  }
+
+  private getTableRows(): Locator {
+    return this.productsTable.locator('tbody tr');
+  }
+
+  async assertSearchedProductRow(product: ProductDetails): Promise<void> {
+    const rowLocators = this.getTableRows();
+    await expect(rowLocators).not.toHaveCount(0);
+    const searchedProductRow = this.getSearchedRowLocator(product);
+
     await expect(searchedProductRow).toHaveCount(1);
+  }
+
+  async assertNoProductsFound(product: ProductDetails): Promise<void> {
+    const searchedProductRow = this.getSearchedRowLocator(product);
+
+    await expect(searchedProductRow).toHaveCount(0);
   }
 }

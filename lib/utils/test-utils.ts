@@ -181,6 +181,14 @@ export async function generateRandomProductData(apiHandler: APIHandler): Promise
   return product;
 }
 
+export async function generateRandomProductDetails(
+  apiHandler: APIHandler,
+): Promise<ProductDetails> {
+  const product = await generateRandomProductData(apiHandler);
+
+  return mapToProductDetails(product);
+}
+
 export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> {
   const categoryIDs: string[] = [];
   const categories = await getAllCategoriesAPI(apiHandler);

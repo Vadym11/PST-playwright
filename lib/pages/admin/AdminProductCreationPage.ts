@@ -102,16 +102,10 @@ export class AdminProductCreationPage extends BasePage {
     return this;
   }
 
-  /**
-   * Clicks the Save button to submit the product creation or edit form.
-   */
   async clickSaveButton(): Promise<void> {
     await this.saveButton.click();
   }
 
-  /**
-   * Asserts that the "Product saved!" success message is visible after saving.
-   */
   async assertProductSavedMessage(): Promise<void> {
     const successMessage = this.page.getByText('Product saved!');
     await expect(successMessage).toBeVisible();
@@ -161,6 +155,31 @@ export class AdminProductCreationPage extends BasePage {
     await expect(this.brandDropDown).toHaveValue(product.brand);
     await expect(this.categoryDropDown).toHaveValue(product.category);
     await expect(this.imageDropDown).toHaveValue(product.image);
+  }
+
+  async assertProductNameRequiredMessage(): Promise<void> {
+    const errorMessage = this.page.getByText('Name is required');
+    await expect(errorMessage).toBeVisible();
+  }
+
+  async assertProductPriceRequiredMessage(): Promise<void> {
+    const errorMessage = this.page.getByText('Price is required');
+    await expect(errorMessage).toBeVisible();
+  }
+
+  async assertProductDescriptionRequiredMessage(): Promise<void> {
+    const errorMessage = this.page.getByText('Description is required');
+    await expect(errorMessage).toBeVisible();
+  }
+
+  async assertRequiredFieldMessages(): Promise<void> {
+    await this.assertProductNameRequiredMessage();
+    await this.assertProductPriceRequiredMessage();
+    await this.assertProductDescriptionRequiredMessage();
+  }
+
+  async clearPriceRow(): Promise<void> {
+    await this.priceInputField.clear();
   }
 
   /**
