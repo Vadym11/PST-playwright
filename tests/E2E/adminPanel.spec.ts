@@ -150,7 +150,7 @@ test.describe('Admin Panel Tests', () => {
   );
 
   test(
-    'TC-ADMIN-011d - Admin: Missing Price Shows Required Message',
+    'TC-ADMIN-011d - Admin: Missing Price Shows Required Field Message',
     { tag: ['@admin', '@products'] },
     async ({ page, apiHandler }) => {
       const productDetails = await generateRandomProductDetails(apiHandler);
