@@ -38,10 +38,10 @@ setup.use({ headless: true });
  * API setup to get token and save authenticated state,
  * which will be used in UI tests to speed up the setup by skipping UI login
  */
-setup('Register and authenticate user', async ({ workerApiHandler, adminUserApi }) => {
+setup('Register and authenticate user', async ({ apiHandlerWorker, userApi }) => {
   // 1. Create and register a random user
   console.log('Registering a new user via API for chromium project globalauthentication setup...');
-  const user = await registerRandomUser(workerApiHandler);
+  const user = await registerRandomUser(apiHandlerWorker);
 
   // 2. Save All User Data (email/password) to its own JSON file
   const dir = path.dirname(userDataFilePath);
@@ -53,7 +53,7 @@ setup('Register and authenticate user', async ({ workerApiHandler, adminUserApi 
   fs.writeFileSync(userDataFilePath, JSON.stringify(user, null, 4));
 
   // 3. Perform API Login
-  const loginResponse = await adminUserApi.login(user.email, user.password);
+  const loginResponse = await userApi.login(user.email, user.password);
 
   // 4. Save Session State (Cookies/LocalStorage) with the token from API login
   const token = loginResponse.access_token;
