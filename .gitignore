@@ -36,3 +36,6 @@ log/
 
 # Playwright MCP files
 .playwright-mcp
+
+# Local scratch space for experiments, not part of the real suite
+/scratch/

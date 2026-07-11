@@ -6,13 +6,11 @@ import config from '@playwright.config';
 import { APIRequestContext, expect, Locator } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from '@utils/api-handler';
-import {
-  getAllBrandsAPI,
-  getAllCategoriesAPI,
-  getAllImagesAPI,
-  registerUserAPI,
-} from '@utils/api-utils';
+import { UserAPI } from '@api-models/user';
 import { Product } from '@models/api-product';
+import { GetBrand } from '@models/api-brand';
+import { GetCategoriesResponse } from '@models/api-category';
+import { ProductImage } from '@models/api-product-image';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { jwtDecode } from 'jwt-decode';
@@ -191,7 +189,7 @@ export async function generateRandomProductDetails(
 
 export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> {
   const categoryIDs: string[] = [];
-  const categories = await getAllCategoriesAPI(apiHandler);
+  const categories = await apiHandler.get<GetCategoriesResponse[]>('/categories');
 
   for (const category of categories) {
     categoryIDs.push(category.id);
@@ -202,7 +200,7 @@ export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> 
 
 export async function getBrandIDs(apiHandler: APIHandler): Promise<string[]> {
   const brandIDs: string[] = [];
-  const brands = await getAllBrandsAPI(apiHandler);
+  const brands = await apiHandler.get<GetBrand[]>('/brands');
 
   for (const brand of brands) {
     brandIDs.push(brand.id);
@@ -213,7 +211,7 @@ export async function getBrandIDs(apiHandler: APIHandler): Promise<string[]> {
 
 export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
   const imageIDs: string[] = [];
-  const images = await getAllImagesAPI(apiHandler);
+  const images = await apiHandler.get<ProductImage[]>('/images');
 
   for (const image of images) {
     imageIDs.push(image.id);
@@ -231,7 +229,7 @@ export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
 export async function registerRandomUser(apiHandler: APIHandler): Promise<CreateUser> {
   const user = generateRandomuserDataFaker();
 
-  const response = await registerUserAPI(apiHandler, user);
+  const response = await new UserAPI(apiHandler).register(user);
 
   console.log(`User with email ${response.email} has been registered via API.`);
 
