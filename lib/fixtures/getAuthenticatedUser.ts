@@ -37,11 +37,11 @@ async function deleteUserIfUnused(userApi: UserAPI, userId: string, adminToken: 
 
 // first argument is for test scope fixtures, second - for worker scope fixtures
 const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
-  userState: async ({ userApi, adminTokenWorker }, use) => {
+  userState: async ({ userApiWorker, adminTokenWorker }, use) => {
     const workerId = `${test.info().title.replaceAll(' ', '-')}_${test.info().testId}`;
     const user = generateRandomuserDataFaker();
-    const userId = (await userApi.register(user)).id;
-    const loginResponse = await userApi.login(user.email, user.password);
+    const userId = (await userApiWorker.register(user)).id;
+    const loginResponse = await userApiWorker.login(user.email, user.password);
     const token = loginResponse.access_token;
 
     const dir = 'playwright/.auth';
@@ -55,7 +55,7 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     await deleteFile(statePath);
 
     // Teardown: Delete the user created for the test
-    await deleteUserIfUnused(userApi, userId, adminTokenWorker);
+    await deleteUserIfUnused(userApiWorker, userId, adminTokenWorker);
   },
 
   storageState: async ({ userState }, use) => {
@@ -75,10 +75,6 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     { scope: 'worker' },
   ],
 
-  // since using worker scoped storageState creates a risk of collision
-  // in tests that mutate user state, it is safer to use test scoped fixture
-  // or use the worker scoped fixture that does not rely on storageState file,
-  // but instead passes the user data directly to the tests
   // since using worker scoped storageState creates a risk of collision
   // in tests that mutate user state, it is safer to use test scoped fixture
   // or use the worker scoped fixture that does not rely on storageState file,
