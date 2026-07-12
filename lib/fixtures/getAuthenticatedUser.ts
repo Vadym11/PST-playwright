@@ -37,7 +37,7 @@ async function deleteUserIfUnused(userApi: UserAPI, userId: string, adminToken: 
 
 // first argument is for test scope fixtures, second - for worker scope fixtures
 const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
-  userState: async ({ userApi, adminToken }, use) => {
+  userState: async ({ userApi, adminTokenWorker }, use) => {
     const workerId = `${test.info().title.replaceAll(' ', '-')}_${test.info().testId}`;
     const user = generateRandomuserDataFaker();
     const userId = (await userApi.register(user)).id;
@@ -55,7 +55,7 @@ const test = baseTest.extend<TestScopedFixtures, WorkerScopedFixtures>({
     await deleteFile(statePath);
 
     // Teardown: Delete the user created for the test
-    await deleteUserIfUnused(userApi, userId, adminToken);
+    await deleteUserIfUnused(userApi, userId, adminTokenWorker);
   },
 
   storageState: async ({ userState }, use) => {
