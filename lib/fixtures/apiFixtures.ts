@@ -51,7 +51,10 @@ const test = base.extend<ApiFixtures, WorkerAPIFixtures>({
 
   adminTokenWorker: [
     async ({ apiHandlerWorker }, use) => {
-      await use(await apiHandlerWorker.authenticateAsAdmin());
+      const token = await apiHandlerWorker.authenticateAsAdmin();
+      console.log('APIHandler (worker): Admin authenticated successfully.');
+
+      await use(token);
     },
     { scope: 'worker' },
   ],

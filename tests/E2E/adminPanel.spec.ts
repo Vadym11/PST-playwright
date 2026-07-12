@@ -32,7 +32,7 @@ test.describe('Admin Panel Tests', () => {
   test(
     'TC-ADMIN-003 - Admin: Create New Product',
     { tag: ['@admin', '@products'] },
-    async ({ page, apiHandler }) => {
+    async ({ page, apiHandler, productApi, adminToken }) => {
       const productDetails = await generateRandomProductDetails(apiHandler);
 
       const adminProductsPage = await new AdminProductsPage(page).open();
@@ -49,15 +49,18 @@ test.describe('Admin Panel Tests', () => {
       await adminProductsPage.open();
       await adminProductsPage.searchProduct(productDetails.name);
       await adminProductsPage.assertSearchedProductRow(productDetails);
+
+      const createdProduct = await productApi.searchByName(productDetails.name);
+      await productApi.deleteById(createdProduct.data[0].id, adminToken);
     },
   );
 
   test(
     'TC-ADMIN-004 - Admin: Edit Product',
     { tag: ['@admin', '@products'] },
-    async ({ page, apiHandler, productApi }) => {
+    async ({ page, apiHandler, productApi, adminToken }) => {
       const productData = await generateRandomProductData(apiHandler);
-      await productApi.create(productData);
+      const createdProduct = await productApi.create(productData);
 
       const adminProductsPage = await new AdminProductsPage(page).open();
       await adminProductsPage.searchProduct(productData.name);
@@ -82,6 +85,8 @@ test.describe('Admin Panel Tests', () => {
 
       const updatedProductEditPage = await adminProductsPage.clickEditProduct(updatedDetails.name);
       await updatedProductEditPage.assertSearchedProductDetails(updatedDetails);
+
+      await productApi.deleteById(createdProduct.id, adminToken);
     },
   );
 

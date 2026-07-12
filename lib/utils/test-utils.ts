@@ -3,16 +3,14 @@ import axios from 'axios';
 import fs from 'fs';
 import connection from '@utils/mysql-db';
 import config from '@playwright.config';
-import { APIRequestContext, expect, Locator } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { APIHandler } from '@utils/api-handler';
-import {
-  getAllBrandsAPI,
-  getAllCategoriesAPI,
-  getAllImagesAPI,
-  registerUserAPI,
-} from '@utils/api-utils';
+import { UserAPI } from '@api-models/user';
 import { Product } from '@models/api-product';
+import { GetBrand } from '@models/api-brand';
+import { GetCategoriesResponse } from '@models/api-category';
+import { ProductImage } from '@models/api-product-image';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import path from 'path';
 import { jwtDecode } from 'jwt-decode';
@@ -191,7 +189,7 @@ export async function generateRandomProductDetails(
 
 export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> {
   const categoryIDs: string[] = [];
-  const categories = await getAllCategoriesAPI(apiHandler);
+  const categories = await apiHandler.get<GetCategoriesResponse[]>('/categories');
 
   for (const category of categories) {
     categoryIDs.push(category.id);
@@ -202,7 +200,7 @@ export async function getCategoryIDs(apiHandler: APIHandler): Promise<string[]> 
 
 export async function getBrandIDs(apiHandler: APIHandler): Promise<string[]> {
   const brandIDs: string[] = [];
-  const brands = await getAllBrandsAPI(apiHandler);
+  const brands = await apiHandler.get<GetBrand[]>('/brands');
 
   for (const brand of brands) {
     brandIDs.push(brand.id);
@@ -213,7 +211,7 @@ export async function getBrandIDs(apiHandler: APIHandler): Promise<string[]> {
 
 export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
   const imageIDs: string[] = [];
-  const images = await getAllImagesAPI(apiHandler);
+  const images = await apiHandler.get<ProductImage[]>('/images');
 
   for (const image of images) {
     imageIDs.push(image.id);
@@ -231,7 +229,7 @@ export async function getImageIDs(apiHandler: APIHandler): Promise<string[]> {
 export async function registerRandomUser(apiHandler: APIHandler): Promise<CreateUser> {
   const user = generateRandomuserDataFaker();
 
-  const response = await registerUserAPI(apiHandler, user);
+  const response = await new UserAPI(apiHandler).register(user);
 
   console.log(`User with email ${response.email} has been registered via API.`);
 
@@ -281,75 +279,6 @@ export async function getUserDataByEmailAxios(token: string, email: string): Pro
   } else {
     return response.data.data[0];
   }
-}
-
-/**
- * Retrieves user data from the API by email.
- * @param request The Playwright API request context.
- * @param email The email address of the user.
- * @returns The user data.
- */
-// export async function getUserDataByEmailAPI(
-//   apiHandler: APIHandler,
-//   email: string,
-// ): Promise<UserAPI> {
-//   const apiURL = `${apiBaseURL}/users/search`;
-
-//   const response = await apiHandler.get<PaginatedResponse<UserAPI>>(apiURL, { q: email });
-
-//   if (!response.data || response.data.length === 0) {
-//     throw new Error(`API Error: No user found for email: ${email}`);
-//   }
-
-//   return response.data[0];
-// }
-
-/** Retrieves user ID from the API by email.
- * @param request The Playwright API request context.
- * @param token The authorization token.
- * @param email The email address of the user.
- * @returns The user ID.
- */
-// export async function getUserIdByEmailAPI(apiHandler: APIHandler, email: string): Promise<string> {
-//   const user = await getUserDataByEmailAPI(apiHandler, email);
-
-//   return user.id;
-// }
-
-/** Deletes a user via API by user ID.
- * @param request The Playwright API request context.
- * @param token The authorization token.
- * @param userID The ID of the user to delete.
- */
-export async function deleteUserByIdAPIDeprecated(
-  request: APIRequestContext,
-  token: string,
-  userID: string,
-): Promise<number> {
-  const apiURL = `${apiBaseURL}/users/${userID}`;
-
-  const payload = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  };
-
-  const response = await request.delete(apiURL, payload);
-
-  return response.status();
-
-  // expect(response.status()).toBe(204);
-}
-
-export async function deleteUserByIdAPI(
-  apiHandler: APIHandler,
-  userID: string,
-  token: string,
-): Promise<any> {
-  const apiURL = `${apiBaseURL}/users/${userID}`;
-
-  return await apiHandler.delete(apiURL, token);
 }
 
 /** Deletes a user and related data from the database by user ID.
@@ -443,13 +372,23 @@ export const assertWithinMargin = async (locator: Locator, expected: number) => 
   expect(actual, message).toBeLessThanOrEqual(expected + 0.01);
 };
 
-export function checkTokenExpiry(token: string) {
-  const decoded = jwtDecode(token);
-  const currentTimePlusBuffer = Date.now() / 1000 + 60;
-  const isExpired = decoded.exp ? decoded.exp < currentTimePlusBuffer : true;
+export function checkTokenExpiry(token: string | undefined): boolean {
+  if (!token) {
+    console.log('Expired (No token provided)');
+    return true;
+  }
 
-  console.log(isExpired ? 'Expired' : 'Valid');
-  return isExpired;
+  try {
+    const decoded = jwtDecode(token);
+    const currentTimePlusBuffer = Date.now() / 1000 + 60;
+    const isExpired = decoded.exp ? decoded.exp < currentTimePlusBuffer : true;
+
+    console.log(isExpired ? 'Expired' : 'Valid');
+    return isExpired;
+  } catch (error) {
+    console.log('Expired (Invalid JWT format):', error);
+    return true;
+  }
 }
 
 export function getCurrentToken(): string {

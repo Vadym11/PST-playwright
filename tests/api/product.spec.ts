@@ -1,50 +1,115 @@
 import { test } from '@fixtures/apiFixtures';
-import { Product } from '@models/api-product';
-import {
-  createProductAPI,
-  deleteProductByIdAPI,
-  getAllProductsAPI,
-  getProductByIdAPI,
-} from '@utils/api-utils';
+import { expect } from '@playwright/test';
+import type { GetProductResponse, Product, ProductApiState } from '@models/api-product';
+import type { PaginatedResponse } from '@models/api-responses';
 import { generateRandomProductData } from '@utils/test-utils';
 
 test.describe.serial('Product API Tests', () => {
-  let createdProductID: string;
-  let newProductData: Product;
+  const state: ProductApiState = {
+    createdProductId: '',
+    productData: {} as Product,
+    updatedPrice: 199.99,
+    patchedDescription: 'Patched description',
+  };
 
-  test('Get All Products', async ({ apiHandler }) => {
-    const products = await getAllProductsAPI(apiHandler);
+  const getProductId = (): string => {
+    expect(state.createdProductId, 'Expected product id to be initialized').toBeTruthy();
 
-    test.expect(products).toBeDefined();
-    test.expect(Array.isArray(products.data)).toBe(true);
+    return state.createdProductId;
+  };
+
+  const assertPaginatedProducts = (products: PaginatedResponse<GetProductResponse>) => {
+    expect(products.data).toEqual(expect.any(Array));
+    expect(products.current_page).toEqual(expect.any(Number));
+    expect(products.per_page).toEqual(expect.any(Number));
+    expect(products.total).toEqual(expect.any(Number));
+    expect(products.last_page).toEqual(expect.any(Number));
+  };
+
+  const assertProductMatchesPayload = (product: GetProductResponse, payload: Product) => {
+    expect(product.id).toEqual(expect.any(String));
+    expect(product.name).toBe(payload.name);
+    expect(product.description).toBe(payload.description);
+    expect(product.price).toBe(payload.price);
+  };
+
+  test.beforeAll('Setup product once', async ({ apiHandler, productApi }) => {
+    state.productData = await generateRandomProductData(apiHandler);
+    const createdProduct = await productApi.create(state.productData);
+
+    assertProductMatchesPayload(createdProduct, state.productData);
+    state.createdProductId = createdProduct.id;
   });
 
-  test('Create Product', async ({ apiHandler }) => {
-    newProductData = await generateRandomProductData(apiHandler);
+  test.afterAll('Cleanup product', async ({ productApi, adminToken }) => {
+    if (!state.createdProductId) {
+      return;
+    }
 
-    const createdProduct = await createProductAPI(apiHandler, newProductData);
-
-    createdProductID = createdProduct.id;
-
-    test.expect(createdProduct).toBeDefined();
-    test.expect(createdProduct.name).toBe(newProductData.name);
-    test.expect(createdProduct.description).toBe(newProductData.description);
-    test.expect(createdProduct.price).toBe(newProductData.price);
+    const deleteStatus = await productApi.deleteById(state.createdProductId, adminToken);
+    expect(deleteStatus).toBe(204);
   });
 
-  test('Get Product by ID', async ({ apiHandler }) => {
-    const product = await getProductByIdAPI(apiHandler, createdProductID);
+  test('Get All Products', async ({ productApi }) => {
+    const products = await productApi.getAll();
 
-    test.expect(product).toBeDefined();
-    test.expect(product.id).toBe(createdProductID);
-    test.expect(product.name).toBe(newProductData.name);
-    test.expect(product.description).toBe(newProductData.description);
-    test.expect(product.price).toBe(newProductData.price);
+    assertPaginatedProducts(products);
   });
 
-  test('Delete Product by ID', async ({ apiHandler, adminToken }) => {
-    const deleteStatus = await deleteProductByIdAPI(apiHandler, createdProductID, adminToken);
+  test('Get Product by ID', async ({ productApi }) => {
+    const product = await productApi.getById(getProductId());
 
-    test.expect(deleteStatus).toBe(204);
+    assertProductMatchesPayload(product, state.productData);
+    expect(product.id).toBe(state.createdProductId);
+  });
+
+  test('Get Related Products by ID', async ({ productApi }) => {
+    const relatedProducts = await productApi.getRelatedProductsById(getProductId());
+
+    expect(relatedProducts).toEqual(expect.any(Array));
+  });
+
+  test('Update Product Price', async ({ productApi }) => {
+    const updatedProductPayload: Product = { ...state.productData, price: state.updatedPrice };
+
+    const response = await productApi.update(updatedProductPayload, getProductId());
+
+    expect(response.success).toBe(true);
+
+    const currentProduct = await productApi.getById(getProductId());
+    expect(currentProduct.price).toBe(state.updatedPrice);
+
+    state.productData.price = state.updatedPrice;
+  });
+
+  test('Patch Product (update description)', async ({ productApi }) => {
+    const response = await productApi.patch(
+      { description: state.patchedDescription },
+      getProductId(),
+    );
+
+    expect(response.success).toBe(true);
+
+    const currentProduct = await productApi.getById(getProductId());
+    expect(currentProduct.description).toBe(state.patchedDescription);
+
+    state.productData.description = state.patchedDescription;
+  });
+
+  test('Search Product by Name', async ({ productApi }) => {
+    const searchResults = await productApi.searchByName(state.productData.name);
+
+    assertPaginatedProducts(searchResults);
+
+    const foundProduct = searchResults.data.find(
+      (product) => product.id === state.createdProductId,
+    );
+
+    expect(foundProduct).toBeDefined();
+
+    if (foundProduct) {
+      expect(foundProduct.description).toBe(state.productData.description);
+      expect(foundProduct.price).toBe(state.productData.price);
+    }
   });
 });
