@@ -1,4 +1,5 @@
 import { GetBrand } from './api-brand';
+import { GetCategoryResponse } from './api-category';
 import { ProductImage } from './api-product-image';
 
 export interface BaseProduct {
@@ -21,16 +22,8 @@ export interface GetProductResponse extends BaseProduct {
   id: string;
   is_eco_friendly: boolean;
   brand: GetBrand;
-  category: Category;
+  category: GetCategoryResponse;
   product_image: ProductImage;
-}
-
-export interface Category {
-  id: string;
-  parent_id: string;
-  name: string;
-  slug: string;
-  sub_categories: string[];
 }
 
 export type ProductApiState = {
