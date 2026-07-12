@@ -36,18 +36,26 @@ export class APIHandler {
     return freshToken;
   }
 
-  // Long-lived worker-scoped admin tokens can expire mid-run. Only retry when the
-  // rejected token is this instance's own cached admin token - never for caller-supplied
-  // user tokens, and the token is about to expire.
+  // Long-lived worker-scoped admin tokens can expire mid-run. Only step in when the
+  // passed-in token is one this instance minted itself - never for caller-supplied
+  // user tokens. Callers holding an old (fixture-captured) copy of an admin token can't
+  // ever see it get refreshed, so prefer the instance's current token when it's still
+  // valid instead of re-authenticating every time the caller's stale copy is checked.
   private async withAdminRetry(
     token: string | undefined,
     sendRequest: (token?: string) => Promise<APIResponse>,
   ): Promise<APIResponse> {
-    if (token !== undefined && this.adminTokens.has(token) && checkTokenExpiry(token)) {
-      console.log('APIHandler: Admin token missing or about to expire, re-authenticating...');
-      const freshToken = await this.authenticateAsAdmin();
-      this.adminToken = freshToken;
-      return sendRequest(freshToken);
+    if (token !== undefined && this.adminTokens.has(token)) {
+      if (this.adminToken && !checkTokenExpiry(this.adminToken)) {
+        return sendRequest(this.adminToken);
+      }
+
+      if (checkTokenExpiry(token)) {
+        console.log('APIHandler: Admin token missing or about to expire, re-authenticating...');
+        const freshToken = await this.authenticateAsAdmin();
+
+        return sendRequest(freshToken);
+      }
     }
 
     return sendRequest(token);
