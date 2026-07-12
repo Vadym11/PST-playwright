@@ -46,7 +46,6 @@ Tests against the live DB (`lib/utils/mysql-db.ts`, `lib/fixtures/dbFixtures.ts`
 - `tests/E2E/*.spec.ts` — full browser flows (admin panel, checkout, invoices, product catalogue, user account).
 - `tests/api/*.spec.ts` — pure API tests via `apiHandler`/`api-models`.
 - `tests/auth/*.spec.ts` — login/register UI flows.
-- `tests/exp/*` — experimental/example specs, not part of the real suite.
 - Test titles follow a `TC-<AREA>-<NUMBER>` convention (e.g. `TC-ADMIN-003 - Admin: Create New Product`) with Playwright tag metadata (`{ tag: ['@admin', '@products'] }`) for filtering via `-g`/`--grep`/`--grep-tag`.
 - Related API test cases in the same resource often use `test.describe.serial(...)` when a later test depends on state created by an earlier one (e.g. create → get → delete in `product.spec.ts`).
 

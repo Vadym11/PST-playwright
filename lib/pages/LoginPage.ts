@@ -1,7 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/BasePage';
 import { HeaderCommon } from '@pages/HeaderCommon';
-import { MyAccountPage } from '@pages/UserAccountPage';
+import { UserAccountPage } from '@pages/UserAccountPage';
 import { RegisterPage } from '@pages/RegisterPage';
 
 export class LoginPage extends BasePage {
@@ -68,10 +68,10 @@ export class LoginPage extends BasePage {
     await this.clickLoginButton();
   }
 
-  async loginSuccess(email: string, password: string): Promise<MyAccountPage> {
+  async loginSuccess(email: string, password: string): Promise<UserAccountPage> {
     await this.login(email, password);
 
-    return new MyAccountPage(this.page);
+    return new UserAccountPage(this.page);
   }
 
   async loginFail(email: string, password: string): Promise<LoginPage> {
