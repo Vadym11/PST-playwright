@@ -1,5 +1,5 @@
-import { APIRequestContext } from '@playwright/test';
-import { apiBaseURL } from '@utils/test-utils';
+import { APIRequestContext, APIResponse } from '@playwright/test';
+import { apiBaseURL, checkTokenExpiry } from '@utils/test-utils';
 
 export class APIHandler {
   private readonly request: APIRequestContext;
@@ -13,6 +13,8 @@ export class APIHandler {
     this.adminPassword = process.env.PASSWORD_!;
   }
 
+  private adminTokens = new Set<string>();
+
   async authenticateAsAdmin() {
     const response = await this.request.post(`${apiBaseURL}/users/login`, {
       data: { email: this.adminEmail, password: this.adminPassword },
@@ -24,23 +26,44 @@ export class APIHandler {
       );
     }
     const body = await response.json();
+    const freshToken: string = body.access_token;
 
-    this.adminToken = body.access_token;
+    this.adminToken = freshToken;
+    this.adminTokens.add(freshToken);
 
     console.log('APIHandler: Admin authenticated successfully.');
 
-    return body.access_token;
+    return freshToken;
+  }
+
+  // Long-lived worker-scoped admin tokens can expire mid-run. Only retry when the
+  // rejected token is this instance's own cached admin token - never for caller-supplied
+  // user tokens, and the token is about to expire.
+  private async withAdminRetry(
+    token: string | undefined,
+    sendRequest: (token?: string) => Promise<APIResponse>,
+  ): Promise<APIResponse> {
+    if (token !== undefined && this.adminTokens.has(token) && checkTokenExpiry(token)) {
+      console.log('APIHandler: Admin token missing or about to expire, re-authenticating...');
+      const freshToken = await this.authenticateAsAdmin();
+      this.adminToken = freshToken;
+      return sendRequest(freshToken);
+    }
+
+    return sendRequest(token);
   }
 
   async post<T>(endpoint: string, data: object, token?: string, headers: object = {}): Promise<T> {
-    const response = await this.request.post(`${apiBaseURL}${endpoint}`, {
-      data: data,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...headers,
-      },
-    });
+    const response = await this.withAdminRetry(token, (t) =>
+      this.request.post(`${apiBaseURL}${endpoint}`, {
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${t}`,
+          ...headers,
+        },
+      }),
+    );
 
     if (!response.ok()) {
       const errorBody = await response.text();
@@ -56,14 +79,16 @@ export class APIHandler {
     token?: string,
     headers: object = {},
   ): Promise<T> {
-    const response = await this.request.put(`${apiBaseURL}${endpoint}`, {
-      data: data,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...headers,
-      },
-    });
+    const response = await this.withAdminRetry(token, (t) =>
+      this.request.put(`${apiBaseURL}${endpoint}`, {
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${t}`,
+          ...headers,
+        },
+      }),
+    );
 
     if (!response.ok()) {
       const errorBody = await response.text();
@@ -74,14 +99,16 @@ export class APIHandler {
   }
 
   async patch<T>(endpoint: string, data: object, token?: string, headers: object = {}): Promise<T> {
-    const response = await this.request.patch(`${apiBaseURL}${endpoint}`, {
-      data: data,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...headers,
-      },
-    });
+    const response = await this.withAdminRetry(token, (t) =>
+      this.request.patch(`${apiBaseURL}${endpoint}`, {
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${t}`,
+          ...headers,
+        },
+      }),
+    );
 
     if (!response.ok()) {
       const errorBody = await response.text();
@@ -92,13 +119,15 @@ export class APIHandler {
   }
 
   async get<T>(endpoint: string, token?: string, params: object = {}): Promise<T> {
-    const response = await this.request.get(`${apiBaseURL}${endpoint}`, {
-      params: { ...params },
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await this.withAdminRetry(token, (t) =>
+      this.request.get(`${apiBaseURL}${endpoint}`, {
+        params: { ...params },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${t}`,
+        },
+      }),
+    );
 
     if (!response.ok()) {
       const errorBody = await response.text();
@@ -114,14 +143,16 @@ export class APIHandler {
     params: object = {},
     headers: object = {},
   ): Promise<T> {
-    const response = await this.request.delete(`${apiBaseURL}${endpoint}`, {
-      params: { ...params },
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...headers,
-      },
-    });
+    const response = await this.withAdminRetry(token, (t) =>
+      this.request.delete(`${apiBaseURL}${endpoint}`, {
+        params: { ...params },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${t}`,
+          ...headers,
+        },
+      }),
+    );
 
     if (!response.ok()) {
       const errorBody = await response.text();
